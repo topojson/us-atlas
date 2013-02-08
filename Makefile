@@ -1,3 +1,5 @@
+TOPOJSON = ./node_modules/topojson/bin/topojson
+
 STATES = \
 	us \
 	al ak az ar ca co ct de dc fl \
@@ -26,14 +28,14 @@ shp/countyp010.shp: gz/countyp010_nt00795.tar.gz
 # - use the default TopoJSON quantization
 # - remove duplicate state geometries (e.g., Great Lakes)
 topo/%.json: geo/%/counties.json geo/%/states.json
-	mkdir -p $(dir $@) && topojson --id-property=+FIPS,+STATE_FIPS -p COUNTY=name,STATE=name -- $(filter %.json,$^) | ./topouniq states > $@
+	mkdir -p $(dir $@) && $(TOPOJSON) --id-property=+FIPS,+STATE_FIPS -p COUNTY=name,STATE=name -- $(filter %.json,$^) | ./topouniq states > $@
 
 # For the full United States:
 # - increase TopoJSON’s quantization by 10x
 # - remove duplicate state geometries (e.g., Great Lakes)
 # - merge the nation object into a single MultiPolygon
 topo/us.json: geo/us/counties.json geo/us/states.json geo/us/nation.json
-	mkdir -p $(dir $@) && topojson -q 1e5 --id-property=+FIPS,+STATE_FIPS -p COUNTY=name,STATE=name -- $(filter %.json,$^) | ./topouniq states | ./topomerge nation 1 > $@
+	mkdir -p $(dir $@) && $(TOPOJSON) -q 1e5 --id-property=+FIPS,+STATE_FIPS -p COUNTY=name,STATE=name -- $(filter %.json,$^) | ./topouniq states | ./topomerge nation 1 > $@
 
 geo/us/counties.json: shp/countyp010.shp
 	mkdir -p $(dir $@) && rm -f $@ && ogr2ogr -f GeoJSON $@ $<

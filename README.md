@@ -9,7 +9,12 @@ Before you can run `make`, you’ll need to install some needed software. Here�
 ```bash
 brew install node
 brew install gdal
-npm install -g topojson
+```
+
+And then, from this repository’s root directory, install the dependencies:
+
+```bash
+npm install
 ```
 
 If you want to install this software using an alternate method, see the respective websites for [TopoJSON](https://github.com/mbostock/topojson) and [GDAL](http://www.gdal.org/). I also recommend reading my tutorial, [Let’s Make a Map](http://bost.ocks.org/mike/map/).

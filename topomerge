@@ -1,0 +1,26 @@
+#!/usr/bin/env node
+
+var fs = require("fs")
+
+var topology = JSON.parse(fs.readFileSync("/dev/stdin")),
+    object = topology.objects[process.argv[2]],
+    splice = +process.argv[3],
+    geometryId = {},
+    polygons = [];
+
+object.geometries.forEach(function(g, i) {
+  if (i === splice) return;
+  switch (g.type) {
+    case "MultiPolygon": g.arcs.forEach(function(c) { polygons.push(c); }); break;
+    case "Polygon": polygons.push(g.arcs); break;
+    default: throw new Error("unsupported type: " + g.type); break;
+  }
+});
+
+object.type = "MultiPolygon";
+object.arcs = polygons;
+delete object.geometries;
+
+// TODO garbage collect arcs
+
+console.log(JSON.stringify(topology));

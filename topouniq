@@ -1,0 +1,19 @@
+#!/usr/bin/env node
+
+var fs = require("fs")
+
+var topology = JSON.parse(fs.readFileSync("/dev/stdin")),
+    object = topology.objects[process.argv[2]],
+    geometryId = {};
+
+object.geometries = object.geometries.filter(function(g) {
+  if (g.id == null) throw new Error("id is required for topouniq");
+  if (!(g.id in geometryId)) {
+    geometryId[g.id] = 1;
+    return true;
+  }
+});
+
+// TODO garbage collect arcs
+
+console.log(JSON.stringify(topology));

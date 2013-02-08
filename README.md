@@ -1,6 +1,6 @@
 # U.S. Atlas TopoJSON
 
-This repository provides a Makefile a few scripts for generating TopoJSON files from the [National Atlas](http://nationalatlas.gov/) one million-scale dataset.
+This repository provides a convenient mechanism for generating TopoJSON files from the [National Atlas](http://nationalatlas.gov/) one million-scale dataset.
 
 ## Installing via Homebrew
 

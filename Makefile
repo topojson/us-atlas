@@ -9,7 +9,10 @@ STATES = \
 	sc sd tn tx ut vt va wa wv wi \
 	wy as fm gu mh mp pw pr um vi
 
-all: $(addprefix topo/,$(addsuffix .json,$(STATES)))
+all: node_modules $(addprefix topo/,$(addsuffix .json,$(STATES)))
+
+node_modules:
+	npm install
 
 # http://www.nationalatlas.gov/atlasftp-1m.html
 gz/%.tar.gz:

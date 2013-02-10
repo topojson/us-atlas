@@ -18,36 +18,53 @@ node_modules:
 gz/%.tar.gz:
 	mkdir -p $(dir $@) && curl http://dds.cr.usgs.gov/pub/data/nationalatlas/$*.tar.gz -o $@.download && mv $@.download $@
 
+# National Boundaries (7M)
 shp/nationalp010g.shp: gz/nationalp010g_nt00797.tar.gz
 	mkdir -p $(dir $@) && tar -xzm -C shp -f $<
 
+# State Boundaries (10.7M)
 shp/statep010.shp: gz/statep010_nt00798.tar.gz
 	mkdir -p $(dir $@) && tar -xzm -C shp -f $<
 
+# County Boundaries (43.9M)
 shp/countyp010.shp: gz/countyp010_nt00795.tar.gz
 	mkdir -p $(dir $@) && tar -xzm -C shp -f $<
 
-# For individual states:
-# - use the default TopoJSON quantization
-# - remove duplicate state geometries (e.g., Great Lakes)
-topo/%.json: geo/%/counties.json geo/%/states.json
-	mkdir -p $(dir $@) && $(TOPOJSON) --id-property=+FIPS,+STATE_FIPS -p COUNTY=name,STATE=name -- $(filter %.json,$^) | ./topouniq states > $@
+# Coastlines (6.2M)
+shp/coastll010.shp: gz/coastll010_nt00794.tar.gz
+	mkdir -p $(dir $@) && tar -xzm -C shp -f $<
 
-# For the full United States:
-# - increase TopoJSON’s quantization by 10x
-# - remove duplicate state geometries (e.g., Great Lakes)
-# - merge the nation object into a single MultiPolygon
-topo/us.json: geo/us/counties.json geo/us/states.json geo/us/nation.json
-	mkdir -p $(dir $@) && $(TOPOJSON) -q 1e5 --id-property=+FIPS,+STATE_FIPS -p COUNTY=name,STATE=name -- $(filter %.json,$^) | ./topouniq states | ./topomerge nation 1 > $@
+# Airports (<1 M)
+shp/airprtx010g.shp: gz/airprtx010g_nt00802.tar.gz
+	mkdir -p $(dir $@) && tar -xzm -C shp -f $<
 
-geo/us/counties.json: shp/countyp010.shp
-	mkdir -p $(dir $@) && rm -f $@ && ogr2ogr -f GeoJSON $@ $<
+# Ferries (<1 M)
+shp/ferry_l010g.shp: gz/ferry_l010g_nt00796.tar.gz
+	mkdir -p $(dir $@) && tar -xzm -C shp -f $<
 
-geo/us/states.json: shp/statep010.shp
-	mkdir -p $(dir $@) && rm -f $@ && ogr2ogr -f GeoJSON $@ $<
+# Ports (<1 M)
+shp/portsx010.shp: gz/portsx010_nt00799.tar.gz
+	mkdir -p $(dir $@) && tar -xzm -C shp -f $<
 
-geo/us/nation.json: shp/nationalp010g.shp
-	mkdir -p $(dir $@) && rm -f $@ && ogr2ogr -f GeoJSON $@ $<
+# Railroad and Bus Passenger Stations (<1 M)
+shp/amtrakx010.shp: gz/amtrakx010_nt00792.tar.gz
+	mkdir -p $(dir $@) && tar -xzm -C shp -f $<
+
+# Railroads (14.3M)
+shp/railrdl010.shp: gz/railrdl010_nt00800.tar.gz
+	mkdir -p $(dir $@) && tar -xzm -C shp -f $<
+
+# Roads (110.1M)
+shp/roadtrl010.shp: gz/roadtrl010_nt00801.tar.gz
+	mkdir -p $(dir $@) && tar -xzm -C shp -f $<
+
+# Streams (769.7M)
+shp/streaml010.shp: gz/streaml010_nt00804.tar.gz
+	mkdir -p $(dir $@) && tar -xzm -C shp -f $<
+
+# Waterbodies and Wetlands (54.6M)
+shp/wtrbdyp010.shp: gz/wtrbdyp010_nt00803.tar.gz
+	mkdir -p $(dir $@) && tar -xzm -C shp -f $<
 
 geo/al/counties.json: shp/countyp010.shp
 	mkdir -p $(dir $@) && rm -f $@ && ogr2ogr -f GeoJSON -where "STATE = 'AL'" $@ $<
@@ -408,3 +425,16 @@ geo/vi/counties.json: shp/countyp010.shp
 
 geo/vi/states.json: shp/statep010.shp
 	mkdir -p $(dir $@) && rm -f $@ && ogr2ogr -f GeoJSON -where "STATE_FIPS = '78'" $@ $<
+
+# For individual states:
+# - use the default TopoJSON quantization
+# - remove duplicate state geometries (e.g., Great Lakes)
+topo/%.json: geo/%/counties.json geo/%/states.json
+	mkdir -p $(dir $@) && $(TOPOJSON) --id-property=+FIPS,+STATE_FIPS -p COUNTY=name,STATE=name -- $(filter %.json,$^) | ./topouniq states > $@
+
+# For the full United States:
+# - increase TopoJSON’s quantization by 10x
+# - remove duplicate state geometries (e.g., Great Lakes)
+# - merge the nation object into a single MultiPolygon
+topo/us.json: shp/countyp010.shp shp/statep010.shp shp/nationalp010g.shp
+	mkdir -p $(dir $@) && $(TOPOJSON) -q 1e5 --id-property=+FIPS,+STATE_FIPS -p COUNTY=name,STATE=name -- counties=shp/countyp010.shp states=shp/statep010.shp nation=shp/nationalp010g.shp | ./topouniq states | ./topomerge nation 1 > $@

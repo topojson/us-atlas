@@ -16,6 +16,6 @@
     "url": "http://github.com/mbostock/us-atlas.git"
   },
   "devDependencies": {
-    "topojson": ">= 0.0.13"
+    "topojson": ">= 0.0.15"
   }
 }

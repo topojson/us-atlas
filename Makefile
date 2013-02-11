@@ -438,3 +438,9 @@ topo/%.json: geo/%/counties.json geo/%/states.json
 # - merge the nation object into a single MultiPolygon
 topo/us.json: shp/countyp010.shp shp/statep010.shp shp/nationalp010g.shp
 	mkdir -p $(dir $@) && $(TOPOJSON) -q 1e5 --id-property=+FIPS,+STATE_FIPS -p COUNTY=name,STATE=name -- counties=shp/countyp010.shp states=shp/statep010.shp nation=shp/nationalp010g.shp | ./topouniq states | ./topomerge nation 1 > $@
+
+# For the massive streams shapefile:
+# - give TopoJSON more memory (8G, but 4G would probably work)
+# - merge all the linestring geometries into a single massive multilinestring
+topo/streams.json: shp/streaml010.shp
+	mkdir -p $(dir $@) && node --max_old_space_size=8192 $(TOPOJSON) -- streams=shp/streaml010.shp | ./topomerge streams > $@

@@ -443,4 +443,9 @@ topo/us.json: shp/countyp010.shp shp/statep010.shp shp/nationalp010g.shp
 # - give TopoJSON more memory (8G, but 4G would probably work)
 # - merge all the linestring geometries into a single massive multilinestring
 topo/streams.json: shp/streaml010.shp
-	mkdir -p $(dir $@) && node --max_old_space_size=8192 $(TOPOJSON) -- streams=shp/streaml010.shp | ./topomerge streams > $@
+	mkdir -p $(dir $@) && node --max_old_space_size=8192 $(TOPOJSON) -- streams=$< | ./topomerge streams > $@
+
+# For roads:
+# - merge all the linestring geometries into a single massive multilinestring
+topo/roads.json: shp/roadtrl010.shp
+	mkdir -p $(dir $@) && $(TOPOJSON) -- roads=$< | ./topomerge roads > $@

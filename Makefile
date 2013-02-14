@@ -430,14 +430,14 @@ geo/vi/states.json: shp/statep010.shp
 # - use the default TopoJSON quantization
 # - remove duplicate state geometries (e.g., Great Lakes)
 topo/%.json: geo/%/counties.json geo/%/states.json
-	mkdir -p $(dir $@) && $(TOPOJSON) --id-property=+FIPS,+STATE_FIPS -p COUNTY=name,STATE=name -- $(filter %.json,$^) | ./topouniq states > $@
+	mkdir -p $(dir $@) && $(TOPOJSON) --id-property=FIPS,STATE_FIPS -p COUNTY=name,STATE=name -- $(filter %.json,$^) | ./topouniq states > $@
 
 # For the full United States:
 # - increase TopoJSON’s quantization by 10x
 # - remove duplicate state geometries (e.g., Great Lakes)
 # - merge the nation object into a single MultiPolygon
 topo/us.json: shp/countyp010.shp shp/statep010.shp shp/nationalp010g.shp
-	mkdir -p $(dir $@) && $(TOPOJSON) -q 1e5 --id-property=+FIPS,+STATE_FIPS -p COUNTY=name,STATE=name -- counties=shp/countyp010.shp states=shp/statep010.shp nation=shp/nationalp010g.shp | ./topouniq states | ./topomerge nation 1 > $@
+	mkdir -p $(dir $@) && $(TOPOJSON) -q 1e5 --id-property=FIPS,STATE_FIPS -p COUNTY=name,STATE=name -- counties=shp/countyp010.shp states=shp/statep010.shp nation=shp/nationalp010g.shp | ./topouniq states | ./topomerge nation 1 > $@
 
 # For the massive streams shapefile:
 # - give TopoJSON more memory (8G, but 4G would probably work)

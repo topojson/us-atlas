@@ -449,3 +449,14 @@ topo/streams.json: shp/streaml010.shp
 # - merge all the linestring geometries into a single massive multilinestring
 topo/roads.json: shp/roadtrl010.shp
 	mkdir -p $(dir $@) && $(TOPOJSON) -- roads=$< | ./topomerge roads > $@
+
+# http://www.census.gov/cgi-bin/geo/shapefiles2012/main
+gz/%.zip:
+	mkdir -p $(dir $@) && curl 'http://www2.census.gov/geo/tiger/TIGER2012/ZCTA5/$*.zip' -o $@.download && mv $@.download $@
+
+# Zip Code Tabulation Areas (797M)
+shp/tl_2012_us_zcta510.shp: gz/tl_2012_us_zcta510.zip
+	mkdir -p $(dir $@) && unzip -d $(dir $@) $< && touch $@
+
+topo/zipcodes.json: shp/tl_2012_us_zcta510.shp
+	mkdir -p $(dir $@) && node --max_old_space_size=15000 $(TOPOJSON) -q 1e5 -s 3e-7 -- zipcodes=$< | ./topomerge zipcodes > $@

@@ -1,462 +1,340 @@
+# Census Bureau Geographic Hierarchy
+# http://www.census.gov/geo/www/geodiagram.html
+
 TOPOJSON = ./node_modules/topojson/bin/topojson
 
 STATES = \
-	us \
 	al ak az ar ca co ct de dc fl \
 	ga hi id il in ia ks ky la me \
 	md ma mi mn ms mo mt ne nv nh \
 	nj nm ny nc nd oh ok or pa ri \
 	sc sd tn tx ut vt va wa wv wi \
-	wy as fm gu mh mp pw pr um vi
+	wy
 
-all: node_modules $(addprefix topo/,$(addsuffix .json,$(STATES)))
+# territories with counties: pr vi
+# territories without counties: as fm gu mh mp pw um
+
+all: \
+	node_modules \
+	$(addprefix topo/,$(addsuffix -counties.json,$(STATES)))
 
 node_modules:
 	npm install
+
+.SECONDARY gz/%.tar.gz gz/%.zip:
 
 # http://www.nationalatlas.gov/atlasftp-1m.html
 gz/%.tar.gz:
 	mkdir -p $(dir $@) && curl 'http://dds.cr.usgs.gov/pub/data/nationalatlas/$*.tar.gz' -o $@.download && mv $@.download $@
 
-# National Boundaries (7M)
-shp/nationalp010g.shp: gz/nationalp010g_nt00797.tar.gz
-	mkdir -p $(dir $@) && tar -xzm -C shp -f $<
+# Zip Code Tabulation Areas
+gz/tl_2012_us_zcta510.zip:
+	mkdir -p $(dir $@) && curl 'http://www2.census.gov/geo/tiger/TIGER2012/ZCTA5/tl_2012_us_zcta510.zip' -o $@.download && mv $@.download $@
+
+# Census Tracts
+gz/tl_2012_%_tract.zip:
+	mkdir -p $(dir $@) && curl 'http://www2.census.gov/geo/tiger/TIGER2012/TRACT/tl_2012_$*_tract.zip' -o $@.download && mv $@.download $@
+
+shp/us/nation.shp: gz/nationalp010g_nt00797.tar.gz
+shp/us/states.shp: gz/statep010_nt00798.tar.gz
+shp/us/counties.shp: gz/countyp010_nt00795.tar.gz
+shp/us/coast.shp: gz/coastll010_nt00794.tar.gz
+shp/us/airports.shp: gz/airprtx010g_nt00802.tar.gz
+shp/us/ferries.shp: gz/ferry_l010g_nt00796.tar.gz
+shp/us/ports.shp: gz/portsx010_nt00799.tar.gz
+shp/us/amtrak.shp: gz/amtrakx010_nt00792.tar.gz
+shp/us/railroads.shp: gz/railrdl010_nt00800.tar.gz
+shp/us/roads.shp: gz/roadtrl010_nt00801.tar.gz
+shp/us/streams.shp: gz/streaml010_nt00804.tar.gz
+shp/us/waterbodies.shp: gz/wtrbdyp010_nt00803.tar.gz
+shp/us/zipcodes.shp: gz/tl_2012_us_zcta510.zip
+shp/al/tracts.shp: gz/tl_2012_01_tract.zip
+shp/ak/tracts.shp: gz/tl_2012_02_tract.zip
+shp/az/tracts.shp: gz/tl_2012_04_tract.zip
+shp/ar/tracts.shp: gz/tl_2012_05_tract.zip
+shp/ca/tracts.shp: gz/tl_2012_06_tract.zip
+shp/co/tracts.shp: gz/tl_2012_08_tract.zip
+shp/ct/tracts.shp: gz/tl_2012_09_tract.zip
+shp/de/tracts.shp: gz/tl_2012_10_tract.zip
+shp/dc/tracts.shp: gz/tl_2012_11_tract.zip
+shp/fl/tracts.shp: gz/tl_2012_12_tract.zip
+shp/ga/tracts.shp: gz/tl_2012_13_tract.zip
+shp/hi/tracts.shp: gz/tl_2012_15_tract.zip
+shp/id/tracts.shp: gz/tl_2012_16_tract.zip
+shp/il/tracts.shp: gz/tl_2012_17_tract.zip
+shp/in/tracts.shp: gz/tl_2012_18_tract.zip
+shp/ia/tracts.shp: gz/tl_2012_19_tract.zip
+shp/ks/tracts.shp: gz/tl_2012_20_tract.zip
+shp/ky/tracts.shp: gz/tl_2012_21_tract.zip
+shp/la/tracts.shp: gz/tl_2012_22_tract.zip
+shp/me/tracts.shp: gz/tl_2012_23_tract.zip
+shp/md/tracts.shp: gz/tl_2012_24_tract.zip
+shp/ma/tracts.shp: gz/tl_2012_25_tract.zip
+shp/mi/tracts.shp: gz/tl_2012_26_tract.zip
+shp/mn/tracts.shp: gz/tl_2012_27_tract.zip
+shp/ms/tracts.shp: gz/tl_2012_28_tract.zip
+shp/mo/tracts.shp: gz/tl_2012_29_tract.zip
+shp/mt/tracts.shp: gz/tl_2012_30_tract.zip
+shp/ne/tracts.shp: gz/tl_2012_31_tract.zip
+shp/nv/tracts.shp: gz/tl_2012_32_tract.zip
+shp/nh/tracts.shp: gz/tl_2012_33_tract.zip
+shp/nj/tracts.shp: gz/tl_2012_34_tract.zip
+shp/nm/tracts.shp: gz/tl_2012_35_tract.zip
+shp/ny/tracts.shp: gz/tl_2012_36_tract.zip
+shp/nc/tracts.shp: gz/tl_2012_37_tract.zip
+shp/nd/tracts.shp: gz/tl_2012_38_tract.zip
+shp/oh/tracts.shp: gz/tl_2012_39_tract.zip
+shp/ok/tracts.shp: gz/tl_2012_40_tract.zip
+shp/or/tracts.shp: gz/tl_2012_41_tract.zip
+shp/pa/tracts.shp: gz/tl_2012_42_tract.zip
+shp/ri/tracts.shp: gz/tl_2012_44_tract.zip
+shp/sc/tracts.shp: gz/tl_2012_45_tract.zip
+shp/sd/tracts.shp: gz/tl_2012_46_tract.zip
+shp/tn/tracts.shp: gz/tl_2012_47_tract.zip
+shp/tx/tracts.shp: gz/tl_2012_48_tract.zip
+shp/ut/tracts.shp: gz/tl_2012_49_tract.zip
+shp/vt/tracts.shp: gz/tl_2012_50_tract.zip
+shp/va/tracts.shp: gz/tl_2012_51_tract.zip
+shp/wa/tracts.shp: gz/tl_2012_53_tract.zip
+shp/wv/tracts.shp: gz/tl_2012_54_tract.zip
+shp/wi/tracts.shp: gz/tl_2012_55_tract.zip
+shp/wy/tracts.shp: gz/tl_2012_56_tract.zip
+shp/as/tracts.shp: gz/tl_2012_60_tract.zip
+shp/fm/tracts.shp: gz/tl_2012_64_tract.zip
+shp/gu/tracts.shp: gz/tl_2012_66_tract.zip
+shp/mh/tracts.shp: gz/tl_2012_68_tract.zip
+shp/mp/tracts.shp: gz/tl_2012_69_tract.zip
+shp/pw/tracts.shp: gz/tl_2012_70_tract.zip
+shp/pr/tracts.shp: gz/tl_2012_72_tract.zip
+shp/um/tracts.shp: gz/tl_2012_74_tract.zip
+shp/vi/tracts.shp: gz/tl_2012_78_tract.zip
+
+shp/us/%.shp:
+	rm -rf $(basename $@) && mkdir -p $(basename $@) && tar -xzm -C $(basename $@) -f $<
+	for file in $(basename $@)/*; do chmod 644 $$file; mv $$file $(basename $@).$${file##*.}; done
+	rmdir $(basename $@)
+
+shp/us/zipcodes.shp shp/%/tracts.shp:
+	rm -rf $(basename $@) && mkdir -p $(basename $@) && unzip -d $(basename $@) $<
+	for file in $(basename $@)/*; do chmod 644 $$file; mv $$file $(basename $@).$${file##*.}; done
+	rmdir $(basename $@)
+	touch $@
+
+shp/al/states.shp: shp/us/states.shp
+	mkdir -p $(dir $@) && rm -f $@ && ogr2ogr -f 'ESRI Shapefile' -where "STATE_FIPS = '01'" $@ $<
+
+shp/ak/states.shp: shp/us/states.shp
+	mkdir -p $(dir $@) && rm -f $@ && ogr2ogr -f 'ESRI Shapefile' -where "STATE_FIPS = '02'" $@ $<
+
+shp/az/states.shp: shp/us/states.shp
+	mkdir -p $(dir $@) && rm -f $@ && ogr2ogr -f 'ESRI Shapefile' -where "STATE_FIPS = '04'" $@ $<
 
-# State Boundaries (10.7M)
-shp/statep010.shp: gz/statep010_nt00798.tar.gz
-	mkdir -p $(dir $@) && tar -xzm -C shp -f $<
+shp/ar/states.shp: shp/us/states.shp
+	mkdir -p $(dir $@) && rm -f $@ && ogr2ogr -f 'ESRI Shapefile' -where "STATE_FIPS = '05'" $@ $<
 
-# County Boundaries (43.9M)
-shp/countyp010.shp: gz/countyp010_nt00795.tar.gz
-	mkdir -p $(dir $@) && tar -xzm -C shp -f $<
+shp/ca/states.shp: shp/us/states.shp
+	mkdir -p $(dir $@) && rm -f $@ && ogr2ogr -f 'ESRI Shapefile' -where "STATE_FIPS = '06'" $@ $<
 
-# Coastlines (6.2M)
-shp/coastll010.shp: gz/coastll010_nt00794.tar.gz
-	mkdir -p $(dir $@) && tar -xzm -C shp -f $<
+shp/co/states.shp: shp/us/states.shp
+	mkdir -p $(dir $@) && rm -f $@ && ogr2ogr -f 'ESRI Shapefile' -where "STATE_FIPS = '08'" $@ $<
 
-# Airports (<1 M)
-shp/airprtx010g.shp: gz/airprtx010g_nt00802.tar.gz
-	mkdir -p $(dir $@) && tar -xzm -C shp -f $<
+shp/ct/states.shp: shp/us/states.shp
+	mkdir -p $(dir $@) && rm -f $@ && ogr2ogr -f 'ESRI Shapefile' -where "STATE_FIPS = '09'" $@ $<
 
-# Ferries (<1 M)
-shp/ferry_l010g.shp: gz/ferry_l010g_nt00796.tar.gz
-	mkdir -p $(dir $@) && tar -xzm -C shp -f $<
+shp/de/states.shp: shp/us/states.shp
+	mkdir -p $(dir $@) && rm -f $@ && ogr2ogr -f 'ESRI Shapefile' -where "STATE_FIPS = '10'" $@ $<
 
-# Ports (<1 M)
-shp/portsx010.shp: gz/portsx010_nt00799.tar.gz
-	mkdir -p $(dir $@) && tar -xzm -C shp -f $<
+shp/dc/states.shp: shp/us/states.shp
+	mkdir -p $(dir $@) && rm -f $@ && ogr2ogr -f 'ESRI Shapefile' -where "STATE_FIPS = '11'" $@ $<
 
-# Railroad and Bus Passenger Stations (<1 M)
-shp/amtrakx010.shp: gz/amtrakx010_nt00792.tar.gz
-	mkdir -p $(dir $@) && tar -xzm -C shp -f $<
+shp/fl/states.shp: shp/us/states.shp
+	mkdir -p $(dir $@) && rm -f $@ && ogr2ogr -f 'ESRI Shapefile' -where "STATE_FIPS = '12'" $@ $<
 
-# Railroads (14.3M)
-shp/railrdl010.shp: gz/railrdl010_nt00800.tar.gz
-	mkdir -p $(dir $@) && tar -xzm -C shp -f $<
+shp/ga/states.shp: shp/us/states.shp
+	mkdir -p $(dir $@) && rm -f $@ && ogr2ogr -f 'ESRI Shapefile' -where "STATE_FIPS = '13'" $@ $<
 
-# Roads (110.1M)
-shp/roadtrl010.shp: gz/roadtrl010_nt00801.tar.gz
-	mkdir -p $(dir $@) && tar -xzm -C shp -f $<
+shp/hi/states.shp: shp/us/states.shp
+	mkdir -p $(dir $@) && rm -f $@ && ogr2ogr -f 'ESRI Shapefile' -where "STATE_FIPS = '15'" $@ $<
 
-# Streams (769.7M)
-shp/streaml010.shp: gz/streaml010_nt00804.tar.gz
-	mkdir -p $(dir $@) && tar -xzm -C shp -f $<
+shp/id/states.shp: shp/us/states.shp
+	mkdir -p $(dir $@) && rm -f $@ && ogr2ogr -f 'ESRI Shapefile' -where "STATE_FIPS = '16'" $@ $<
 
-# Waterbodies and Wetlands (54.6M)
-shp/wtrbdyp010.shp: gz/wtrbdyp010_nt00803.tar.gz
-	mkdir -p $(dir $@) && tar -xzm -C shp -f $<
+shp/il/states.shp: shp/us/states.shp
+	mkdir -p $(dir $@) && rm -f $@ && ogr2ogr -f 'ESRI Shapefile' -where "STATE_FIPS = '17'" $@ $<
 
-geo/al/counties.json: shp/countyp010.shp
-	mkdir -p $(dir $@) && rm -f $@ && ogr2ogr -f GeoJSON -where "STATE = 'AL'" $@ $<
+shp/in/states.shp: shp/us/states.shp
+	mkdir -p $(dir $@) && rm -f $@ && ogr2ogr -f 'ESRI Shapefile' -where "STATE_FIPS = '18'" $@ $<
 
-geo/al/states.json: shp/statep010.shp
-	mkdir -p $(dir $@) && rm -f $@ && ogr2ogr -f GeoJSON -where "STATE_FIPS = '01'" $@ $<
+shp/ia/states.shp: shp/us/states.shp
+	mkdir -p $(dir $@) && rm -f $@ && ogr2ogr -f 'ESRI Shapefile' -where "STATE_FIPS = '19'" $@ $<
 
-geo/ak/counties.json: shp/countyp010.shp
-	mkdir -p $(dir $@) && rm -f $@ && ogr2ogr -f GeoJSON -where "STATE = 'AK'" $@ $<
+shp/ks/states.shp: shp/us/states.shp
+	mkdir -p $(dir $@) && rm -f $@ && ogr2ogr -f 'ESRI Shapefile' -where "STATE_FIPS = '20'" $@ $<
 
-geo/ak/states.json: shp/statep010.shp
-	mkdir -p $(dir $@) && rm -f $@ && ogr2ogr -f GeoJSON -where "STATE_FIPS = '02'" $@ $<
+shp/ky/states.shp: shp/us/states.shp
+	mkdir -p $(dir $@) && rm -f $@ && ogr2ogr -f 'ESRI Shapefile' -where "STATE_FIPS = '21'" $@ $<
 
-geo/az/counties.json: shp/countyp010.shp
-	mkdir -p $(dir $@) && rm -f $@ && ogr2ogr -f GeoJSON -where "STATE = 'AZ'" $@ $<
+shp/la/states.shp: shp/us/states.shp
+	mkdir -p $(dir $@) && rm -f $@ && ogr2ogr -f 'ESRI Shapefile' -where "STATE_FIPS = '22'" $@ $<
 
-geo/az/states.json: shp/statep010.shp
-	mkdir -p $(dir $@) && rm -f $@ && ogr2ogr -f GeoJSON -where "STATE_FIPS = '04'" $@ $<
+shp/me/states.shp: shp/us/states.shp
+	mkdir -p $(dir $@) && rm -f $@ && ogr2ogr -f 'ESRI Shapefile' -where "STATE_FIPS = '23'" $@ $<
 
-geo/ar/counties.json: shp/countyp010.shp
-	mkdir -p $(dir $@) && rm -f $@ && ogr2ogr -f GeoJSON -where "STATE = 'AR'" $@ $<
+shp/md/states.shp: shp/us/states.shp
+	mkdir -p $(dir $@) && rm -f $@ && ogr2ogr -f 'ESRI Shapefile' -where "STATE_FIPS = '24'" $@ $<
 
-geo/ar/states.json: shp/statep010.shp
-	mkdir -p $(dir $@) && rm -f $@ && ogr2ogr -f GeoJSON -where "STATE_FIPS = '05'" $@ $<
+shp/ma/states.shp: shp/us/states.shp
+	mkdir -p $(dir $@) && rm -f $@ && ogr2ogr -f 'ESRI Shapefile' -where "STATE_FIPS = '25'" $@ $<
 
-geo/ca/counties.json: shp/countyp010.shp
-	mkdir -p $(dir $@) && rm -f $@ && ogr2ogr -f GeoJSON -where "STATE = 'CA'" $@ $<
+shp/mi/states.shp: shp/us/states.shp
+	mkdir -p $(dir $@) && rm -f $@ && ogr2ogr -f 'ESRI Shapefile' -where "STATE_FIPS = '26'" $@ $<
 
-geo/ca/states.json: shp/statep010.shp
-	mkdir -p $(dir $@) && rm -f $@ && ogr2ogr -f GeoJSON -where "STATE_FIPS = '06'" $@ $<
+shp/mn/states.shp: shp/us/states.shp
+	mkdir -p $(dir $@) && rm -f $@ && ogr2ogr -f 'ESRI Shapefile' -where "STATE_FIPS = '27'" $@ $<
 
-geo/co/counties.json: shp/countyp010.shp
-	mkdir -p $(dir $@) && rm -f $@ && ogr2ogr -f GeoJSON -where "STATE = 'CO'" $@ $<
+shp/ms/states.shp: shp/us/states.shp
+	mkdir -p $(dir $@) && rm -f $@ && ogr2ogr -f 'ESRI Shapefile' -where "STATE_FIPS = '28'" $@ $<
 
-geo/co/states.json: shp/statep010.shp
-	mkdir -p $(dir $@) && rm -f $@ && ogr2ogr -f GeoJSON -where "STATE_FIPS = '08'" $@ $<
+shp/mo/states.shp: shp/us/states.shp
+	mkdir -p $(dir $@) && rm -f $@ && ogr2ogr -f 'ESRI Shapefile' -where "STATE_FIPS = '29'" $@ $<
 
-geo/ct/counties.json: shp/countyp010.shp
-	mkdir -p $(dir $@) && rm -f $@ && ogr2ogr -f GeoJSON -where "STATE = 'CT'" $@ $<
+shp/mt/states.shp: shp/us/states.shp
+	mkdir -p $(dir $@) && rm -f $@ && ogr2ogr -f 'ESRI Shapefile' -where "STATE_FIPS = '30'" $@ $<
 
-geo/ct/states.json: shp/statep010.shp
-	mkdir -p $(dir $@) && rm -f $@ && ogr2ogr -f GeoJSON -where "STATE_FIPS = '09'" $@ $<
+shp/ne/states.shp: shp/us/states.shp
+	mkdir -p $(dir $@) && rm -f $@ && ogr2ogr -f 'ESRI Shapefile' -where "STATE_FIPS = '31'" $@ $<
 
-geo/de/counties.json: shp/countyp010.shp
-	mkdir -p $(dir $@) && rm -f $@ && ogr2ogr -f GeoJSON -where "STATE = 'DE'" $@ $<
+shp/nv/states.shp: shp/us/states.shp
+	mkdir -p $(dir $@) && rm -f $@ && ogr2ogr -f 'ESRI Shapefile' -where "STATE_FIPS = '32'" $@ $<
 
-geo/de/states.json: shp/statep010.shp
-	mkdir -p $(dir $@) && rm -f $@ && ogr2ogr -f GeoJSON -where "STATE_FIPS = '10'" $@ $<
+shp/nh/states.shp: shp/us/states.shp
+	mkdir -p $(dir $@) && rm -f $@ && ogr2ogr -f 'ESRI Shapefile' -where "STATE_FIPS = '33'" $@ $<
 
-geo/dc/counties.json: shp/countyp010.shp
-	mkdir -p $(dir $@) && rm -f $@ && ogr2ogr -f GeoJSON -where "STATE = 'DC'" $@ $<
+shp/nj/states.shp: shp/us/states.shp
+	mkdir -p $(dir $@) && rm -f $@ && ogr2ogr -f 'ESRI Shapefile' -where "STATE_FIPS = '34'" $@ $<
 
-geo/dc/states.json: shp/statep010.shp
-	mkdir -p $(dir $@) && rm -f $@ && ogr2ogr -f GeoJSON -where "STATE_FIPS = '11'" $@ $<
+shp/nm/states.shp: shp/us/states.shp
+	mkdir -p $(dir $@) && rm -f $@ && ogr2ogr -f 'ESRI Shapefile' -where "STATE_FIPS = '35'" $@ $<
 
-geo/fl/counties.json: shp/countyp010.shp
-	mkdir -p $(dir $@) && rm -f $@ && ogr2ogr -f GeoJSON -where "STATE = 'FL'" $@ $<
+shp/ny/states.shp: shp/us/states.shp
+	mkdir -p $(dir $@) && rm -f $@ && ogr2ogr -f 'ESRI Shapefile' -where "STATE_FIPS = '36'" $@ $<
 
-geo/fl/states.json: shp/statep010.shp
-	mkdir -p $(dir $@) && rm -f $@ && ogr2ogr -f GeoJSON -where "STATE_FIPS = '12'" $@ $<
+shp/nc/states.shp: shp/us/states.shp
+	mkdir -p $(dir $@) && rm -f $@ && ogr2ogr -f 'ESRI Shapefile' -where "STATE_FIPS = '37'" $@ $<
 
-geo/ga/counties.json: shp/countyp010.shp
-	mkdir -p $(dir $@) && rm -f $@ && ogr2ogr -f GeoJSON -where "STATE = 'GA'" $@ $<
+shp/nd/states.shp: shp/us/states.shp
+	mkdir -p $(dir $@) && rm -f $@ && ogr2ogr -f 'ESRI Shapefile' -where "STATE_FIPS = '38'" $@ $<
 
-geo/ga/states.json: shp/statep010.shp
-	mkdir -p $(dir $@) && rm -f $@ && ogr2ogr -f GeoJSON -where "STATE_FIPS = '13'" $@ $<
+shp/oh/states.shp: shp/us/states.shp
+	mkdir -p $(dir $@) && rm -f $@ && ogr2ogr -f 'ESRI Shapefile' -where "STATE_FIPS = '39'" $@ $<
 
-geo/hi/counties.json: shp/countyp010.shp
-	mkdir -p $(dir $@) && rm -f $@ && ogr2ogr -f GeoJSON -where "STATE = 'HI'" $@ $<
+shp/ok/states.shp: shp/us/states.shp
+	mkdir -p $(dir $@) && rm -f $@ && ogr2ogr -f 'ESRI Shapefile' -where "STATE_FIPS = '40'" $@ $<
 
-geo/hi/states.json: shp/statep010.shp
-	mkdir -p $(dir $@) && rm -f $@ && ogr2ogr -f GeoJSON -where "STATE_FIPS = '15'" $@ $<
+shp/or/states.shp: shp/us/states.shp
+	mkdir -p $(dir $@) && rm -f $@ && ogr2ogr -f 'ESRI Shapefile' -where "STATE_FIPS = '41'" $@ $<
 
-geo/id/counties.json: shp/countyp010.shp
-	mkdir -p $(dir $@) && rm -f $@ && ogr2ogr -f GeoJSON -where "STATE = 'ID'" $@ $<
+shp/pa/states.shp: shp/us/states.shp
+	mkdir -p $(dir $@) && rm -f $@ && ogr2ogr -f 'ESRI Shapefile' -where "STATE_FIPS = '42'" $@ $<
 
-geo/id/states.json: shp/statep010.shp
-	mkdir -p $(dir $@) && rm -f $@ && ogr2ogr -f GeoJSON -where "STATE_FIPS = '16'" $@ $<
+shp/ri/states.shp: shp/us/states.shp
+	mkdir -p $(dir $@) && rm -f $@ && ogr2ogr -f 'ESRI Shapefile' -where "STATE_FIPS = '44'" $@ $<
 
-geo/il/counties.json: shp/countyp010.shp
-	mkdir -p $(dir $@) && rm -f $@ && ogr2ogr -f GeoJSON -where "STATE = 'IL'" $@ $<
+shp/sc/states.shp: shp/us/states.shp
+	mkdir -p $(dir $@) && rm -f $@ && ogr2ogr -f 'ESRI Shapefile' -where "STATE_FIPS = '45'" $@ $<
 
-geo/il/states.json: shp/statep010.shp
-	mkdir -p $(dir $@) && rm -f $@ && ogr2ogr -f GeoJSON -where "STATE_FIPS = '17'" $@ $<
+shp/sd/states.shp: shp/us/states.shp
+	mkdir -p $(dir $@) && rm -f $@ && ogr2ogr -f 'ESRI Shapefile' -where "STATE_FIPS = '46'" $@ $<
 
-geo/in/counties.json: shp/countyp010.shp
-	mkdir -p $(dir $@) && rm -f $@ && ogr2ogr -f GeoJSON -where "STATE = 'IN'" $@ $<
+shp/tn/states.shp: shp/us/states.shp
+	mkdir -p $(dir $@) && rm -f $@ && ogr2ogr -f 'ESRI Shapefile' -where "STATE_FIPS = '47'" $@ $<
 
-geo/in/states.json: shp/statep010.shp
-	mkdir -p $(dir $@) && rm -f $@ && ogr2ogr -f GeoJSON -where "STATE_FIPS = '18'" $@ $<
+shp/tx/states.shp: shp/us/states.shp
+	mkdir -p $(dir $@) && rm -f $@ && ogr2ogr -f 'ESRI Shapefile' -where "STATE_FIPS = '48'" $@ $<
 
-geo/ia/counties.json: shp/countyp010.shp
-	mkdir -p $(dir $@) && rm -f $@ && ogr2ogr -f GeoJSON -where "STATE = 'IA'" $@ $<
+shp/ut/states.shp: shp/us/states.shp
+	mkdir -p $(dir $@) && rm -f $@ && ogr2ogr -f 'ESRI Shapefile' -where "STATE_FIPS = '49'" $@ $<
 
-geo/ia/states.json: shp/statep010.shp
-	mkdir -p $(dir $@) && rm -f $@ && ogr2ogr -f GeoJSON -where "STATE_FIPS = '19'" $@ $<
+shp/vt/states.shp: shp/us/states.shp
+	mkdir -p $(dir $@) && rm -f $@ && ogr2ogr -f 'ESRI Shapefile' -where "STATE_FIPS = '50'" $@ $<
 
-geo/ks/counties.json: shp/countyp010.shp
-	mkdir -p $(dir $@) && rm -f $@ && ogr2ogr -f GeoJSON -where "STATE = 'KS'" $@ $<
+shp/va/states.shp: shp/us/states.shp
+	mkdir -p $(dir $@) && rm -f $@ && ogr2ogr -f 'ESRI Shapefile' -where "STATE_FIPS = '51'" $@ $<
 
-geo/ks/states.json: shp/statep010.shp
-	mkdir -p $(dir $@) && rm -f $@ && ogr2ogr -f GeoJSON -where "STATE_FIPS = '20'" $@ $<
+shp/wa/states.shp: shp/us/states.shp
+	mkdir -p $(dir $@) && rm -f $@ && ogr2ogr -f 'ESRI Shapefile' -where "STATE_FIPS = '53'" $@ $<
 
-geo/ky/counties.json: shp/countyp010.shp
-	mkdir -p $(dir $@) && rm -f $@ && ogr2ogr -f GeoJSON -where "STATE = 'KY'" $@ $<
+shp/wv/states.shp: shp/us/states.shp
+	mkdir -p $(dir $@) && rm -f $@ && ogr2ogr -f 'ESRI Shapefile' -where "STATE_FIPS = '54'" $@ $<
 
-geo/ky/states.json: shp/statep010.shp
-	mkdir -p $(dir $@) && rm -f $@ && ogr2ogr -f GeoJSON -where "STATE_FIPS = '21'" $@ $<
+shp/wi/states.shp: shp/us/states.shp
+	mkdir -p $(dir $@) && rm -f $@ && ogr2ogr -f 'ESRI Shapefile' -where "STATE_FIPS = '55'" $@ $<
 
-geo/la/counties.json: shp/countyp010.shp
-	mkdir -p $(dir $@) && rm -f $@ && ogr2ogr -f GeoJSON -where "STATE = 'LA'" $@ $<
+shp/wy/states.shp: shp/us/states.shp
+	mkdir -p $(dir $@) && rm -f $@ && ogr2ogr -f 'ESRI Shapefile' -where "STATE_FIPS = '56'" $@ $<
 
-geo/la/states.json: shp/statep010.shp
-	mkdir -p $(dir $@) && rm -f $@ && ogr2ogr -f GeoJSON -where "STATE_FIPS = '22'" $@ $<
+shp/as/states.shp: shp/us/states.shp
+	mkdir -p $(dir $@) && rm -f $@ && ogr2ogr -f 'ESRI Shapefile' -where "STATE_FIPS = '60'" $@ $<
 
-geo/me/counties.json: shp/countyp010.shp
-	mkdir -p $(dir $@) && rm -f $@ && ogr2ogr -f GeoJSON -where "STATE = 'ME'" $@ $<
+shp/fm/states.shp: shp/us/states.shp
+	mkdir -p $(dir $@) && rm -f $@ && ogr2ogr -f 'ESRI Shapefile' -where "STATE_FIPS = '64'" $@ $<
 
-geo/me/states.json: shp/statep010.shp
-	mkdir -p $(dir $@) && rm -f $@ && ogr2ogr -f GeoJSON -where "STATE_FIPS = '23'" $@ $<
+shp/gu/states.shp: shp/us/states.shp
+	mkdir -p $(dir $@) && rm -f $@ && ogr2ogr -f 'ESRI Shapefile' -where "STATE_FIPS = '66'" $@ $<
 
-geo/md/counties.json: shp/countyp010.shp
-	mkdir -p $(dir $@) && rm -f $@ && ogr2ogr -f GeoJSON -where "STATE = 'MD'" $@ $<
+shp/mh/states.shp: shp/us/states.shp
+	mkdir -p $(dir $@) && rm -f $@ && ogr2ogr -f 'ESRI Shapefile' -where "STATE_FIPS = '68'" $@ $<
 
-geo/md/states.json: shp/statep010.shp
-	mkdir -p $(dir $@) && rm -f $@ && ogr2ogr -f GeoJSON -where "STATE_FIPS = '24'" $@ $<
+shp/mp/states.shp: shp/us/states.shp
+	mkdir -p $(dir $@) && rm -f $@ && ogr2ogr -f 'ESRI Shapefile' -where "STATE_FIPS = '69'" $@ $<
 
-geo/ma/counties.json: shp/countyp010.shp
-	mkdir -p $(dir $@) && rm -f $@ && ogr2ogr -f GeoJSON -where "STATE = 'MA'" $@ $<
+shp/pw/states.shp: shp/us/states.shp
+	mkdir -p $(dir $@) && rm -f $@ && ogr2ogr -f 'ESRI Shapefile' -where "STATE_FIPS = '70'" $@ $<
 
-geo/ma/states.json: shp/statep010.shp
-	mkdir -p $(dir $@) && rm -f $@ && ogr2ogr -f GeoJSON -where "STATE_FIPS = '25'" $@ $<
+shp/pr/states.shp: shp/us/states.shp
+	mkdir -p $(dir $@) && rm -f $@ && ogr2ogr -f 'ESRI Shapefile' -where "STATE_FIPS = '72'" $@ $<
 
-geo/mi/counties.json: shp/countyp010.shp
-	mkdir -p $(dir $@) && rm -f $@ && ogr2ogr -f GeoJSON -where "STATE = 'MI'" $@ $<
+shp/um/states.shp: shp/us/states.shp
+	mkdir -p $(dir $@) && rm -f $@ && ogr2ogr -f 'ESRI Shapefile' -where "STATE_FIPS = '74'" $@ $<
 
-geo/mi/states.json: shp/statep010.shp
-	mkdir -p $(dir $@) && rm -f $@ && ogr2ogr -f GeoJSON -where "STATE_FIPS = '26'" $@ $<
+shp/vi/states.shp: shp/us/states.shp
+	mkdir -p $(dir $@) && rm -f $@ && ogr2ogr -f 'ESRI Shapefile' -where "STATE_FIPS = '78'" $@ $<
 
-geo/mn/counties.json: shp/countyp010.shp
-	mkdir -p $(dir $@) && rm -f $@ && ogr2ogr -f GeoJSON -where "STATE = 'MN'" $@ $<
-
-geo/mn/states.json: shp/statep010.shp
-	mkdir -p $(dir $@) && rm -f $@ && ogr2ogr -f GeoJSON -where "STATE_FIPS = '27'" $@ $<
-
-geo/ms/counties.json: shp/countyp010.shp
-	mkdir -p $(dir $@) && rm -f $@ && ogr2ogr -f GeoJSON -where "STATE = 'MS'" $@ $<
-
-geo/ms/states.json: shp/statep010.shp
-	mkdir -p $(dir $@) && rm -f $@ && ogr2ogr -f GeoJSON -where "STATE_FIPS = '28'" $@ $<
-
-geo/mo/counties.json: shp/countyp010.shp
-	mkdir -p $(dir $@) && rm -f $@ && ogr2ogr -f GeoJSON -where "STATE = 'MO'" $@ $<
-
-geo/mo/states.json: shp/statep010.shp
-	mkdir -p $(dir $@) && rm -f $@ && ogr2ogr -f GeoJSON -where "STATE_FIPS = '29'" $@ $<
-
-geo/mt/counties.json: shp/countyp010.shp
-	mkdir -p $(dir $@) && rm -f $@ && ogr2ogr -f GeoJSON -where "STATE = 'MT'" $@ $<
-
-geo/mt/states.json: shp/statep010.shp
-	mkdir -p $(dir $@) && rm -f $@ && ogr2ogr -f GeoJSON -where "STATE_FIPS = '30'" $@ $<
-
-geo/ne/counties.json: shp/countyp010.shp
-	mkdir -p $(dir $@) && rm -f $@ && ogr2ogr -f GeoJSON -where "STATE = 'NE'" $@ $<
-
-geo/ne/states.json: shp/statep010.shp
-	mkdir -p $(dir $@) && rm -f $@ && ogr2ogr -f GeoJSON -where "STATE_FIPS = '31'" $@ $<
-
-geo/nv/counties.json: shp/countyp010.shp
-	mkdir -p $(dir $@) && rm -f $@ && ogr2ogr -f GeoJSON -where "STATE = 'NV'" $@ $<
-
-geo/nv/states.json: shp/statep010.shp
-	mkdir -p $(dir $@) && rm -f $@ && ogr2ogr -f GeoJSON -where "STATE_FIPS = '32'" $@ $<
-
-geo/nh/counties.json: shp/countyp010.shp
-	mkdir -p $(dir $@) && rm -f $@ && ogr2ogr -f GeoJSON -where "STATE = 'NH'" $@ $<
-
-geo/nh/states.json: shp/statep010.shp
-	mkdir -p $(dir $@) && rm -f $@ && ogr2ogr -f GeoJSON -where "STATE_FIPS = '33'" $@ $<
-
-geo/nj/counties.json: shp/countyp010.shp
-	mkdir -p $(dir $@) && rm -f $@ && ogr2ogr -f GeoJSON -where "STATE = 'NJ'" $@ $<
-
-geo/nj/states.json: shp/statep010.shp
-	mkdir -p $(dir $@) && rm -f $@ && ogr2ogr -f GeoJSON -where "STATE_FIPS = '34'" $@ $<
-
-geo/nm/counties.json: shp/countyp010.shp
-	mkdir -p $(dir $@) && rm -f $@ && ogr2ogr -f GeoJSON -where "STATE = 'NM'" $@ $<
-
-geo/nm/states.json: shp/statep010.shp
-	mkdir -p $(dir $@) && rm -f $@ && ogr2ogr -f GeoJSON -where "STATE_FIPS = '35'" $@ $<
-
-geo/ny/counties.json: shp/countyp010.shp
-	mkdir -p $(dir $@) && rm -f $@ && ogr2ogr -f GeoJSON -where "STATE = 'NY'" $@ $<
-
-geo/ny/states.json: shp/statep010.shp
-	mkdir -p $(dir $@) && rm -f $@ && ogr2ogr -f GeoJSON -where "STATE_FIPS = '36'" $@ $<
-
-geo/nc/counties.json: shp/countyp010.shp
-	mkdir -p $(dir $@) && rm -f $@ && ogr2ogr -f GeoJSON -where "STATE = 'NC'" $@ $<
-
-geo/nc/states.json: shp/statep010.shp
-	mkdir -p $(dir $@) && rm -f $@ && ogr2ogr -f GeoJSON -where "STATE_FIPS = '37'" $@ $<
-
-geo/nd/counties.json: shp/countyp010.shp
-	mkdir -p $(dir $@) && rm -f $@ && ogr2ogr -f GeoJSON -where "STATE = 'ND'" $@ $<
-
-geo/nd/states.json: shp/statep010.shp
-	mkdir -p $(dir $@) && rm -f $@ && ogr2ogr -f GeoJSON -where "STATE_FIPS = '38'" $@ $<
-
-geo/oh/counties.json: shp/countyp010.shp
-	mkdir -p $(dir $@) && rm -f $@ && ogr2ogr -f GeoJSON -where "STATE = 'OH'" $@ $<
-
-geo/oh/states.json: shp/statep010.shp
-	mkdir -p $(dir $@) && rm -f $@ && ogr2ogr -f GeoJSON -where "STATE_FIPS = '39'" $@ $<
-
-geo/ok/counties.json: shp/countyp010.shp
-	mkdir -p $(dir $@) && rm -f $@ && ogr2ogr -f GeoJSON -where "STATE = 'OK'" $@ $<
-
-geo/ok/states.json: shp/statep010.shp
-	mkdir -p $(dir $@) && rm -f $@ && ogr2ogr -f GeoJSON -where "STATE_FIPS = '40'" $@ $<
-
-geo/or/counties.json: shp/countyp010.shp
-	mkdir -p $(dir $@) && rm -f $@ && ogr2ogr -f GeoJSON -where "STATE = 'OR'" $@ $<
-
-geo/or/states.json: shp/statep010.shp
-	mkdir -p $(dir $@) && rm -f $@ && ogr2ogr -f GeoJSON -where "STATE_FIPS = '41'" $@ $<
-
-geo/pa/counties.json: shp/countyp010.shp
-	mkdir -p $(dir $@) && rm -f $@ && ogr2ogr -f GeoJSON -where "STATE = 'PA'" $@ $<
-
-geo/pa/states.json: shp/statep010.shp
-	mkdir -p $(dir $@) && rm -f $@ && ogr2ogr -f GeoJSON -where "STATE_FIPS = '42'" $@ $<
-
-geo/ri/counties.json: shp/countyp010.shp
-	mkdir -p $(dir $@) && rm -f $@ && ogr2ogr -f GeoJSON -where "STATE = 'RI'" $@ $<
-
-geo/ri/states.json: shp/statep010.shp
-	mkdir -p $(dir $@) && rm -f $@ && ogr2ogr -f GeoJSON -where "STATE_FIPS = '44'" $@ $<
-
-geo/sc/counties.json: shp/countyp010.shp
-	mkdir -p $(dir $@) && rm -f $@ && ogr2ogr -f GeoJSON -where "STATE = 'SC'" $@ $<
-
-geo/sc/states.json: shp/statep010.shp
-	mkdir -p $(dir $@) && rm -f $@ && ogr2ogr -f GeoJSON -where "STATE_FIPS = '45'" $@ $<
-
-geo/sd/counties.json: shp/countyp010.shp
-	mkdir -p $(dir $@) && rm -f $@ && ogr2ogr -f GeoJSON -where "STATE = 'SD'" $@ $<
-
-geo/sd/states.json: shp/statep010.shp
-	mkdir -p $(dir $@) && rm -f $@ && ogr2ogr -f GeoJSON -where "STATE_FIPS = '46'" $@ $<
-
-geo/tn/counties.json: shp/countyp010.shp
-	mkdir -p $(dir $@) && rm -f $@ && ogr2ogr -f GeoJSON -where "STATE = 'TN'" $@ $<
-
-geo/tn/states.json: shp/statep010.shp
-	mkdir -p $(dir $@) && rm -f $@ && ogr2ogr -f GeoJSON -where "STATE_FIPS = '47'" $@ $<
-
-geo/tx/counties.json: shp/countyp010.shp
-	mkdir -p $(dir $@) && rm -f $@ && ogr2ogr -f GeoJSON -where "STATE = 'TX'" $@ $<
-
-geo/tx/states.json: shp/statep010.shp
-	mkdir -p $(dir $@) && rm -f $@ && ogr2ogr -f GeoJSON -where "STATE_FIPS = '48'" $@ $<
-
-geo/ut/counties.json: shp/countyp010.shp
-	mkdir -p $(dir $@) && rm -f $@ && ogr2ogr -f GeoJSON -where "STATE = 'UT'" $@ $<
-
-geo/ut/states.json: shp/statep010.shp
-	mkdir -p $(dir $@) && rm -f $@ && ogr2ogr -f GeoJSON -where "STATE_FIPS = '49'" $@ $<
-
-geo/vt/counties.json: shp/countyp010.shp
-	mkdir -p $(dir $@) && rm -f $@ && ogr2ogr -f GeoJSON -where "STATE = 'VT'" $@ $<
-
-geo/vt/states.json: shp/statep010.shp
-	mkdir -p $(dir $@) && rm -f $@ && ogr2ogr -f GeoJSON -where "STATE_FIPS = '50'" $@ $<
-
-geo/va/counties.json: shp/countyp010.shp
-	mkdir -p $(dir $@) && rm -f $@ && ogr2ogr -f GeoJSON -where "STATE = 'VA'" $@ $<
-
-geo/va/states.json: shp/statep010.shp
-	mkdir -p $(dir $@) && rm -f $@ && ogr2ogr -f GeoJSON -where "STATE_FIPS = '51'" $@ $<
-
-geo/wa/counties.json: shp/countyp010.shp
-	mkdir -p $(dir $@) && rm -f $@ && ogr2ogr -f GeoJSON -where "STATE = 'WA'" $@ $<
-
-geo/wa/states.json: shp/statep010.shp
-	mkdir -p $(dir $@) && rm -f $@ && ogr2ogr -f GeoJSON -where "STATE_FIPS = '53'" $@ $<
-
-geo/wv/counties.json: shp/countyp010.shp
-	mkdir -p $(dir $@) && rm -f $@ && ogr2ogr -f GeoJSON -where "STATE = 'WV'" $@ $<
-
-geo/wv/states.json: shp/statep010.shp
-	mkdir -p $(dir $@) && rm -f $@ && ogr2ogr -f GeoJSON -where "STATE_FIPS = '54'" $@ $<
-
-geo/wi/counties.json: shp/countyp010.shp
-	mkdir -p $(dir $@) && rm -f $@ && ogr2ogr -f GeoJSON -where "STATE = 'WI'" $@ $<
-
-geo/wi/states.json: shp/statep010.shp
-	mkdir -p $(dir $@) && rm -f $@ && ogr2ogr -f GeoJSON -where "STATE_FIPS = '55'" $@ $<
-
-geo/wy/counties.json: shp/countyp010.shp
-	mkdir -p $(dir $@) && rm -f $@ && ogr2ogr -f GeoJSON -where "STATE = 'WY'" $@ $<
-
-geo/wy/states.json: shp/statep010.shp
-	mkdir -p $(dir $@) && rm -f $@ && ogr2ogr -f GeoJSON -where "STATE_FIPS = '56'" $@ $<
-
-geo/as/counties.json: shp/countyp010.shp
-	mkdir -p $(dir $@) && rm -f $@ && ogr2ogr -f GeoJSON -where "STATE = 'AS'" $@ $<
-
-geo/as/states.json: shp/statep010.shp
-	mkdir -p $(dir $@) && rm -f $@ && ogr2ogr -f GeoJSON -where "STATE_FIPS = '60'" $@ $<
-
-geo/fm/counties.json: shp/countyp010.shp
-	mkdir -p $(dir $@) && rm -f $@ && ogr2ogr -f GeoJSON -where "STATE = 'FM'" $@ $<
-
-geo/fm/states.json: shp/statep010.shp
-	mkdir -p $(dir $@) && rm -f $@ && ogr2ogr -f GeoJSON -where "STATE_FIPS = '64'" $@ $<
-
-geo/gu/counties.json: shp/countyp010.shp
-	mkdir -p $(dir $@) && rm -f $@ && ogr2ogr -f GeoJSON -where "STATE = 'GU'" $@ $<
-
-geo/gu/states.json: shp/statep010.shp
-	mkdir -p $(dir $@) && rm -f $@ && ogr2ogr -f GeoJSON -where "STATE_FIPS = '66'" $@ $<
-
-geo/mh/counties.json: shp/countyp010.shp
-	mkdir -p $(dir $@) && rm -f $@ && ogr2ogr -f GeoJSON -where "STATE = 'MH'" $@ $<
-
-geo/mh/states.json: shp/statep010.shp
-	mkdir -p $(dir $@) && rm -f $@ && ogr2ogr -f GeoJSON -where "STATE_FIPS = '68'" $@ $<
-
-geo/mp/counties.json: shp/countyp010.shp
-	mkdir -p $(dir $@) && rm -f $@ && ogr2ogr -f GeoJSON -where "STATE = 'MP'" $@ $<
-
-geo/mp/states.json: shp/statep010.shp
-	mkdir -p $(dir $@) && rm -f $@ && ogr2ogr -f GeoJSON -where "STATE_FIPS = '69'" $@ $<
-
-geo/pw/counties.json: shp/countyp010.shp
-	mkdir -p $(dir $@) && rm -f $@ && ogr2ogr -f GeoJSON -where "STATE = 'PW'" $@ $<
-
-geo/pw/states.json: shp/statep010.shp
-	mkdir -p $(dir $@) && rm -f $@ && ogr2ogr -f GeoJSON -where "STATE_FIPS = '70'" $@ $<
-
-geo/pr/counties.json: shp/countyp010.shp
-	mkdir -p $(dir $@) && rm -f $@ && ogr2ogr -f GeoJSON -where "STATE = 'PR'" $@ $<
-
-geo/pr/states.json: shp/statep010.shp
-	mkdir -p $(dir $@) && rm -f $@ && ogr2ogr -f GeoJSON -where "STATE_FIPS = '72'" $@ $<
-
-geo/um/counties.json: shp/countyp010.shp
-	mkdir -p $(dir $@) && rm -f $@ && ogr2ogr -f GeoJSON -where "STATE = 'UM'" $@ $<
-
-geo/um/states.json: shp/statep010.shp
-	mkdir -p $(dir $@) && rm -f $@ && ogr2ogr -f GeoJSON -where "STATE_FIPS = '74'" $@ $<
-
-geo/vi/counties.json: shp/countyp010.shp
-	mkdir -p $(dir $@) && rm -f $@ && ogr2ogr -f GeoJSON -where "STATE = 'VI'" $@ $<
-
-geo/vi/states.json: shp/statep010.shp
-	mkdir -p $(dir $@) && rm -f $@ && ogr2ogr -f GeoJSON -where "STATE_FIPS = '78'" $@ $<
+shp/%/counties.shp: shp/us/counties.shp
+	mkdir -p $(dir $@) && rm -f $@ && ogr2ogr -f 'ESRI Shapefile' -where "STATE = '`echo $* | tr a-z A-Z`'" $@ $<
 
 # For individual states:
-# - use the default TopoJSON quantization
 # - remove duplicate state geometries (e.g., Great Lakes)
-topo/%.json: geo/%/counties.json geo/%/states.json
-	mkdir -p $(dir $@) && $(TOPOJSON) --id-property=FIPS,STATE_FIPS -p COUNTY=name,STATE=name -- $(filter %.json,$^) | ./topouniq states > $@
+topo/%-states.json: shp/%/states.shp
+	mkdir -p $(dir $@) && $(TOPOJSON) --id-property=FIPS -p STATE=name -- $(filter %.shp,$^) | ./topouniq states > $@
+
+# For individual states + counties:
+# - remove duplicate state geometries (e.g., Great Lakes)
+topo/%-counties.json: shp/%/counties.shp shp/%/states.shp
+	mkdir -p $(dir $@) && $(TOPOJSON) --id-property=FIPS,STATE_FIPS -p COUNTY=name,STATE=name -- $(filter %.shp,$^) | ./topouniq states > $@
+
+# For individual states + counties + tracts:
+# - remove duplicate state geometries (e.g., Great Lakes)
+topo/%-tracts.json: shp/%/tracts.shp shp/%/counties.shp shp/%/states.shp
+	mkdir -p $(dir $@) && $(TOPOJSON) --id-property=FIPS,STATE_FIPS,TRACTCE -p COUNTY=name,STATE=name -- $(filter %.shp,$^) | ./topouniq states > $@
 
 # For the full United States:
 # - increase TopoJSON’s quantization by 10x
 # - remove duplicate state geometries (e.g., Great Lakes)
 # - merge the nation object into a single MultiPolygon
-topo/us.json: shp/countyp010.shp shp/statep010.shp shp/nationalp010g.shp
-	mkdir -p $(dir $@) && $(TOPOJSON) -q 1e5 --id-property=FIPS,STATE_FIPS -p COUNTY=name,STATE=name -- counties=shp/countyp010.shp states=shp/statep010.shp nation=shp/nationalp010g.shp | ./topouniq states | ./topomerge nation 1 > $@
+topo/us-counties.shp: shp/us/counties.shp shp/us/states.shp shp/us/nation.shp
+	mkdir -p $(dir $@) && $(TOPOJSON) -q 1e5 --id-property=FIPS,STATE_FIPS -p COUNTY=name,STATE=name -- $(filter %.shp,$^) | ./topouniq states | ./topomerge nation 1 > $@
 
 # For the massive streams shapefile:
 # - give TopoJSON more memory (8G, but 4G would probably work)
 # - merge all the linestring geometries into a single massive multilinestring
-topo/streams.json: shp/streaml010.shp
+topo/streams.shp: shp/streaml010.shp
 	mkdir -p $(dir $@) && node --max_old_space_size=8192 $(TOPOJSON) -- streams=$< | ./topomerge streams > $@
 
 # For roads:
 # - merge all the linestring geometries into a single massive multilinestring
-topo/roads.json: shp/roadtrl010.shp
+topo/roads.shp: shp/roadtrl010.shp
 	mkdir -p $(dir $@) && $(TOPOJSON) -- roads=$< | ./topomerge roads > $@
 
-# http://www.census.gov/cgi-bin/geo/shapefiles2012/main
-gz/%.zip:
-	mkdir -p $(dir $@) && curl 'http://www2.census.gov/geo/tiger/TIGER2012/ZCTA5/$*.zip' -o $@.download && mv $@.download $@
-
-# Zip Code Tabulation Areas (797M)
-shp/tl_2012_us_zcta510.shp: gz/tl_2012_us_zcta510.zip
-	mkdir -p $(dir $@) && unzip -d $(dir $@) $< && touch $@
-
-topo/zipcodes.json: shp/tl_2012_us_zcta510.shp
+topo/zipcodes.shp: shp/tl_2012_us_zcta510.shp
 	mkdir -p $(dir $@) && node --max_old_space_size=15000 $(TOPOJSON) -q 1e5 -s 3e-7 -- zipcodes=$< | ./topomerge zipcodes > $@

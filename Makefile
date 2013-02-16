@@ -25,15 +25,23 @@ node_modules:
 
 # http://www.nationalatlas.gov/atlasftp-1m.html
 gz/%.tar.gz:
-	mkdir -p $(dir $@) && curl 'http://dds.cr.usgs.gov/pub/data/nationalatlas/$*.tar.gz' -o $@.download && mv $@.download $@
+	mkdir -p $(dir $@) && curl 'http://dds.cr.usgs.gov/pub/data/nationalatlas/$(notdir $@)' -o $@.download && mv $@.download $@
 
 # Zip Code Tabulation Areas
 gz/tl_2012_us_zcta510.zip:
-	mkdir -p $(dir $@) && curl 'http://www2.census.gov/geo/tiger/TIGER2012/ZCTA5/tl_2012_us_zcta510.zip' -o $@.download && mv $@.download $@
+	mkdir -p $(dir $@) && curl 'http://www2.census.gov/geo/tiger/TIGER2012/ZCTA5/$(notdir $@)' -o $@.download && mv $@.download $@
 
 # Census Tracts
 gz/tl_2012_%_tract.zip:
-	mkdir -p $(dir $@) && curl 'http://www2.census.gov/geo/tiger/TIGER2012/TRACT/tl_2012_$*_tract.zip' -o $@.download && mv $@.download $@
+	mkdir -p $(dir $@) && curl 'http://www2.census.gov/geo/tiger/TIGER2012/TRACT/$(notdir $@)' -o $@.download && mv $@.download $@
+
+# Census Block Groups
+gz/tl_2012_%_bg.zip:
+	mkdir -p $(dir $@) && curl 'http://www2.census.gov/geo/tiger/TIGER2012/BG/$(notdir $@)' -o $@.download && mv $@.download $@
+
+# Census Blocks
+gz/tl_2012_%_tabblock.zip:
+	mkdir -p $(dir $@) && curl 'http://www2.census.gov/geo/tiger/TIGER2012/TABBLOCK/$(notdir $@)' -o $@.download && mv $@.download $@
 
 shp/us/nation.shp: gz/nationalp010g_nt00797.tar.gz
 shp/us/states.shp: gz/statep010_nt00798.tar.gz
@@ -47,7 +55,9 @@ shp/us/railroads.shp: gz/railrdl010_nt00800.tar.gz
 shp/us/roads.shp: gz/roadtrl010_nt00801.tar.gz
 shp/us/streams.shp: gz/streaml010_nt00804.tar.gz
 shp/us/waterbodies.shp: gz/wtrbdyp010_nt00803.tar.gz
+
 shp/us/zipcodes.shp: gz/tl_2012_us_zcta510.zip
+
 shp/al/tracts.shp: gz/tl_2012_01_tract.zip
 shp/ak/tracts.shp: gz/tl_2012_02_tract.zip
 shp/az/tracts.shp: gz/tl_2012_04_tract.zip
@@ -109,12 +119,134 @@ shp/pr/tracts.shp: gz/tl_2012_72_tract.zip
 shp/um/tracts.shp: gz/tl_2012_74_tract.zip
 shp/vi/tracts.shp: gz/tl_2012_78_tract.zip
 
+shp/al/blockgroups.shp: gz/tl_2012_01_bg.zip
+shp/ak/blockgroups.shp: gz/tl_2012_02_bg.zip
+shp/az/blockgroups.shp: gz/tl_2012_04_bg.zip
+shp/ar/blockgroups.shp: gz/tl_2012_05_bg.zip
+shp/ca/blockgroups.shp: gz/tl_2012_06_bg.zip
+shp/co/blockgroups.shp: gz/tl_2012_08_bg.zip
+shp/ct/blockgroups.shp: gz/tl_2012_09_bg.zip
+shp/de/blockgroups.shp: gz/tl_2012_10_bg.zip
+shp/dc/blockgroups.shp: gz/tl_2012_11_bg.zip
+shp/fl/blockgroups.shp: gz/tl_2012_12_bg.zip
+shp/ga/blockgroups.shp: gz/tl_2012_13_bg.zip
+shp/hi/blockgroups.shp: gz/tl_2012_15_bg.zip
+shp/id/blockgroups.shp: gz/tl_2012_16_bg.zip
+shp/il/blockgroups.shp: gz/tl_2012_17_bg.zip
+shp/in/blockgroups.shp: gz/tl_2012_18_bg.zip
+shp/ia/blockgroups.shp: gz/tl_2012_19_bg.zip
+shp/ks/blockgroups.shp: gz/tl_2012_20_bg.zip
+shp/ky/blockgroups.shp: gz/tl_2012_21_bg.zip
+shp/la/blockgroups.shp: gz/tl_2012_22_bg.zip
+shp/me/blockgroups.shp: gz/tl_2012_23_bg.zip
+shp/md/blockgroups.shp: gz/tl_2012_24_bg.zip
+shp/ma/blockgroups.shp: gz/tl_2012_25_bg.zip
+shp/mi/blockgroups.shp: gz/tl_2012_26_bg.zip
+shp/mn/blockgroups.shp: gz/tl_2012_27_bg.zip
+shp/ms/blockgroups.shp: gz/tl_2012_28_bg.zip
+shp/mo/blockgroups.shp: gz/tl_2012_29_bg.zip
+shp/mt/blockgroups.shp: gz/tl_2012_30_bg.zip
+shp/ne/blockgroups.shp: gz/tl_2012_31_bg.zip
+shp/nv/blockgroups.shp: gz/tl_2012_32_bg.zip
+shp/nh/blockgroups.shp: gz/tl_2012_33_bg.zip
+shp/nj/blockgroups.shp: gz/tl_2012_34_bg.zip
+shp/nm/blockgroups.shp: gz/tl_2012_35_bg.zip
+shp/ny/blockgroups.shp: gz/tl_2012_36_bg.zip
+shp/nc/blockgroups.shp: gz/tl_2012_37_bg.zip
+shp/nd/blockgroups.shp: gz/tl_2012_38_bg.zip
+shp/oh/blockgroups.shp: gz/tl_2012_39_bg.zip
+shp/ok/blockgroups.shp: gz/tl_2012_40_bg.zip
+shp/or/blockgroups.shp: gz/tl_2012_41_bg.zip
+shp/pa/blockgroups.shp: gz/tl_2012_42_bg.zip
+shp/ri/blockgroups.shp: gz/tl_2012_44_bg.zip
+shp/sc/blockgroups.shp: gz/tl_2012_45_bg.zip
+shp/sd/blockgroups.shp: gz/tl_2012_46_bg.zip
+shp/tn/blockgroups.shp: gz/tl_2012_47_bg.zip
+shp/tx/blockgroups.shp: gz/tl_2012_48_bg.zip
+shp/ut/blockgroups.shp: gz/tl_2012_49_bg.zip
+shp/vt/blockgroups.shp: gz/tl_2012_50_bg.zip
+shp/va/blockgroups.shp: gz/tl_2012_51_bg.zip
+shp/wa/blockgroups.shp: gz/tl_2012_53_bg.zip
+shp/wv/blockgroups.shp: gz/tl_2012_54_bg.zip
+shp/wi/blockgroups.shp: gz/tl_2012_55_bg.zip
+shp/wy/blockgroups.shp: gz/tl_2012_56_bg.zip
+shp/as/blockgroups.shp: gz/tl_2012_60_bg.zip
+shp/fm/blockgroups.shp: gz/tl_2012_64_bg.zip
+shp/gu/blockgroups.shp: gz/tl_2012_66_bg.zip
+shp/mh/blockgroups.shp: gz/tl_2012_68_bg.zip
+shp/mp/blockgroups.shp: gz/tl_2012_69_bg.zip
+shp/pw/blockgroups.shp: gz/tl_2012_70_bg.zip
+shp/pr/blockgroups.shp: gz/tl_2012_72_bg.zip
+shp/um/blockgroups.shp: gz/tl_2012_74_bg.zip
+shp/vi/blockgroups.shp: gz/tl_2012_78_bg.zip
+
+shp/al/blocks.shp: gz/tl_2012_01_tabblock.zip
+shp/ak/blocks.shp: gz/tl_2012_02_tabblock.zip
+shp/az/blocks.shp: gz/tl_2012_04_tabblock.zip
+shp/ar/blocks.shp: gz/tl_2012_05_tabblock.zip
+shp/ca/blocks.shp: gz/tl_2012_06_tabblock.zip
+shp/co/blocks.shp: gz/tl_2012_08_tabblock.zip
+shp/ct/blocks.shp: gz/tl_2012_09_tabblock.zip
+shp/de/blocks.shp: gz/tl_2012_10_tabblock.zip
+shp/dc/blocks.shp: gz/tl_2012_11_tabblock.zip
+shp/fl/blocks.shp: gz/tl_2012_12_tabblock.zip
+shp/ga/blocks.shp: gz/tl_2012_13_tabblock.zip
+shp/hi/blocks.shp: gz/tl_2012_15_tabblock.zip
+shp/id/blocks.shp: gz/tl_2012_16_tabblock.zip
+shp/il/blocks.shp: gz/tl_2012_17_tabblock.zip
+shp/in/blocks.shp: gz/tl_2012_18_tabblock.zip
+shp/ia/blocks.shp: gz/tl_2012_19_tabblock.zip
+shp/ks/blocks.shp: gz/tl_2012_20_tabblock.zip
+shp/ky/blocks.shp: gz/tl_2012_21_tabblock.zip
+shp/la/blocks.shp: gz/tl_2012_22_tabblock.zip
+shp/me/blocks.shp: gz/tl_2012_23_tabblock.zip
+shp/md/blocks.shp: gz/tl_2012_24_tabblock.zip
+shp/ma/blocks.shp: gz/tl_2012_25_tabblock.zip
+shp/mi/blocks.shp: gz/tl_2012_26_tabblock.zip
+shp/mn/blocks.shp: gz/tl_2012_27_tabblock.zip
+shp/ms/blocks.shp: gz/tl_2012_28_tabblock.zip
+shp/mo/blocks.shp: gz/tl_2012_29_tabblock.zip
+shp/mt/blocks.shp: gz/tl_2012_30_tabblock.zip
+shp/ne/blocks.shp: gz/tl_2012_31_tabblock.zip
+shp/nv/blocks.shp: gz/tl_2012_32_tabblock.zip
+shp/nh/blocks.shp: gz/tl_2012_33_tabblock.zip
+shp/nj/blocks.shp: gz/tl_2012_34_tabblock.zip
+shp/nm/blocks.shp: gz/tl_2012_35_tabblock.zip
+shp/ny/blocks.shp: gz/tl_2012_36_tabblock.zip
+shp/nc/blocks.shp: gz/tl_2012_37_tabblock.zip
+shp/nd/blocks.shp: gz/tl_2012_38_tabblock.zip
+shp/oh/blocks.shp: gz/tl_2012_39_tabblock.zip
+shp/ok/blocks.shp: gz/tl_2012_40_tabblock.zip
+shp/or/blocks.shp: gz/tl_2012_41_tabblock.zip
+shp/pa/blocks.shp: gz/tl_2012_42_tabblock.zip
+shp/ri/blocks.shp: gz/tl_2012_44_tabblock.zip
+shp/sc/blocks.shp: gz/tl_2012_45_tabblock.zip
+shp/sd/blocks.shp: gz/tl_2012_46_tabblock.zip
+shp/tn/blocks.shp: gz/tl_2012_47_tabblock.zip
+shp/tx/blocks.shp: gz/tl_2012_48_tabblock.zip
+shp/ut/blocks.shp: gz/tl_2012_49_tabblock.zip
+shp/vt/blocks.shp: gz/tl_2012_50_tabblock.zip
+shp/va/blocks.shp: gz/tl_2012_51_tabblock.zip
+shp/wa/blocks.shp: gz/tl_2012_53_tabblock.zip
+shp/wv/blocks.shp: gz/tl_2012_54_tabblock.zip
+shp/wi/blocks.shp: gz/tl_2012_55_tabblock.zip
+shp/wy/blocks.shp: gz/tl_2012_56_tabblock.zip
+shp/as/blocks.shp: gz/tl_2012_60_tabblock.zip
+shp/fm/blocks.shp: gz/tl_2012_64_tabblock.zip
+shp/gu/blocks.shp: gz/tl_2012_66_tabblock.zip
+shp/mh/blocks.shp: gz/tl_2012_68_tabblock.zip
+shp/mp/blocks.shp: gz/tl_2012_69_tabblock.zip
+shp/pw/blocks.shp: gz/tl_2012_70_tabblock.zip
+shp/pr/blocks.shp: gz/tl_2012_72_tabblock.zip
+shp/um/blocks.shp: gz/tl_2012_74_tabblock.zip
+shp/vi/blocks.shp: gz/tl_2012_78_tabblock.zip
+
 shp/us/%.shp:
 	rm -rf $(basename $@) && mkdir -p $(basename $@) && tar -xzm -C $(basename $@) -f $<
 	for file in $(basename $@)/*; do chmod 644 $$file; mv $$file $(basename $@).$${file##*.}; done
 	rmdir $(basename $@)
 
-shp/us/zipcodes.shp shp/%/tracts.shp:
+shp/us/zipcodes.shp shp/%/tracts.shp shp/%/blockgroups.shp shp/%/blocks.shp:
 	rm -rf $(basename $@) && mkdir -p $(basename $@) && unzip -d $(basename $@) $<
 	for file in $(basename $@)/*; do chmod 644 $$file; mv $$file $(basename $@).$${file##*.}; done
 	rmdir $(basename $@)
@@ -316,7 +448,18 @@ topo/%-counties.json: shp/%/counties.shp shp/%/states.shp
 # For individual states + counties + tracts:
 # - remove duplicate state geometries (e.g., Great Lakes)
 topo/%-tracts.json: shp/%/tracts.shp shp/%/counties.shp shp/%/states.shp
-	mkdir -p $(dir $@) && $(TOPOJSON) --id-property=FIPS,STATE_FIPS,TRACTCE -p COUNTY=name,STATE=name -- $(filter %.shp,$^) | ./topouniq states > $@
+	mkdir -p $(dir $@) && $(TOPOJSON) --simplify-proportion=.2 --id-property=FIPS,STATE_FIPS,TRACTCE -p COUNTY=name,STATE=name -- $(filter %.shp,$^) | ./topouniq states > $@
+
+# For individual states + counties + tracts + blockgroups:
+# - remove duplicate state geometries (e.g., Great Lakes)
+topo/%-blockgroups.json: shp/%/blockgroups.shp shp/%/tracts.shp shp/%/counties.shp shp/%/states.shp
+	mkdir -p $(dir $@) && $(TOPOJSON) --simplify-proportion=.2 --id-property=BLKGRPCE,FIPS,STATE_FIPS,TRACTCE -p COUNTY=name,STATE=name -- $(filter %.shp,$^) | ./topouniq states > $@
+
+# For individual states + counties + tracts + blockgroups + blocks:
+# - give TopoJSON more memory (8G, but 4G would probably work)
+# - remove duplicate state geometries (e.g., Great Lakes)
+topo/%-blocks.json: shp/%/blocks.shp shp/%/blockgroups.shp shp/%/tracts.shp shp/%/counties.shp shp/%/states.shp
+	mkdir -p $(dir $@) && node --max_old_space_size=8192 $(TOPOJSON) -q 1e6 --simplify-proportion=.4 --id-property=BLOCKCE10,BLKGRPCE,FIPS,STATE_FIPS,TRACTCE -p COUNTY=name,STATE=name -- $(filter %.shp,$^) | ./topouniq states > $@
 
 # For the full United States:
 # - increase TopoJSON’s quantization by 10x

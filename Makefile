@@ -322,19 +322,19 @@ topo/%-tracts.json: shp/%/tracts.shp shp/%/counties.shp shp/%/states.shp
 # - increase TopoJSON’s quantization by 10x
 # - remove duplicate state geometries (e.g., Great Lakes)
 # - merge the nation object into a single MultiPolygon
-topo/us-counties.shp: shp/us/counties.shp shp/us/states.shp shp/us/nation.shp
+topo/us-counties.json: shp/us/counties.shp shp/us/states.shp shp/us/nation.shp
 	mkdir -p $(dir $@) && $(TOPOJSON) -q 1e5 --id-property=FIPS,STATE_FIPS -p COUNTY=name,STATE=name -- $(filter %.shp,$^) | ./topouniq states | ./topomerge nation 1 > $@
 
 # For the massive streams shapefile:
 # - give TopoJSON more memory (8G, but 4G would probably work)
 # - merge all the linestring geometries into a single massive multilinestring
-topo/streams.shp: shp/streaml010.shp
-	mkdir -p $(dir $@) && node --max_old_space_size=8192 $(TOPOJSON) -- streams=$< | ./topomerge streams > $@
+topo/us-streams.json: shp/us/streams.shp
+	mkdir -p $(dir $@) && node --max_old_space_size=8192 $(TOPOJSON) -- $< | ./topomerge streams > $@
 
 # For roads:
 # - merge all the linestring geometries into a single massive multilinestring
-topo/roads.shp: shp/roadtrl010.shp
-	mkdir -p $(dir $@) && $(TOPOJSON) -- roads=$< | ./topomerge roads > $@
+topo/us-roads.json: shp/us/roads.shp
+	mkdir -p $(dir $@) && $(TOPOJSON) -- $< | ./topomerge roads > $@
 
-topo/zipcodes.shp: shp/tl_2012_us_zcta510.shp
-	mkdir -p $(dir $@) && node --max_old_space_size=15000 $(TOPOJSON) -q 1e5 -s 3e-7 -- zipcodes=$< | ./topomerge zipcodes > $@
+topo/us-zipcodes.json: shp/us/zipcodes.shp
+	mkdir -p $(dir $@) && node --max_old_space_size=15000 $(TOPOJSON) -q 1e5 -s 3e-7 -- $< | ./topomerge zipcodes > $@

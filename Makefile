@@ -16,7 +16,7 @@ node_modules:
 
 # http://www.nationalatlas.gov/atlasftp-1m.html
 gz/%.tar.gz:
-	mkdir -p $(dir $@) && curl http://dds.cr.usgs.gov/pub/data/nationalatlas/$*.tar.gz -o $@.download && mv $@.download $@
+	mkdir -p $(dir $@) && curl 'http://dds.cr.usgs.gov/pub/data/nationalatlas/$*.tar.gz' -o $@.download && mv $@.download $@
 
 # National Boundaries (7M)
 shp/nationalp010g.shp: gz/nationalp010g_nt00797.tar.gz

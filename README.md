@@ -1,6 +1,6 @@
 # U.S. Atlas TopoJSON
 
-This repository provides a convenient mechanism for generating TopoJSON files from the [National Atlas](http://nationalatlas.gov/) one million-scale dataset.
+This repository provides a convenient mechanism for generating TopoJSON files from the [National Atlas](http://nationalatlas.gov/) one million-scale dataset and [U.S. Census Bureau](http://www.census.gov/geo/maps-data/data/tiger-line.html) shapefiles.
 
 ## Installing via Homebrew
 
@@ -26,10 +26,8 @@ Once you have everything installed, simply run:
 make
 ```
 
-This will generate a large number of TopoJSON files of varying size in the `topo` directory. As a by-product of producing these files, you’ll also download the one million-scale shapefiles directly from the National Atlas and convert them into GeoJSON and filter.
+This will generate a large number of TopoJSON files of varying size in the `topo` directory. As a by-product of producing these files, you’ll also download shapefiles directly from the National Atlas or the Census Bureau.
 
-`make` and `make all` generate TopoJSON files for the boundaries of the United States. In addition, you can run
-`make topo/streams.json` and `make topo/roads.json` to generate TopoJSON for streams and roads. These aren't
-made by default because of their size. `streams.json` requires a 180M download and 4.5GB of memory to generate.
+`make` and `make all` generate TopoJSON files for the boundaries of the United States. In addition, you can run `make topo/us-streams.json` and `make topo/us-roads.json` to generate TopoJSON for streams and roads. These aren't made by default because of their size. `us-streams.json` requires a 180M download and 4.5GB of memory to generate.
 
 If you want to generate a custom map, I recommend modifying the Makefile. Or, just use the Makefile as a set of examples, and run the appropriate `ogr2ogr` and `topojson` commands from the terminal.

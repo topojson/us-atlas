@@ -438,7 +438,7 @@ shp/%/counties.shp: shp/us/counties.shp
 # For individual states:
 # - remove duplicate state geometries (e.g., Great Lakes)
 topo/%-states.json: shp/%/states.shp
-	mkdir -p $(dir $@) && $(TOPOJSON) --id-property=FIPS -p STATE=name -- $(filter %.shp,$^) | ./topouniq states > $@
+	mkdir -p $(dir $@) && $(TOPOJSON) --id-property=STATE_FIPS -p STATE=name -- $(filter %.shp,$^) | ./topouniq states > $@
 
 # For individual states + counties:
 # - remove duplicate state geometries (e.g., Great Lakes)
@@ -447,19 +447,19 @@ topo/%-counties.json: shp/%/counties.shp shp/%/states.shp
 
 # For individual states + counties + tracts:
 # - remove duplicate state geometries (e.g., Great Lakes)
-topo/%-tracts.json: shp/%/tracts.shp shp/%/counties.shp shp/%/states.shp
-	mkdir -p $(dir $@) && $(TOPOJSON) --simplify-proportion=.2 --id-property=FIPS,STATE_FIPS,TRACTCE -p COUNTY=name,STATE=name -- $(filter %.shp,$^) | ./topouniq states > $@
+topo/%-tracts.json: shp/%/tracts.shp shp/%/states.shp
+	mkdir -p $(dir $@) && $(TOPOJSON) --simplify-proportion=.2 --id-property=STATE_FIPS,TRACTCE -p STATE=name -- $(filter %.shp,$^) | ./topouniq states > $@
 
 # For individual states + counties + tracts + blockgroups:
 # - remove duplicate state geometries (e.g., Great Lakes)
-topo/%-blockgroups.json: shp/%/blockgroups.shp shp/%/tracts.shp shp/%/counties.shp shp/%/states.shp
-	mkdir -p $(dir $@) && $(TOPOJSON) --simplify-proportion=.2 --id-property=BLKGRPCE,FIPS,STATE_FIPS,TRACTCE -p COUNTY=name,STATE=name -- $(filter %.shp,$^) | ./topouniq states > $@
+topo/%-blockgroups.json: shp/%/blockgroups.shp shp/%/states.shp
+	mkdir -p $(dir $@) && $(TOPOJSON) --simplify-proportion=.2 --id-property=STATE_FIPS,BLKGRPCE -p STATE=name -- $(filter %.shp,$^) | ./topouniq states > $@
 
 # For individual states + counties + tracts + blockgroups + blocks:
 # - give TopoJSON more memory (8G, but 4G would probably work)
 # - remove duplicate state geometries (e.g., Great Lakes)
-topo/%-blocks.json: shp/%/blocks.shp shp/%/blockgroups.shp shp/%/tracts.shp shp/%/counties.shp shp/%/states.shp
-	mkdir -p $(dir $@) && node --max_old_space_size=8192 $(TOPOJSON) -q 1e6 --simplify-proportion=.4 --id-property=BLOCKCE10,BLKGRPCE,FIPS,STATE_FIPS,TRACTCE -p COUNTY=name,STATE=name -- $(filter %.shp,$^) | ./topouniq states > $@
+topo/%-blocks.json: shp/%/blocks.shp shp/%/states.shp
+	mkdir -p $(dir $@) && node --max_old_space_size=8192 $(TOPOJSON) -q 1e6 --simplify-proportion=.4 --id-property=STATE_FIPS,BLOCKCE10 -p STATE=name -- $(filter %.shp,$^) | ./topouniq states > $@
 
 # For the full United States:
 # - increase TopoJSON’s quantization by 10x

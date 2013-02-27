@@ -21,7 +21,7 @@ all: \
 node_modules:
 	npm install
 
-.SECONDARY gz/%.tar.gz gz/%.zip:
+.SECONDARY:
 
 # http://www.nationalatlas.gov/atlasftp-1m.html
 gz/%.tar.gz:

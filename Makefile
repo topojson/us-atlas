@@ -1,7 +1,7 @@
 # Census Bureau Geographic Hierarchy
 # http://www.census.gov/geo/www/geodiagram.html
 
-TOPOJSON = ./node_modules/topojson/bin/topojson
+TOPOJSON = node_modules/.bin/topojson
 
 STATES = \
 	al ak az ar ca co ct de dc fl \
@@ -438,22 +438,22 @@ shp/%/counties.shp: shp/us/counties.shp
 # For individual states:
 # - remove duplicate state geometries (e.g., Great Lakes)
 topo/%-states.json: shp/%/states.shp
-	mkdir -p $(dir $@) && $(TOPOJSON) --id-property=STATE_FIPS -p STATE=name -- $(filter %.shp,$^) | ./topouniq states > $@
+	mkdir -p $(dir $@) && $(TOPOJSON) --id-property=STATE_FIPS -p name=STATE -- $(filter %.shp,$^) | ./topouniq states > $@
 
 # For individual states + counties:
 # - remove duplicate state geometries (e.g., Great Lakes)
 topo/%-counties.json: shp/%/counties.shp shp/%/states.shp
-	mkdir -p $(dir $@) && $(TOPOJSON) --id-property=FIPS,STATE_FIPS -p COUNTY=name,STATE=name -- $(filter %.shp,$^) | ./topouniq states > $@
+	mkdir -p $(dir $@) && $(TOPOJSON) --id-property=FIPS,STATE_FIPS -p name=COUNTY,name=STATE -- $(filter %.shp,$^) | ./topouniq states > $@
 
 # For individual states + counties + tracts:
 # - remove duplicate state geometries (e.g., Great Lakes)
 topo/%-tracts.json: shp/%/tracts.shp shp/%/states.shp
-	mkdir -p $(dir $@) && $(TOPOJSON) --simplify-proportion=.2 --id-property=STATE_FIPS,TRACTCE -p STATE=name -- $(filter %.shp,$^) | ./topouniq states > $@
+	mkdir -p $(dir $@) && $(TOPOJSON) --simplify-proportion=.2 --id-property=STATE_FIPS,TRACTCE -p name=STATE -- $(filter %.shp,$^) | ./topouniq states > $@
 
 # For individual states + counties + tracts + blockgroups:
 # - remove duplicate state geometries (e.g., Great Lakes)
 topo/%-blockgroups.json: shp/%/blockgroups.shp shp/%/states.shp
-	mkdir -p $(dir $@) && $(TOPOJSON) --simplify-proportion=.2 --id-property=STATE_FIPS,BLKGRPCE -p STATE=name -- $(filter %.shp,$^) | ./topouniq states > $@
+	mkdir -p $(dir $@) && $(TOPOJSON) --simplify-proportion=.2 --id-property=STATE_FIPS,BLKGRPCE -p name=STATE -- $(filter %.shp,$^) | ./topouniq states > $@
 
 # For individual states + counties + tracts + blockgroups + blocks:
 # - give TopoJSON more memory (8G, but 4G would probably work)
@@ -466,7 +466,7 @@ topo/%-blocks.json: shp/%/blocks.shp shp/%/states.shp
 # - remove duplicate state geometries (e.g., Great Lakes)
 # - merge the nation object into a single MultiPolygon
 topo/us-counties.json: shp/us/counties.shp shp/us/states.shp shp/us/nation.shp
-	mkdir -p $(dir $@) && $(TOPOJSON) -q 1e5 --id-property=FIPS,STATE_FIPS -p COUNTY=name,STATE=name -- $(filter %.shp,$^) | ./topouniq states | ./topomerge nation 1 > $@
+	mkdir -p $(dir $@) && $(TOPOJSON) -q 1e5 --id-property=FIPS,STATE_FIPS -p name=COUNTY,name=STATE -- $(filter %.shp,$^) | ./topouniq states | ./topomerge nation 1 > $@
 
 # A simplified version of us-counties.json.
 topo/us-10m.json: shp/us/counties.shp shp/us/states.shp shp/us/nation.shp

@@ -1,6 +1,6 @@
 {
   "name": "us-atlas",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Roll your own TopoJSON from the National Atlas one million-scale dataset.",
   "keywords": [
     "topojson",

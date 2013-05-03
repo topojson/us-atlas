@@ -1,7 +1,7 @@
 # Census Bureau Geographic Hierarchy
 # http://www.census.gov/geo/www/geodiagram.html
 
-TOPOJSON = node_modules/.bin/topojson
+TOPOJSON = node --max_old_space_size=8192 node_modules/.bin/topojson
 
 STATES = \
 	al ak az ar ca co ct de dc fl \
@@ -456,27 +456,24 @@ topo/%-blockgroups.json: shp/%/blockgroups.shp shp/%/states.shp
 	mkdir -p $(dir $@) && $(TOPOJSON) --simplify-proportion=.2 --id-property=STATE_FIPS,BLKGRPCE -p name=STATE -- $(filter %.shp,$^) | ./topouniq states > $@
 
 # For individual states + counties + tracts + blockgroups + blocks:
-# - give TopoJSON more memory (8G, but 4G would probably work)
 # - remove duplicate state geometries (e.g., Great Lakes)
 topo/%-blocks.json: shp/%/blocks.shp shp/%/states.shp
-	mkdir -p $(dir $@) && node --max_old_space_size=8192 $(TOPOJSON) -q 1e6 --simplify-proportion=.4 --id-property=STATE_FIPS,BLOCKCE10 -p STATE=name -- $(filter %.shp,$^) | ./topouniq states > $@
+	mkdir -p $(dir $@) && $(TOPOJSON) --simplify-proportion=.4 --id-property=STATE_FIPS,BLOCKCE10 -p STATE=name -- $(filter %.shp,$^) | ./topouniq states > $@
 
 # For the full United States:
-# - increase TopoJSON’s quantization by 10x
 # - remove duplicate state geometries (e.g., Great Lakes)
 # - merge the nation object into a single MultiPolygon
 topo/us-counties.json: shp/us/counties.shp shp/us/states.shp shp/us/nation.shp
-	mkdir -p $(dir $@) && $(TOPOJSON) -q 1e5 --id-property=FIPS,STATE_FIPS -p name=COUNTY,name=STATE -- $(filter %.shp,$^) | ./topouniq states | ./topomerge nation 1 > $@
+	mkdir -p $(dir $@) && $(TOPOJSON) --id-property=FIPS,STATE_FIPS -p name=COUNTY,name=STATE -- $(filter %.shp,$^) | ./topouniq states | ./topomerge nation 1 > $@
 
 # A simplified version of us-counties.json.
 topo/us-10m.json: shp/us/counties.shp shp/us/states.shp shp/us/nation.shp
-	mkdir -p $(dir $@) && $(TOPOJSON) -q 1e5 -s 7e-7 --id-property=+FIPS,+STATE_FIPS -- shp/us/counties.shp shp/us/states.shp land=shp/us/nation.shp | ./topouniq states | ./topomerge land 1 > $@
+	mkdir -p $(dir $@) && $(TOPOJSON) -s 7e-7 --id-property=+FIPS,+STATE_FIPS -- shp/us/counties.shp shp/us/states.shp land=shp/us/nation.shp | ./topouniq states | ./topomerge land 1 > $@
 
 # For the massive streams shapefile:
-# - give TopoJSON more memory (8G, but 4G would probably work)
 # - merge all the linestring geometries into a single massive multilinestring
 topo/us-streams.json: shp/us/streams.shp
-	mkdir -p $(dir $@) && node --max_old_space_size=8192 $(TOPOJSON) -- $< | ./topomerge streams > $@
+	mkdir -p $(dir $@) && $(TOPOJSON) -- $< | ./topomerge streams > $@
 
 # For roads:
 # - merge all the linestring geometries into a single massive multilinestring
@@ -484,4 +481,4 @@ topo/us-roads.json: shp/us/roads.shp
 	mkdir -p $(dir $@) && $(TOPOJSON) -- $< | ./topomerge roads > $@
 
 topo/us-zipcodes.json: shp/us/zipcodes.shp
-	mkdir -p $(dir $@) && node --max_old_space_size=15000 $(TOPOJSON) -q 1e5 -s 3e-7 -- $< | ./topomerge zipcodes > $@
+	mkdir -p $(dir $@) && $(TOPOJSON) -s 3e-7 -- $< | ./topomerge zipcodes > $@

@@ -1,0 +1,33 @@
+#!/usr/bin/env node
+
+var fs = require("fs"),
+    d3 = require("d3"),
+    shapefile = require("shapefile"),
+    Canvas = require("canvas");
+
+var file = fs.createWriteStream(process.argv[3]);
+
+var scale = 2,
+    width = 960 * scale,
+    height = 600 * scale;
+
+var canvas = new Canvas(width, height),
+    context = canvas.getContext("2d");
+
+context.strokeStyle = "#000";
+context.lineWidth = .5;
+context.lineJoin = "round";
+
+var projection = d3.geo.albers()
+    .scale(1280 * scale)
+    .translate([width * .48, height * .52])
+    .precision(0);
+
+var path = d3.geo.path()
+    .projection(projection)
+    .context(context);
+
+shapefile.readStream(process.argv[2])
+    .on("feature", function(feature) { context.beginPath(), path(feature), context.stroke(); })
+    .on("error", function(error) { throw error; })
+    .on("end", function() { canvas.pngStream().pipe(file); });

@@ -25,23 +25,33 @@ node_modules:
 
 # http://www.nationalatlas.gov/atlasftp-1m.html
 gz/%.tar.gz:
-	mkdir -p $(dir $@) && curl 'http://dds.cr.usgs.gov/pub/data/nationalatlas/$(notdir $@)' -o $@.download && mv $@.download $@
+	mkdir -p $(dir $@)
+	curl 'http://dds.cr.usgs.gov/pub/data/nationalatlas/$(notdir $@)' -o $@.download
+	mv $@.download $@
 
 # Zip Code Tabulation Areas
 gz/tl_2012_us_zcta510.zip:
-	mkdir -p $(dir $@) && curl 'http://www2.census.gov/geo/tiger/TIGER2012/ZCTA5/$(notdir $@)' -o $@.download && mv $@.download $@
+	mkdir -p $(dir $@)
+	curl 'http://www2.census.gov/geo/tiger/TIGER2012/ZCTA5/$(notdir $@)' -o $@.download
+	mv $@.download $@
 
 # Census Tracts
 gz/tl_2012_%_tract.zip:
-	mkdir -p $(dir $@) && curl 'http://www2.census.gov/geo/tiger/TIGER2012/TRACT/$(notdir $@)' -o $@.download && mv $@.download $@
+	mkdir -p $(dir $@)
+	curl 'http://www2.census.gov/geo/tiger/TIGER2012/TRACT/$(notdir $@)' -o $@.download
+	mv $@.download $@
 
 # Census Block Groups
 gz/tl_2012_%_bg.zip:
-	mkdir -p $(dir $@) && curl 'http://www2.census.gov/geo/tiger/TIGER2012/BG/$(notdir $@)' -o $@.download && mv $@.download $@
+	mkdir -p $(dir $@)
+	curl 'http://www2.census.gov/geo/tiger/TIGER2012/BG/$(notdir $@)' -o $@.download
+	mv $@.download $@
 
 # Census Blocks
 gz/tl_2012_%_tabblock.zip:
-	mkdir -p $(dir $@) && curl 'http://www2.census.gov/geo/tiger/TIGER2012/TABBLOCK/$(notdir $@)' -o $@.download && mv $@.download $@
+	mkdir -p $(dir $@)
+	curl 'http://www2.census.gov/geo/tiger/TIGER2012/TABBLOCK/$(notdir $@)' -o $@.download
+	mv $@.download $@
 
 shp/us/nation.shp: gz/nationalp010g_nt00797.tar.gz
 shp/us/states.shp: gz/statep010_nt00798.tar.gz
@@ -242,243 +252,384 @@ shp/um/blocks.shp: gz/tl_2012_74_tabblock.zip
 shp/vi/blocks.shp: gz/tl_2012_78_tabblock.zip
 
 shp/us/%.shp:
-	rm -rf $(basename $@) && mkdir -p $(basename $@) && tar -xzm -C $(basename $@) -f $<
+	rm -rf $(basename $@)
+	mkdir -p $(basename $@)
+	tar -xzm -C $(basename $@) -f $<
 	for file in $(basename $@)/*; do chmod 644 $$file; mv $$file $(basename $@).$${file##*.}; done
 	rmdir $(basename $@)
 
 shp/us/zipcodes.shp shp/%/tracts.shp shp/%/blockgroups.shp shp/%/blocks.shp:
-	rm -rf $(basename $@) && mkdir -p $(basename $@) && unzip -d $(basename $@) $<
+	rm -rf $(basename $@)
+	mkdir -p $(basename $@)
+	unzip -d $(basename $@) $<
 	for file in $(basename $@)/*; do chmod 644 $$file; mv $$file $(basename $@).$${file##*.}; done
 	rmdir $(basename $@)
 	touch $@
 
 shp/al/states.shp: shp/us/states.shp
-	mkdir -p $(dir $@) && rm -f $@ && ogr2ogr -f 'ESRI Shapefile' -where "STATE_FIPS = '01'" $@ $<
+	mkdir -p $(dir $@)
+	rm -f $@
+	ogr2ogr -f 'ESRI Shapefile' -where "STATE_FIPS = '01'" $@ $<
 
 shp/ak/states.shp: shp/us/states.shp
-	mkdir -p $(dir $@) && rm -f $@ && ogr2ogr -f 'ESRI Shapefile' -where "STATE_FIPS = '02'" $@ $<
+	mkdir -p $(dir $@)
+	rm -f $@
+	ogr2ogr -f 'ESRI Shapefile' -where "STATE_FIPS = '02'" $@ $<
 
 shp/az/states.shp: shp/us/states.shp
-	mkdir -p $(dir $@) && rm -f $@ && ogr2ogr -f 'ESRI Shapefile' -where "STATE_FIPS = '04'" $@ $<
+	mkdir -p $(dir $@)
+	rm -f $@
+	ogr2ogr -f 'ESRI Shapefile' -where "STATE_FIPS = '04'" $@ $<
 
 shp/ar/states.shp: shp/us/states.shp
-	mkdir -p $(dir $@) && rm -f $@ && ogr2ogr -f 'ESRI Shapefile' -where "STATE_FIPS = '05'" $@ $<
+	mkdir -p $(dir $@)
+	rm -f $@
+	ogr2ogr -f 'ESRI Shapefile' -where "STATE_FIPS = '05'" $@ $<
 
 shp/ca/states.shp: shp/us/states.shp
-	mkdir -p $(dir $@) && rm -f $@ && ogr2ogr -f 'ESRI Shapefile' -where "STATE_FIPS = '06'" $@ $<
+	mkdir -p $(dir $@)
+	rm -f $@
+	ogr2ogr -f 'ESRI Shapefile' -where "STATE_FIPS = '06'" $@ $<
 
 shp/co/states.shp: shp/us/states.shp
-	mkdir -p $(dir $@) && rm -f $@ && ogr2ogr -f 'ESRI Shapefile' -where "STATE_FIPS = '08'" $@ $<
+	mkdir -p $(dir $@)
+	rm -f $@
+	ogr2ogr -f 'ESRI Shapefile' -where "STATE_FIPS = '08'" $@ $<
 
 shp/ct/states.shp: shp/us/states.shp
-	mkdir -p $(dir $@) && rm -f $@ && ogr2ogr -f 'ESRI Shapefile' -where "STATE_FIPS = '09'" $@ $<
+	mkdir -p $(dir $@)
+	rm -f $@
+	ogr2ogr -f 'ESRI Shapefile' -where "STATE_FIPS = '09'" $@ $<
 
 shp/de/states.shp: shp/us/states.shp
-	mkdir -p $(dir $@) && rm -f $@ && ogr2ogr -f 'ESRI Shapefile' -where "STATE_FIPS = '10'" $@ $<
+	mkdir -p $(dir $@)
+	rm -f $@
+	ogr2ogr -f 'ESRI Shapefile' -where "STATE_FIPS = '10'" $@ $<
 
 shp/dc/states.shp: shp/us/states.shp
-	mkdir -p $(dir $@) && rm -f $@ && ogr2ogr -f 'ESRI Shapefile' -where "STATE_FIPS = '11'" $@ $<
+	mkdir -p $(dir $@)
+	rm -f $@
+	ogr2ogr -f 'ESRI Shapefile' -where "STATE_FIPS = '11'" $@ $<
 
 shp/fl/states.shp: shp/us/states.shp
-	mkdir -p $(dir $@) && rm -f $@ && ogr2ogr -f 'ESRI Shapefile' -where "STATE_FIPS = '12'" $@ $<
+	mkdir -p $(dir $@)
+	rm -f $@
+	ogr2ogr -f 'ESRI Shapefile' -where "STATE_FIPS = '12'" $@ $<
 
 shp/ga/states.shp: shp/us/states.shp
-	mkdir -p $(dir $@) && rm -f $@ && ogr2ogr -f 'ESRI Shapefile' -where "STATE_FIPS = '13'" $@ $<
+	mkdir -p $(dir $@)
+	rm -f $@
+	ogr2ogr -f 'ESRI Shapefile' -where "STATE_FIPS = '13'" $@ $<
 
 shp/hi/states.shp: shp/us/states.shp
-	mkdir -p $(dir $@) && rm -f $@ && ogr2ogr -f 'ESRI Shapefile' -where "STATE_FIPS = '15'" $@ $<
+	mkdir -p $(dir $@)
+	rm -f $@
+	ogr2ogr -f 'ESRI Shapefile' -where "STATE_FIPS = '15'" $@ $<
 
 shp/id/states.shp: shp/us/states.shp
-	mkdir -p $(dir $@) && rm -f $@ && ogr2ogr -f 'ESRI Shapefile' -where "STATE_FIPS = '16'" $@ $<
+	mkdir -p $(dir $@)
+	rm -f $@
+	ogr2ogr -f 'ESRI Shapefile' -where "STATE_FIPS = '16'" $@ $<
 
 shp/il/states.shp: shp/us/states.shp
-	mkdir -p $(dir $@) && rm -f $@ && ogr2ogr -f 'ESRI Shapefile' -where "STATE_FIPS = '17'" $@ $<
+	mkdir -p $(dir $@)
+	rm -f $@
+	ogr2ogr -f 'ESRI Shapefile' -where "STATE_FIPS = '17'" $@ $<
 
 shp/in/states.shp: shp/us/states.shp
-	mkdir -p $(dir $@) && rm -f $@ && ogr2ogr -f 'ESRI Shapefile' -where "STATE_FIPS = '18'" $@ $<
+	mkdir -p $(dir $@)
+	rm -f $@
+	ogr2ogr -f 'ESRI Shapefile' -where "STATE_FIPS = '18'" $@ $<
 
 shp/ia/states.shp: shp/us/states.shp
-	mkdir -p $(dir $@) && rm -f $@ && ogr2ogr -f 'ESRI Shapefile' -where "STATE_FIPS = '19'" $@ $<
+	mkdir -p $(dir $@)
+	rm -f $@
+	ogr2ogr -f 'ESRI Shapefile' -where "STATE_FIPS = '19'" $@ $<
 
 shp/ks/states.shp: shp/us/states.shp
-	mkdir -p $(dir $@) && rm -f $@ && ogr2ogr -f 'ESRI Shapefile' -where "STATE_FIPS = '20'" $@ $<
+	mkdir -p $(dir $@)
+	rm -f $@
+	ogr2ogr -f 'ESRI Shapefile' -where "STATE_FIPS = '20'" $@ $<
 
 shp/ky/states.shp: shp/us/states.shp
-	mkdir -p $(dir $@) && rm -f $@ && ogr2ogr -f 'ESRI Shapefile' -where "STATE_FIPS = '21'" $@ $<
+	mkdir -p $(dir $@)
+	rm -f $@
+	ogr2ogr -f 'ESRI Shapefile' -where "STATE_FIPS = '21'" $@ $<
 
 shp/la/states.shp: shp/us/states.shp
-	mkdir -p $(dir $@) && rm -f $@ && ogr2ogr -f 'ESRI Shapefile' -where "STATE_FIPS = '22'" $@ $<
+	mkdir -p $(dir $@)
+	rm -f $@
+	ogr2ogr -f 'ESRI Shapefile' -where "STATE_FIPS = '22'" $@ $<
 
 shp/me/states.shp: shp/us/states.shp
-	mkdir -p $(dir $@) && rm -f $@ && ogr2ogr -f 'ESRI Shapefile' -where "STATE_FIPS = '23'" $@ $<
+	mkdir -p $(dir $@)
+	rm -f $@
+	ogr2ogr -f 'ESRI Shapefile' -where "STATE_FIPS = '23'" $@ $<
 
 shp/md/states.shp: shp/us/states.shp
-	mkdir -p $(dir $@) && rm -f $@ && ogr2ogr -f 'ESRI Shapefile' -where "STATE_FIPS = '24'" $@ $<
+	mkdir -p $(dir $@)
+	rm -f $@
+	ogr2ogr -f 'ESRI Shapefile' -where "STATE_FIPS = '24'" $@ $<
 
 shp/ma/states.shp: shp/us/states.shp
-	mkdir -p $(dir $@) && rm -f $@ && ogr2ogr -f 'ESRI Shapefile' -where "STATE_FIPS = '25'" $@ $<
+	mkdir -p $(dir $@)
+	rm -f $@
+	ogr2ogr -f 'ESRI Shapefile' -where "STATE_FIPS = '25'" $@ $<
 
 shp/mi/states.shp: shp/us/states.shp
-	mkdir -p $(dir $@) && rm -f $@ && ogr2ogr -f 'ESRI Shapefile' -where "STATE_FIPS = '26'" $@ $<
+	mkdir -p $(dir $@)
+	rm -f $@
+	ogr2ogr -f 'ESRI Shapefile' -where "STATE_FIPS = '26'" $@ $<
 
 shp/mn/states.shp: shp/us/states.shp
-	mkdir -p $(dir $@) && rm -f $@ && ogr2ogr -f 'ESRI Shapefile' -where "STATE_FIPS = '27'" $@ $<
+	mkdir -p $(dir $@)
+	rm -f $@
+	ogr2ogr -f 'ESRI Shapefile' -where "STATE_FIPS = '27'" $@ $<
 
 shp/ms/states.shp: shp/us/states.shp
-	mkdir -p $(dir $@) && rm -f $@ && ogr2ogr -f 'ESRI Shapefile' -where "STATE_FIPS = '28'" $@ $<
+	mkdir -p $(dir $@)
+	rm -f $@
+	ogr2ogr -f 'ESRI Shapefile' -where "STATE_FIPS = '28'" $@ $<
 
 shp/mo/states.shp: shp/us/states.shp
-	mkdir -p $(dir $@) && rm -f $@ && ogr2ogr -f 'ESRI Shapefile' -where "STATE_FIPS = '29'" $@ $<
+	mkdir -p $(dir $@)
+	rm -f $@
+	ogr2ogr -f 'ESRI Shapefile' -where "STATE_FIPS = '29'" $@ $<
 
 shp/mt/states.shp: shp/us/states.shp
-	mkdir -p $(dir $@) && rm -f $@ && ogr2ogr -f 'ESRI Shapefile' -where "STATE_FIPS = '30'" $@ $<
+	mkdir -p $(dir $@)
+	rm -f $@
+	ogr2ogr -f 'ESRI Shapefile' -where "STATE_FIPS = '30'" $@ $<
 
 shp/ne/states.shp: shp/us/states.shp
-	mkdir -p $(dir $@) && rm -f $@ && ogr2ogr -f 'ESRI Shapefile' -where "STATE_FIPS = '31'" $@ $<
+	mkdir -p $(dir $@)
+	rm -f $@
+	ogr2ogr -f 'ESRI Shapefile' -where "STATE_FIPS = '31'" $@ $<
 
 shp/nv/states.shp: shp/us/states.shp
-	mkdir -p $(dir $@) && rm -f $@ && ogr2ogr -f 'ESRI Shapefile' -where "STATE_FIPS = '32'" $@ $<
+	mkdir -p $(dir $@)
+	rm -f $@
+	ogr2ogr -f 'ESRI Shapefile' -where "STATE_FIPS = '32'" $@ $<
 
 shp/nh/states.shp: shp/us/states.shp
-	mkdir -p $(dir $@) && rm -f $@ && ogr2ogr -f 'ESRI Shapefile' -where "STATE_FIPS = '33'" $@ $<
+	mkdir -p $(dir $@)
+	rm -f $@
+	ogr2ogr -f 'ESRI Shapefile' -where "STATE_FIPS = '33'" $@ $<
 
 shp/nj/states.shp: shp/us/states.shp
-	mkdir -p $(dir $@) && rm -f $@ && ogr2ogr -f 'ESRI Shapefile' -where "STATE_FIPS = '34'" $@ $<
+	mkdir -p $(dir $@)
+	rm -f $@
+	ogr2ogr -f 'ESRI Shapefile' -where "STATE_FIPS = '34'" $@ $<
 
 shp/nm/states.shp: shp/us/states.shp
-	mkdir -p $(dir $@) && rm -f $@ && ogr2ogr -f 'ESRI Shapefile' -where "STATE_FIPS = '35'" $@ $<
+	mkdir -p $(dir $@)
+	rm -f $@
+	ogr2ogr -f 'ESRI Shapefile' -where "STATE_FIPS = '35'" $@ $<
 
 shp/ny/states.shp: shp/us/states.shp
-	mkdir -p $(dir $@) && rm -f $@ && ogr2ogr -f 'ESRI Shapefile' -where "STATE_FIPS = '36'" $@ $<
+	mkdir -p $(dir $@)
+	rm -f $@
+	ogr2ogr -f 'ESRI Shapefile' -where "STATE_FIPS = '36'" $@ $<
 
 shp/nc/states.shp: shp/us/states.shp
-	mkdir -p $(dir $@) && rm -f $@ && ogr2ogr -f 'ESRI Shapefile' -where "STATE_FIPS = '37'" $@ $<
+	mkdir -p $(dir $@)
+	rm -f $@
+	ogr2ogr -f 'ESRI Shapefile' -where "STATE_FIPS = '37'" $@ $<
 
 shp/nd/states.shp: shp/us/states.shp
-	mkdir -p $(dir $@) && rm -f $@ && ogr2ogr -f 'ESRI Shapefile' -where "STATE_FIPS = '38'" $@ $<
+	mkdir -p $(dir $@)
+	rm -f $@
+	ogr2ogr -f 'ESRI Shapefile' -where "STATE_FIPS = '38'" $@ $<
 
 shp/oh/states.shp: shp/us/states.shp
-	mkdir -p $(dir $@) && rm -f $@ && ogr2ogr -f 'ESRI Shapefile' -where "STATE_FIPS = '39'" $@ $<
+	mkdir -p $(dir $@)
+	rm -f $@
+	ogr2ogr -f 'ESRI Shapefile' -where "STATE_FIPS = '39'" $@ $<
 
 shp/ok/states.shp: shp/us/states.shp
-	mkdir -p $(dir $@) && rm -f $@ && ogr2ogr -f 'ESRI Shapefile' -where "STATE_FIPS = '40'" $@ $<
+	mkdir -p $(dir $@)
+	rm -f $@
+	ogr2ogr -f 'ESRI Shapefile' -where "STATE_FIPS = '40'" $@ $<
 
 shp/or/states.shp: shp/us/states.shp
-	mkdir -p $(dir $@) && rm -f $@ && ogr2ogr -f 'ESRI Shapefile' -where "STATE_FIPS = '41'" $@ $<
+	mkdir -p $(dir $@)
+	rm -f $@
+	ogr2ogr -f 'ESRI Shapefile' -where "STATE_FIPS = '41'" $@ $<
 
 shp/pa/states.shp: shp/us/states.shp
-	mkdir -p $(dir $@) && rm -f $@ && ogr2ogr -f 'ESRI Shapefile' -where "STATE_FIPS = '42'" $@ $<
+	mkdir -p $(dir $@)
+	rm -f $@
+	ogr2ogr -f 'ESRI Shapefile' -where "STATE_FIPS = '42'" $@ $<
 
 shp/ri/states.shp: shp/us/states.shp
-	mkdir -p $(dir $@) && rm -f $@ && ogr2ogr -f 'ESRI Shapefile' -where "STATE_FIPS = '44'" $@ $<
+	mkdir -p $(dir $@)
+	rm -f $@
+	ogr2ogr -f 'ESRI Shapefile' -where "STATE_FIPS = '44'" $@ $<
 
 shp/sc/states.shp: shp/us/states.shp
-	mkdir -p $(dir $@) && rm -f $@ && ogr2ogr -f 'ESRI Shapefile' -where "STATE_FIPS = '45'" $@ $<
+	mkdir -p $(dir $@)
+	rm -f $@
+	ogr2ogr -f 'ESRI Shapefile' -where "STATE_FIPS = '45'" $@ $<
 
 shp/sd/states.shp: shp/us/states.shp
-	mkdir -p $(dir $@) && rm -f $@ && ogr2ogr -f 'ESRI Shapefile' -where "STATE_FIPS = '46'" $@ $<
+	mkdir -p $(dir $@)
+	rm -f $@
+	ogr2ogr -f 'ESRI Shapefile' -where "STATE_FIPS = '46'" $@ $<
 
 shp/tn/states.shp: shp/us/states.shp
-	mkdir -p $(dir $@) && rm -f $@ && ogr2ogr -f 'ESRI Shapefile' -where "STATE_FIPS = '47'" $@ $<
+	mkdir -p $(dir $@)
+	rm -f $@
+	ogr2ogr -f 'ESRI Shapefile' -where "STATE_FIPS = '47'" $@ $<
 
 shp/tx/states.shp: shp/us/states.shp
-	mkdir -p $(dir $@) && rm -f $@ && ogr2ogr -f 'ESRI Shapefile' -where "STATE_FIPS = '48'" $@ $<
+	mkdir -p $(dir $@)
+	rm -f $@
+	ogr2ogr -f 'ESRI Shapefile' -where "STATE_FIPS = '48'" $@ $<
 
 shp/ut/states.shp: shp/us/states.shp
-	mkdir -p $(dir $@) && rm -f $@ && ogr2ogr -f 'ESRI Shapefile' -where "STATE_FIPS = '49'" $@ $<
+	mkdir -p $(dir $@)
+	rm -f $@
+	ogr2ogr -f 'ESRI Shapefile' -where "STATE_FIPS = '49'" $@ $<
 
 shp/vt/states.shp: shp/us/states.shp
-	mkdir -p $(dir $@) && rm -f $@ && ogr2ogr -f 'ESRI Shapefile' -where "STATE_FIPS = '50'" $@ $<
+	mkdir -p $(dir $@)
+	rm -f $@
+	ogr2ogr -f 'ESRI Shapefile' -where "STATE_FIPS = '50'" $@ $<
 
 shp/va/states.shp: shp/us/states.shp
-	mkdir -p $(dir $@) && rm -f $@ && ogr2ogr -f 'ESRI Shapefile' -where "STATE_FIPS = '51'" $@ $<
+	mkdir -p $(dir $@)
+	rm -f $@
+	ogr2ogr -f 'ESRI Shapefile' -where "STATE_FIPS = '51'" $@ $<
 
 shp/wa/states.shp: shp/us/states.shp
-	mkdir -p $(dir $@) && rm -f $@ && ogr2ogr -f 'ESRI Shapefile' -where "STATE_FIPS = '53'" $@ $<
+	mkdir -p $(dir $@)
+	rm -f $@
+	ogr2ogr -f 'ESRI Shapefile' -where "STATE_FIPS = '53'" $@ $<
 
 shp/wv/states.shp: shp/us/states.shp
-	mkdir -p $(dir $@) && rm -f $@ && ogr2ogr -f 'ESRI Shapefile' -where "STATE_FIPS = '54'" $@ $<
+	mkdir -p $(dir $@)
+	rm -f $@
+	ogr2ogr -f 'ESRI Shapefile' -where "STATE_FIPS = '54'" $@ $<
 
 shp/wi/states.shp: shp/us/states.shp
-	mkdir -p $(dir $@) && rm -f $@ && ogr2ogr -f 'ESRI Shapefile' -where "STATE_FIPS = '55'" $@ $<
+	mkdir -p $(dir $@)
+	rm -f $@
+	ogr2ogr -f 'ESRI Shapefile' -where "STATE_FIPS = '55'" $@ $<
 
 shp/wy/states.shp: shp/us/states.shp
-	mkdir -p $(dir $@) && rm -f $@ && ogr2ogr -f 'ESRI Shapefile' -where "STATE_FIPS = '56'" $@ $<
+	mkdir -p $(dir $@)
+	rm -f $@
+	ogr2ogr -f 'ESRI Shapefile' -where "STATE_FIPS = '56'" $@ $<
 
 shp/as/states.shp: shp/us/states.shp
-	mkdir -p $(dir $@) && rm -f $@ && ogr2ogr -f 'ESRI Shapefile' -where "STATE_FIPS = '60'" $@ $<
+	mkdir -p $(dir $@)
+	rm -f $@
+	ogr2ogr -f 'ESRI Shapefile' -where "STATE_FIPS = '60'" $@ $<
 
 shp/fm/states.shp: shp/us/states.shp
-	mkdir -p $(dir $@) && rm -f $@ && ogr2ogr -f 'ESRI Shapefile' -where "STATE_FIPS = '64'" $@ $<
+	mkdir -p $(dir $@)
+	rm -f $@
+	ogr2ogr -f 'ESRI Shapefile' -where "STATE_FIPS = '64'" $@ $<
 
 shp/gu/states.shp: shp/us/states.shp
-	mkdir -p $(dir $@) && rm -f $@ && ogr2ogr -f 'ESRI Shapefile' -where "STATE_FIPS = '66'" $@ $<
+	mkdir -p $(dir $@)
+	rm -f $@
+	ogr2ogr -f 'ESRI Shapefile' -where "STATE_FIPS = '66'" $@ $<
 
 shp/mh/states.shp: shp/us/states.shp
-	mkdir -p $(dir $@) && rm -f $@ && ogr2ogr -f 'ESRI Shapefile' -where "STATE_FIPS = '68'" $@ $<
+	mkdir -p $(dir $@)
+	rm -f $@
+	ogr2ogr -f 'ESRI Shapefile' -where "STATE_FIPS = '68'" $@ $<
 
 shp/mp/states.shp: shp/us/states.shp
-	mkdir -p $(dir $@) && rm -f $@ && ogr2ogr -f 'ESRI Shapefile' -where "STATE_FIPS = '69'" $@ $<
+	mkdir -p $(dir $@)
+	rm -f $@
+	ogr2ogr -f 'ESRI Shapefile' -where "STATE_FIPS = '69'" $@ $<
 
 shp/pw/states.shp: shp/us/states.shp
-	mkdir -p $(dir $@) && rm -f $@ && ogr2ogr -f 'ESRI Shapefile' -where "STATE_FIPS = '70'" $@ $<
+	mkdir -p $(dir $@)
+	rm -f $@
+	ogr2ogr -f 'ESRI Shapefile' -where "STATE_FIPS = '70'" $@ $<
 
 shp/pr/states.shp: shp/us/states.shp
-	mkdir -p $(dir $@) && rm -f $@ && ogr2ogr -f 'ESRI Shapefile' -where "STATE_FIPS = '72'" $@ $<
+	mkdir -p $(dir $@)
+	rm -f $@
+	ogr2ogr -f 'ESRI Shapefile' -where "STATE_FIPS = '72'" $@ $<
 
 shp/um/states.shp: shp/us/states.shp
-	mkdir -p $(dir $@) && rm -f $@ && ogr2ogr -f 'ESRI Shapefile' -where "STATE_FIPS = '74'" $@ $<
+	mkdir -p $(dir $@)
+	rm -f $@
+	ogr2ogr -f 'ESRI Shapefile' -where "STATE_FIPS = '74'" $@ $<
 
 shp/vi/states.shp: shp/us/states.shp
-	mkdir -p $(dir $@) && rm -f $@ && ogr2ogr -f 'ESRI Shapefile' -where "STATE_FIPS = '78'" $@ $<
+	mkdir -p $(dir $@)
+	rm -f $@
+	ogr2ogr -f 'ESRI Shapefile' -where "STATE_FIPS = '78'" $@ $<
 
 shp/%/counties.shp: shp/us/counties.shp
-	mkdir -p $(dir $@) && rm -f $@ && ogr2ogr -f 'ESRI Shapefile' -where "STATE = '`echo $* | tr a-z A-Z`'" $@ $<
+	mkdir -p $(dir $@)
+	rm -f $@
+	ogr2ogr -f 'ESRI Shapefile' -where "STATE = '`echo $* | tr a-z A-Z`'" $@ $<
 
 # For individual states:
 # - remove duplicate state geometries (e.g., Great Lakes)
 topo/%-states.json: shp/%/states.shp
-	mkdir -p $(dir $@) && $(TOPOJSON) -q 1e5 --id-property=STATE_FIPS -p name=STATE -- $(filter %.shp,$^) | ./topouniq states > $@
+	mkdir -p $(dir $@)
+	$(TOPOJSON) -q 1e5 --id-property=STATE_FIPS -p name=STATE -- $(filter %.shp,$^) | ./topouniq states > $@
 
 # For individual states + counties:
 # - remove duplicate state geometries (e.g., Great Lakes)
 topo/%-counties.json: shp/%/counties.shp shp/%/states.shp
-	mkdir -p $(dir $@) && $(TOPOJSON) -q 1e5 --id-property=FIPS,STATE_FIPS -p name=COUNTY,name=STATE -- $(filter %.shp,$^) | ./topouniq states > $@
+	mkdir -p $(dir $@)
+	$(TOPOJSON) -q 1e5 --id-property=FIPS,STATE_FIPS -p name=COUNTY,name=STATE -- $(filter %.shp,$^) | ./topouniq states > $@
 
 # For individual states + counties + tracts:
 # - remove duplicate state geometries (e.g., Great Lakes)
 topo/%-tracts.json: shp/%/tracts.shp shp/%/states.shp
-	mkdir -p $(dir $@) && $(TOPOJSON) -q 1e5 --simplify-proportion=.2 --id-property=STATE_FIPS,TRACTCE -p name=STATE -- $(filter %.shp,$^) | ./topouniq states > $@
+	mkdir -p $(dir $@)
+	$(TOPOJSON) -q 1e5 --simplify-proportion=.2 --id-property=STATE_FIPS,TRACTCE -p name=STATE -- $(filter %.shp,$^) | ./topouniq states > $@
 
 # For individual states + counties + tracts + blockgroups:
 # - remove duplicate state geometries (e.g., Great Lakes)
 topo/%-blockgroups.json: shp/%/blockgroups.shp shp/%/states.shp
-	mkdir -p $(dir $@) && $(TOPOJSON) -q 1e5 --simplify-proportion=.2 --id-property=STATE_FIPS,BLKGRPCE -p name=STATE -- $(filter %.shp,$^) | ./topouniq states > $@
+	mkdir -p $(dir $@)
+	$(TOPOJSON) -q 1e5 --simplify-proportion=.2 --id-property=STATE_FIPS,BLKGRPCE -p name=STATE -- $(filter %.shp,$^) | ./topouniq states > $@
 
 # For individual states + counties + tracts + blockgroups + blocks:
 # - remove duplicate state geometries (e.g., Great Lakes)
 topo/%-blocks.json: shp/%/blocks.shp shp/%/states.shp
-	mkdir -p $(dir $@) && $(TOPOJSON) -q 1e6 --simplify-proportion=.4 --id-property=STATE_FIPS,BLOCKCE10 -p STATE=name -- $(filter %.shp,$^) | ./topouniq states > $@
+	mkdir -p $(dir $@)
+	$(TOPOJSON) -q 1e6 --simplify-proportion=.4 --id-property=STATE_FIPS,BLOCKCE10 -p STATE=name -- $(filter %.shp,$^) | ./topouniq states > $@
 
 # For the full United States:
 # - remove duplicate state geometries (e.g., Great Lakes)
 # - merge the nation object into a single MultiPolygon
 topo/us-counties.json: shp/us/counties.shp shp/us/states.shp shp/us/nation.shp
-	mkdir -p $(dir $@) && $(TOPOJSON) -q 1e5 --id-property=FIPS,STATE_FIPS -p name=COUNTY,name=STATE -- $(filter %.shp,$^) | ./topouniq states | ./topomerge nation 1 > $@
+	mkdir -p $(dir $@)
+	$(TOPOJSON) -q 1e5 --id-property=FIPS,STATE_FIPS -p name=COUNTY,name=STATE -- $(filter %.shp,$^) | ./topouniq states | ./topomerge nation 1 > $@
 
 # A simplified version of us-counties.json.
 topo/us-10m.json: shp/us/counties.shp shp/us/states.shp shp/us/nation.shp
-	mkdir -p $(dir $@) && $(TOPOJSON) -q 1e5 -s 7e-7 --id-property=+FIPS,+STATE_FIPS -- shp/us/counties.shp shp/us/states.shp land=shp/us/nation.shp | ./topouniq states | ./topomerge land 1 > $@
+	mkdir -p $(dir $@)
+	$(TOPOJSON) -q 1e5 -s 7e-7 --id-property=+FIPS,+STATE_FIPS -- shp/us/counties.shp shp/us/states.shp land=shp/us/nation.shp | ./topouniq states | ./topomerge land 1 > $@
 
 # For the massive streams shapefile:
 # - merge all the linestring geometries into a single massive multilinestring
 topo/us-streams.json: shp/us/streams.shp
-	mkdir -p $(dir $@) && $(TOPOJSON) -q 1e5 -- $< | ./topomerge streams > $@
+	mkdir -p $(dir $@)
+	$(TOPOJSON) -q 1e5 -- $< | ./topomerge streams > $@
 
 # For roads:
 # - merge all the linestring geometries into a single massive multilinestring
 topo/us-roads.json: shp/us/roads.shp
-	mkdir -p $(dir $@) && $(TOPOJSON) -q 1e5 -- $< | ./topomerge roads > $@
+	mkdir -p $(dir $@)
+	$(TOPOJSON) -q 1e5 -- $< | ./topomerge roads > $@
 
 topo/us-zipcodes.json: shp/us/zipcodes.shp
-	mkdir -p $(dir $@) && $(TOPOJSON) -q 1e5 -s 3e-7 -- $< | ./topomerge zipcodes > $@
+	mkdir -p $(dir $@)
+	$(TOPOJSON) -q 1e5 -s 3e-7 -- $< | ./topomerge zipcodes > $@
+
+png/%.png: shp/%.shp bin/rasterize
+	mkdir -p $(dir $@)
+	bin/rasterize $< $@
+	optipng $@

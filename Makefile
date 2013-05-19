@@ -65,7 +65,7 @@ shp/us/railroads.shp: gz/railrdl010_nt00800.tar.gz
 shp/us/roads.shp: gz/roadtrl010_nt00801.tar.gz
 shp/us/streams.shp: gz/streaml010_nt00804.tar.gz
 shp/us/waterbodies.shp: gz/wtrbdyp010_nt00803.tar.gz
-
+shp/us/congress.shp: gz/cgd113p010g.shp_nt00845.tar.gz
 shp/us/zipcodes.shp: gz/tl_2012_us_zcta510.zip
 
 shp/al/tracts.shp: gz/tl_2012_01_tract.zip

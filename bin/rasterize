@@ -14,6 +14,7 @@ var scale = 2,
 var canvas = new Canvas(width, height),
     context = canvas.getContext("2d");
 
+context.fillStyle = "#000";
 context.strokeStyle = "#000";
 context.lineWidth = .5;
 context.lineJoin = "round";
@@ -25,9 +26,15 @@ var projection = d3.geo.albers()
 
 var path = d3.geo.path()
     .projection(projection)
-    .context(context);
+    .context(context)
+    .pointRadius(2.5);
 
-shapefile.readStream(process.argv[2])
-    .on("feature", function(feature) { context.beginPath(), path(feature), context.stroke(); })
+shapefile.readStream(process.argv[2], {"ignore-properties": true})
+    .on("feature", function(feature) {
+      context.beginPath();
+      path(feature);
+      if (/Point$/.test(feature.geometry.type)) context.fill();
+      else context.stroke();
+    })
     .on("error", function(error) { throw error; })
     .on("end", function() { canvas.pngStream().pipe(file); });

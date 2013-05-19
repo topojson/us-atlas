@@ -59,8 +59,8 @@ shp/us/counties.shp: gz/countyp010_nt00795.tar.gz
 shp/us/coast.shp: gz/coastll010_nt00794.tar.gz
 shp/us/airports.shp: gz/airprtx010g_nt00802.tar.gz
 shp/us/ferries.shp: gz/ferry_l010g_nt00796.tar.gz
-shp/us/ports.shp: gz/portsx010_nt00799.tar.gz
-shp/us/amtrak.shp: gz/amtrakx010_nt00792.tar.gz
+shp/us/ports.shp: gz/portsx010g.shp_nt00824.tar.gz
+shp/us/amtrak.shp: gz/amtrakx010g.shp_nt00823.tar.gz
 shp/us/railroads.shp: gz/railrdl010_nt00800.tar.gz
 shp/us/roads.shp: gz/roadtrl010_nt00801.tar.gz
 shp/us/streams.shp: gz/streaml010_nt00804.tar.gz
@@ -631,5 +631,5 @@ topo/us-zipcodes.json: shp/us/zipcodes.shp
 
 png/%.png: shp/%.shp bin/rasterize
 	mkdir -p $(dir $@)
-	bin/rasterize $< $@
+	node --max_old_space_size=8192 bin/rasterize $< $@
 	optipng $@

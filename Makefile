@@ -55,7 +55,7 @@ gz/tl_2012_%_tabblock.zip:
 
 shp/us/nation.shp: gz/nationalp010g_nt00797.tar.gz
 shp/us/states.shp: gz/statep010_nt00798.tar.gz
-shp/us/counties.shp: gz/countyp010_nt00795.tar.gz
+shp/us/counties-unfiltered.shp: gz/countyp010_nt00795.tar.gz
 shp/us/coast.shp: gz/coastll010_nt00794.tar.gz
 shp/us/airports.shp: gz/airprtx010g_nt00802.tar.gz
 shp/us/ferries.shp: gz/ferry_l010g_nt00796.tar.gz
@@ -257,6 +257,10 @@ shp/us/%.shp:
 	tar -xzm -C $(basename $@) -f $<
 	for file in $(basename $@)/*; do chmod 644 $$file; mv $$file $(basename $@).$${file##*.}; done
 	rmdir $(basename $@)
+
+shp/us/counties.shp: shp/us/counties-unfiltered.shp
+	rm -f $@
+	ogr2ogr -f 'ESRI Shapefile' -where "FIPS NOT LIKE '%000'" $@ $<
 
 shp/us/zipcodes.shp shp/%/tracts.shp shp/%/blockgroups.shp shp/%/blocks.shp:
 	rm -rf $(basename $@)

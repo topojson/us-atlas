@@ -37,10 +37,13 @@ Before you can run `make`, you’ll need to install Node.js. Here’s how to do 
 brew install node
 ```
 
-And then, from this repository’s root directory, install the dependencies:
+And then, clone this repository, install its dependencies and run `make`:
 
 ```bash
+git clone https://github.com/mbostock/us-atlas.git
+cd us-atlas
 npm install
+make
 ```
 
 If you want to install this software using an alternate method see the website for [TopoJSON](https://github.com/mbostock/topojson). I also recommend reading my tutorial, [Let’s Make a Map](http://bost.ocks.org/mike/map/).

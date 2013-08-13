@@ -53,6 +53,12 @@ gz/tl_2012_%_tabblock.zip:
 	curl 'http://www2.census.gov/geo/tiger/TIGER2012/TABBLOCK/$(notdir $@)' -o $@.download
 	mv $@.download $@
 
+# Core Based Statistical Areas
+gz/tl_2012_us_cbsa.zip:
+	mkdir -p $(dir $@)
+	curl 'http://www2.census.gov/geo/tiger/TIGER2012/CBSA/$(notdir $@)' -o $@.download
+	mv $@.download $@
+
 shp/us/nation.shp: gz/nationalp010g_nt00797.tar.gz
 shp/us/states.shp: gz/statep010_nt00798.tar.gz
 shp/us/counties-unfiltered.shp: gz/countyp010_nt00795.tar.gz
@@ -67,6 +73,7 @@ shp/us/streams.shp: gz/streaml010_nt00804.tar.gz
 shp/us/waterbodies.shp: gz/wtrbdyp010_nt00803.tar.gz
 shp/us/congress.shp: gz/cgd113p010g.shp_nt00845.tar.gz
 shp/us/zipcodes.shp: gz/tl_2012_us_zcta510.zip
+shp/us/csba.shp: gz/tl_2012_us_cbsa.zip
 
 shp/al/tracts.shp: gz/tl_2012_01_tract.zip
 shp/ak/tracts.shp: gz/tl_2012_02_tract.zip
@@ -262,7 +269,7 @@ shp/us/counties.shp: shp/us/counties-unfiltered.shp
 	rm -f $@
 	ogr2ogr -f 'ESRI Shapefile' -where "FIPS NOT LIKE '%000'" $@ $<
 
-shp/us/zipcodes.shp shp/%/tracts.shp shp/%/blockgroups.shp shp/%/blocks.shp:
+shp/us/zipcodes.shp shp/us/csba.shp shp/%/tracts.shp shp/%/blockgroups.shp shp/%/blocks.shp:
 	rm -rf $(basename $@)
 	mkdir -p $(basename $@)
 	unzip -d $(basename $@) $<
@@ -632,6 +639,10 @@ topo/us-roads.json: shp/us/roads.shp
 topo/us-zipcodes.json: shp/us/zipcodes.shp
 	mkdir -p $(dir $@)
 	$(TOPOJSON) -q 1e5 -s 3e-7 -- $< | bin/topomerge zipcodes > $@
+
+topo/us-csba.json: shp/us/csba.shp
+	mkdir -p $(dir $@)
+	$(TOPOJSON) -q 1e5 --id-property=+GEOID -p name=NAMELSAD -p type=+MEMI -s 3e-7 -- $< | bin/topouniq csba > $@
 
 png/%.png: shp/%.shp bin/rasterize
 	mkdir -p $(dir $@)

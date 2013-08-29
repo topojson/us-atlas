@@ -1,7 +1,7 @@
 # Census Bureau Geographic Hierarchy
 # http://www.census.gov/geo/www/geodiagram.html
 
-TOPOJSON = node --max_old_space_size=8192 node_modules/.bin/topojson
+TOPOJSON = node --max_old_space_size=8192 node_modules/.bin/topojson -q 1e6
 
 STATES = \
 	al ak az ar ca co ct de dc fl \
@@ -586,63 +586,63 @@ shp/%/counties.shp: shp/us/counties.shp
 # - remove duplicate state geometries (e.g., Great Lakes)
 topo/%-states.json: shp/%/states.shp
 	mkdir -p $(dir $@)
-	$(TOPOJSON) -q 1e5 --id-property=STATE_FIPS -p name=STATE -- $(filter %.shp,$^) | bin/topouniq states > $@
+	$(TOPOJSON) --id-property=STATE_FIPS -p name=STATE -- $(filter %.shp,$^) | bin/topouniq states > $@
 
 # For individual states + counties:
 # - remove duplicate state geometries (e.g., Great Lakes)
 topo/%-counties.json: shp/%/counties.shp shp/%/states.shp
 	mkdir -p $(dir $@)
-	$(TOPOJSON) -q 1e5 --id-property=FIPS,STATE_FIPS -p name=COUNTY,name=STATE -- $(filter %.shp,$^) | bin/topouniq states > $@
+	$(TOPOJSON) --id-property=FIPS,STATE_FIPS -p name=COUNTY,name=STATE -- $(filter %.shp,$^) | bin/topouniq states > $@
 
 # For individual states + counties + tracts:
 # - remove duplicate state geometries (e.g., Great Lakes)
 topo/%-tracts.json: shp/%/tracts.shp shp/%/states.shp
 	mkdir -p $(dir $@)
-	$(TOPOJSON) -q 1e5 --simplify-proportion=.2 --id-property=STATE_FIPS,TRACTCE -p name=STATE -- $(filter %.shp,$^) | bin/topouniq states > $@
+	$(TOPOJSON) --simplify-proportion=.2 --id-property=STATE_FIPS,TRACTCE -p name=STATE -- $(filter %.shp,$^) | bin/topouniq states > $@
 
 # For individual states + counties + tracts + blockgroups:
 # - remove duplicate state geometries (e.g., Great Lakes)
 topo/%-blockgroups.json: shp/%/blockgroups.shp shp/%/states.shp
 	mkdir -p $(dir $@)
-	$(TOPOJSON) -q 1e5 --simplify-proportion=.2 --id-property=STATE_FIPS,BLKGRPCE -p name=STATE -- $(filter %.shp,$^) | bin/topouniq states > $@
+	$(TOPOJSON) --simplify-proportion=.2 --id-property=STATE_FIPS,BLKGRPCE -p name=STATE -- $(filter %.shp,$^) | bin/topouniq states > $@
 
 # For individual states + counties + tracts + blockgroups + blocks:
 # - remove duplicate state geometries (e.g., Great Lakes)
 topo/%-blocks.json: shp/%/blocks.shp shp/%/states.shp
 	mkdir -p $(dir $@)
-	$(TOPOJSON) -q 1e6 --simplify-proportion=.4 --id-property=STATE_FIPS,BLOCKCE10 -p STATE=name -- $(filter %.shp,$^) | bin/topouniq states > $@
+	$(TOPOJSON) --simplify-proportion=.4 --id-property=STATE_FIPS,BLOCKCE10 -p STATE=name -- $(filter %.shp,$^) | bin/topouniq states > $@
 
 # For the full United States:
 # - remove duplicate state geometries (e.g., Great Lakes)
 # - merge the nation object into a single MultiPolygon
 topo/us-counties.json: shp/us/counties.shp shp/us/states.shp shp/us/nation.shp
 	mkdir -p $(dir $@)
-	$(TOPOJSON) -q 1e5 --id-property=FIPS,STATE_FIPS -p name=COUNTY,name=STATE -- $(filter %.shp,$^) | bin/topouniq states | bin/topomerge nation 1 > $@
+	$(TOPOJSON) --id-property=FIPS,STATE_FIPS -p name=COUNTY,name=STATE -- $(filter %.shp,$^) | bin/topouniq states | bin/topomerge nation 1 > $@
 
 # A simplified version of us-counties.json.
 topo/us-10m.json: shp/us/counties.shp shp/us/states.shp shp/us/nation.shp
 	mkdir -p $(dir $@)
-	$(TOPOJSON) -q 1e5 -s 7e-7 --id-property=+FIPS,+STATE_FIPS -- shp/us/counties.shp shp/us/states.shp land=shp/us/nation.shp | bin/topouniq states | bin/topomerge land 1 > $@
+	$(TOPOJSON) -s 7e-7 --id-property=+FIPS,+STATE_FIPS -- shp/us/counties.shp shp/us/states.shp land=shp/us/nation.shp | bin/topouniq states | bin/topomerge land 1 > $@
 
 # For the massive streams shapefile:
 # - merge all the linestring geometries into a single massive multilinestring
 topo/us-streams.json: shp/us/streams.shp
 	mkdir -p $(dir $@)
-	$(TOPOJSON) -q 1e5 -- $< | bin/topomerge streams > $@
+	$(TOPOJSON) -- $< | bin/topomerge streams > $@
 
 # For roads:
 # - merge all the linestring geometries into a single massive multilinestring
 topo/us-roads.json: shp/us/roads.shp
 	mkdir -p $(dir $@)
-	$(TOPOJSON) -q 1e5 -- $< | bin/topomerge roads > $@
+	$(TOPOJSON) -- $< | bin/topomerge roads > $@
 
 topo/us-zipcodes.json: shp/us/zipcodes.shp
 	mkdir -p $(dir $@)
-	$(TOPOJSON) -q 1e5 -s 3e-7 -- $< | bin/topomerge zipcodes > $@
+	$(TOPOJSON) -s 3e-7 -- $< | bin/topomerge zipcodes > $@
 
 topo/us-cbsa.json: shp/us/cbsa.shp
 	mkdir -p $(dir $@)
-	$(TOPOJSON) -q 1e5 --id-property=+GEOID -p name=NAMELSAD -p type=+MEMI -s 3e-7 -- $< | bin/topouniq cbsa > $@
+	$(TOPOJSON) --id-property=+GEOID -p name=NAMELSAD -p type=+MEMI -s 3e-7 -- $< | bin/topouniq cbsa > $@
 
 png/%.png: shp/%.shp bin/rasterize
 	mkdir -p $(dir $@)

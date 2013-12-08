@@ -46,6 +46,7 @@ Once you've installed node, you'll to install a few more dependencies before you
 sudo yum install cairo-devel
 sudo yum install libjpeg-turbo-devel
 sudo yum install giflib-devel
+sudo yum install gdal
 ```
 
 And then, clone this repository, install its dependencies and run `make`:

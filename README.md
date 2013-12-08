@@ -38,6 +38,16 @@ Before you can run `make`, you’ll need to install Node.js. Here’s how to do 
 brew install node
 ```
 
+## Installing Dependencies via Yum
+
+Once you've installed node, you'll to install a few more dependencies before you can run npm install:
+
+```bash
+sudo yum install cairo-devel
+sudo yum install libjpeg-turbo-devel
+sudo yum install giflib-devel
+```
+
 And then, clone this repository, install its dependencies and run `make`:
 
 ```bash

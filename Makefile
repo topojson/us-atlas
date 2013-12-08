@@ -269,7 +269,39 @@ shp/us/counties.shp: shp/us/counties-unfiltered.shp
 	rm -f $@
 	ogr2ogr -f 'ESRI Shapefile' -where "FIPS NOT LIKE '%000'" $@ $<
 
-shp/us/zipcodes.shp shp/us/cbsa.shp shp/%/tracts.shp shp/%/blockgroups.shp shp/%/blocks.shp:
+shp/us/zipcodes.shp:
+	rm -rf $(basename $@)
+	mkdir -p $(basename $@)
+	unzip -d $(basename $@) $<
+	for file in $(basename $@)/*; do chmod 644 $$file; mv $$file $(basename $@).$${file##*.}; done
+	rmdir $(basename $@)
+	touch $@
+
+shp/us/cbsa.shp:
+	rm -rf $(basename $@)
+	mkdir -p $(basename $@)
+	unzip -d $(basename $@) $<
+	for file in $(basename $@)/*; do chmod 644 $$file; mv $$file $(basename $@).$${file##*.}; done
+	rmdir $(basename $@)
+	touch $@
+
+shp/%/tracts.shp:
+	rm -rf $(basename $@)
+	mkdir -p $(basename $@)
+	unzip -d $(basename $@) $<
+	for file in $(basename $@)/*; do chmod 644 $$file; mv $$file $(basename $@).$${file##*.}; done
+	rmdir $(basename $@)
+	touch $@
+
+shp/%/blockgroups.shp:
+	rm -rf $(basename $@)
+	mkdir -p $(basename $@)
+	unzip -d $(basename $@) $<
+	for file in $(basename $@)/*; do chmod 644 $$file; mv $$file $(basename $@).$${file##*.}; done
+	rmdir $(basename $@)
+	touch $@
+
+shp/%/blocks.shp:
 	rm -rf $(basename $@)
 	mkdir -p $(basename $@)
 	unzip -d $(basename $@) $<

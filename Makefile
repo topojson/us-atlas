@@ -59,8 +59,8 @@ gz/tl_2012_us_cbsa.zip:
 	curl 'http://www2.census.gov/geo/tiger/TIGER2012/CBSA/$(notdir $@)' -o $@.download
 	mv $@.download $@
 
-shp/us/nation.shp: gz/nationalp010g_nt00797.tar.gz
-shp/us/states.shp: gz/statep010_nt00798.tar.gz
+shp/us/nation-unmerged.shp: gz/nationalp010g_nt00797.tar.gz
+shp/us/states-unfiltered.shp: gz/statep010_nt00798.tar.gz
 shp/us/counties-unfiltered.shp: gz/countyp010_nt00795.tar.gz
 shp/us/coast.shp: gz/coastll010_nt00794.tar.gz
 shp/us/airports.shp: gz/airprtx010g_nt00802.tar.gz
@@ -68,11 +68,11 @@ shp/us/ferries.shp: gz/ferry_l010g_nt00796.tar.gz
 shp/us/ports.shp: gz/portsx010g.shp_nt00824.tar.gz
 shp/us/amtrak.shp: gz/amtrakx010g.shp_nt00823.tar.gz
 shp/us/railroads.shp: gz/railrdl010_nt00800.tar.gz
-shp/us/roads.shp: gz/roadtrl010_nt00801.tar.gz
-shp/us/streams.shp: gz/streaml010_nt00804.tar.gz
+shp/us/roads-unmerged.shp: gz/roadtrl010_nt00801.tar.gz
+shp/us/streams-unmerged.shp: gz/streaml010_nt00804.tar.gz
 shp/us/waterbodies.shp: gz/wtrbdyp010_nt00803.tar.gz
 shp/us/congress.shp: gz/cgd113p010g.shp_nt00845.tar.gz
-shp/us/zipcodes.shp: gz/tl_2012_us_zcta510.zip
+shp/us/zipcodes-unmerged.shp: gz/tl_2012_us_zcta510.zip
 shp/us/cbsa.shp: gz/tl_2012_us_cbsa.zip
 
 shp/al/tracts.shp: gz/tl_2012_01_tract.zip
@@ -265,9 +265,30 @@ shp/us/%.shp:
 	for file in $(basename $@)/*; do chmod 644 $$file; mv $$file $(basename $@).$${file##*.}; done
 	rmdir $(basename $@)
 
+# remove water counties (e.g., Great Lakes)
 shp/us/counties.shp: shp/us/counties-unfiltered.shp
 	rm -f $@
 	ogr2ogr -f 'ESRI Shapefile' -where "FIPS NOT LIKE '%000'" $@ $<
+
+# remove duplicate states for water (e.g., Great Lakes)
+shp/us/states.shp: shp/us/states-unfiltered.shp bin/geouniq
+	@rm -f -- $@ $(basename $@)-unfiltered.json
+	ogr2ogr -f 'GeoJSON' $(basename $@)-unfiltered.json $<
+	bin/geouniq STATE_FIPS < $(basename $@)-unfiltered.json > $(basename $@).json
+	ogr2ogr -f 'ESRI Shapefile' $@ $(basename $@).json
+	rm -f -- $(basename $@).json $(basename $@).json
+
+# merge the nation object into a single MultiPolygon
+shp/us/nation.json: shp/us/nation-unmerged.shp bin/geomerge
+	@rm -f -- $@ $(basename $@)-unmerged.json
+	ogr2ogr -f 'GeoJSON' $(basename $@)-unmerged.json $<
+	bin/geomerge 1 < $(basename $@)-unmerged.json > $@
+
+# merge geometries
+shp/us/%.json: shp/us/%-unmerged.shp bin/geomerge
+	@rm -f -- $@ $(basename $@)-unmerged.json
+	ogr2ogr -f 'GeoJSON' $(basename $@)-unmerged.json $<
+	bin/geomerge < $(basename $@)-unmerged.json > $@
 
 shp/us/zipcodes.shp shp/us/cbsa.shp shp/%/tracts.shp shp/%/blockgroups.shp shp/%/blocks.shp:
 	rm -rf $(basename $@)
@@ -582,63 +603,46 @@ shp/%/counties.shp: shp/us/counties.shp
 	rm -f $@
 	ogr2ogr -f 'ESRI Shapefile' -where "STATE = '`echo $* | tr a-z A-Z`'" $@ $<
 
-# For individual states:
-# - remove duplicate state geometries (e.g., Great Lakes)
 topo/%-states.json: shp/%/states.shp
 	mkdir -p $(dir $@)
-	$(TOPOJSON) --id-property=STATE_FIPS -p name=STATE -- $(filter %.shp,$^) | bin/topouniq states > $@
+	$(TOPOJSON) -o $@ --id-property=STATE_FIPS -p name=STATE -- $(filter %.shp,$^)
 
-# For individual states + counties:
-# - remove duplicate state geometries (e.g., Great Lakes)
 topo/%-counties.json: shp/%/counties.shp shp/%/states.shp
 	mkdir -p $(dir $@)
-	$(TOPOJSON) --id-property=FIPS,STATE_FIPS -p name=COUNTY,name=STATE -- $(filter %.shp,$^) | bin/topouniq states > $@
+	$(TOPOJSON) -o $@ --id-property=FIPS,STATE_FIPS -p name=COUNTY,name=STATE -- $(filter %.shp,$^)
 
-# For individual states + counties + tracts:
-# - remove duplicate state geometries (e.g., Great Lakes)
 topo/%-tracts.json: shp/%/tracts.shp shp/%/states.shp
 	mkdir -p $(dir $@)
-	$(TOPOJSON) --simplify-proportion=.2 --id-property=STATE_FIPS,TRACTCE -p name=STATE -- $(filter %.shp,$^) | bin/topouniq states > $@
+	$(TOPOJSON) -o $@ --simplify-proportion=.2 --id-property=STATE_FIPS,TRACTCE -p name=STATE -- $(filter %.shp,$^)
 
-# For individual states + counties + tracts + blockgroups:
-# - remove duplicate state geometries (e.g., Great Lakes)
 topo/%-blockgroups.json: shp/%/blockgroups.shp shp/%/states.shp
 	mkdir -p $(dir $@)
-	$(TOPOJSON) --simplify-proportion=.2 --id-property=STATE_FIPS,BLKGRPCE -p name=STATE -- $(filter %.shp,$^) | bin/topouniq states > $@
+	$(TOPOJSON) -o $@ --simplify-proportion=.2 --id-property=STATE_FIPS,BLKGRPCE -p name=STATE -- $(filter %.shp,$^)
 
-# For individual states + counties + tracts + blockgroups + blocks:
-# - remove duplicate state geometries (e.g., Great Lakes)
 topo/%-blocks.json: shp/%/blocks.shp shp/%/states.shp
 	mkdir -p $(dir $@)
-	$(TOPOJSON) --simplify-proportion=.4 --id-property=STATE_FIPS,BLOCKCE10 -p STATE=name -- $(filter %.shp,$^) | bin/topouniq states > $@
+	$(TOPOJSON) -o $@ --simplify-proportion=.4 --id-property=STATE_FIPS,BLOCKCE10 -p STATE=name -- $(filter %.shp,$^)
 
-# For the full United States:
-# - remove duplicate state geometries (e.g., Great Lakes)
-# - merge the nation object into a single MultiPolygon
-topo/us-counties.json: shp/us/counties.shp shp/us/states.shp shp/us/nation.shp
+topo/us-counties.json: shp/us/counties.shp shp/us/states.shp shp/us/nation.json
 	mkdir -p $(dir $@)
-	$(TOPOJSON) --id-property=FIPS,STATE_FIPS -p name=COUNTY,name=STATE -- $(filter %.shp,$^) | bin/topouniq states | bin/topomerge nation 1 > $@
+	$(TOPOJSON) -o $@ --id-property=FIPS,STATE_FIPS -p name=COUNTY,name=STATE -- shp/us/counties.shp shp/us/states.shp shp/us/nation.json
 
 # A simplified version of us-counties.json.
-topo/us-10m.json: shp/us/counties.shp shp/us/states.shp shp/us/nation.shp
+topo/us-10m.json: shp/us/counties.shp shp/us/states.shp shp/us/nation.json
 	mkdir -p $(dir $@)
-	$(TOPOJSON) -s 7e-7 --id-property=+FIPS,+STATE_FIPS -- shp/us/counties.shp shp/us/states.shp land=shp/us/nation.shp | bin/topouniq states | bin/topomerge land 1 > $@
+	$(TOPOJSON) -o $@ -s 7e-7 --id-property=+FIPS,+STATE_FIPS -- shp/us/counties.shp shp/us/states.shp land=shp/us/nation.shp
 
-# For the massive streams shapefile:
-# - merge all the linestring geometries into a single massive multilinestring
-topo/us-streams.json: shp/us/streams.shp
+topo/us-streams.json: shp/us/streams.json
 	mkdir -p $(dir $@)
-	$(TOPOJSON) -- $< | bin/topomerge streams > $@
+	$(TOPOJSON) -o $@ -- shp/us/streams.json
 
-# For roads:
-# - merge all the linestring geometries into a single massive multilinestring
-topo/us-roads.json: shp/us/roads.shp
+topo/us-roads.json: shp/us/roads.json
 	mkdir -p $(dir $@)
-	$(TOPOJSON) -- $< | bin/topomerge roads > $@
+	$(TOPOJSON) -o $@ -- shp/us/roads.json
 
-topo/us-zipcodes.json: shp/us/zipcodes.shp
+topo/us-zipcodes.json: shp/us/zipcodes.json
 	mkdir -p $(dir $@)
-	$(TOPOJSON) -s 3e-7 -- $< | bin/topomerge zipcodes > $@
+	$(TOPOJSON) -o $@ -s 3e-7 -- shp/us/zipcodes.json
 
 topo/us-cbsa.json: shp/us/cbsa.shp
 	mkdir -p $(dir $@)

@@ -2,6 +2,7 @@
 # http://www.census.gov/geo/www/geodiagram.html
 
 TOPOJSON = node --max_old_space_size=8192 node_modules/.bin/topojson -q 1e6
+TOPOMERGE = node_modules/topojson/bin/topojson-merge
 
 STATES = \
 	al ak az ar ca co ct de dc fl \
@@ -628,9 +629,15 @@ topo/us-counties.json: shp/us/counties.shp shp/us/states.shp shp/us/nation.json
 	$(TOPOJSON) -o $@ --id-property=FIPS,STATE_FIPS -p name=COUNTY,name=STATE -- shp/us/counties.shp shp/us/states.shp shp/us/nation.json
 
 # A simplified version of us-counties.json.
-topo/us-10m.json: shp/us/counties.shp shp/us/states.shp shp/us/nation.json
+topo/us-counties-10m.json: shp/us/counties.shp
 	mkdir -p $(dir $@)
-	$(TOPOJSON) -o $@ -s 7e-7 --id-property=+FIPS,+STATE_FIPS -- shp/us/counties.shp shp/us/states.shp land=shp/us/nation.shp
+	$(TOPOJSON) -o topo/us-counties-10m.json -s 7e-7 --id-property=FIPS -- shp/us/counties.shp
+
+topo/us-states-10m.json: topo/us-counties-10m.json
+	$(TOPOMERGE) -o topo/us-states-10m.json --io=counties --oo=states --key='d.id.substring(0,2)' -- topo/us-counties-10m.json
+
+topo/us-10m.json: topo/us-states-10m.json
+	$(TOPOMERGE) -o topo/us-10m.json --io=states --oo=nation --key='"US"' -- topo/us-states-10m.json
 
 topo/us-streams.json: shp/us/streams.json
 	mkdir -p $(dir $@)

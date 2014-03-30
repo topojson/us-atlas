@@ -4,16 +4,19 @@
 TOPOJSON = node_modules/.bin/topojson
 TOPOMERGE = node_modules/.bin/topojson-merge
 
-STATES = \
-	al ak az ar ca co ct de dc fl \
-	ga hi id il in ia ks ky la me \
-	md ma mi mn ms mo mt ne nv nh \
-	nj nm ny nc nd oh ok or pa ri \
-	sc sd tn tx ut vt va wa wv wi \
-	wy
+# states:
+# al ak az ar ca co ct de dc fl
+# ga hi id il in ia ks ky la me
+# md ma mi mn ms mo mt ne nv nh
+# nj nm ny nc nd oh ok or pa ri
+# sc sd tn tx ut vt va wa wv wi
+# wy
 
-# territories with counties: pr vi
-# territories without counties: as fm gu mh mp pw um
+# territories with counties:
+# pr vi
+
+# territories without counties:
+# as fm gu mh mp pw um
 
 all:
 

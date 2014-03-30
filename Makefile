@@ -2,7 +2,7 @@
 # http://www.census.gov/geo/www/geodiagram.html
 
 TOPOJSON = node_modules/.bin/topojson
-TOPOMERGE = node_modules/topojson/bin/topojson-merge
+TOPOMERGE = node_modules/.bin/topojson-merge
 
 STATES = \
 	al ak az ar ca co ct de dc fl \

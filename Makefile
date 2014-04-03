@@ -1,9 +1,6 @@
 # Census Bureau Geographic Hierarchy
 # http://www.census.gov/geo/www/geodiagram.html
 
-TOPOJSON = node_modules/.bin/topojson
-TOPOMERGE = node_modules/.bin/topojson-merge
-
 # states:
 # al ak az ar ca co ct de dc fl
 # ga hi id il in ia ks ky la me
@@ -602,18 +599,41 @@ shp/%/counties.shp: shp/us/counties.shp
 	rm -f $@
 	ogr2ogr -f 'ESRI Shapefile' -where "STATE = '`echo $* | tr a-z A-Z`'" $@ $<
 
-topo/us-counties-10m.json: shp/us/counties.shp
-	mkdir -p $(dir $@)
-	$(TOPOJSON) -o topo/us-counties-10m.json --q0=0 --q1=1e6 -s 7e-7 --id-property=+FIPS -- shp/us/counties.shp
-
-topo/us-states-10m.json: topo/us-counties-10m.json
-	$(TOPOMERGE) -o topo/us-states-10m.json --io=counties --oo=states --key='d.id / 1000 | 0' -- topo/us-counties-10m.json
-
-# "Land" should probably be named "nation", but oh well.
-topo/us-10m.json: topo/us-states-10m.json
-	$(TOPOMERGE) -o topo/us-10m.json --io=states --oo=land --no-key -- topo/us-states-10m.json
-
 png/%.png: shp/%.shp bin/rasterize
 	mkdir -p $(dir $@)
 	node --max_old_space_size=8192 bin/rasterize $< $@
 	optipng $@
+
+topo/us-counties-10m-ungrouped.json: shp/us/counties.shp
+	mkdir -p $(dir $@)
+	node_modules/.bin/topojson \
+		-o $@ \
+		--no-pre-quantization \
+		--post-quantization=1e6 \
+		--simplify=7e-7 \
+		--id-property=+FIPS \
+		-- shp/us/counties.shp
+
+# Group polygons into multipolygons.
+topo/us-counties-10m.json: topo/us-counties-10m-ungrouped.json
+	node_modules/.bin/topojson-group \
+		-o $@ \
+		-- topo/us-counties-10m-ungrouped.json
+
+# Merge counties into states.
+topo/us-states-10m.json: topo/us-counties-10m.json
+	node_modules/.bin/topojson-merge \
+		-o $@ \
+		--in-object=counties \
+		--out-object=states \
+		--key='d.id / 1000 | 0' \
+		-- topo/us-counties-10m.json
+
+# Merge states into the nation (land).
+topo/us-10m.json: topo/us-states-10m.json
+	node_modules/.bin/topojson-merge \
+		-o $@ \
+		--in-object=states \
+		--out-object=land \
+		--no-key \
+		-- topo/us-states-10m.json

@@ -74,7 +74,7 @@ shp/us/roads-unmerged.shp: gz/roadtrl010_nt00801.tar.gz
 shp/us/streams-unmerged.shp: gz/streaml010_nt00804.tar.gz
 shp/us/waterbodies.shp: gz/wtrbdyp010_nt00803.tar.gz
 # shp/us/congress.shp: gz/cgd113p010g.shp_nt00845.tar.gz
-shp/us/congress-ungrouped.shp: gz/tl_2013_us_cd113.zip
+shp/us/congress-unfiltered.shp: gz/tl_2013_us_cd113.zip
 shp/us/zipcodes-unmerged.shp: gz/tl_2012_us_zcta510.zip
 shp/us/cbsa.shp: gz/tl_2012_us_cbsa.zip
 
@@ -272,6 +272,11 @@ shp/us/%.shp:
 shp/us/counties.shp: shp/us/counties-unfiltered.shp
 	rm -f $@
 	ogr2ogr -f 'ESRI Shapefile' -where "FIPS NOT LIKE '%000'" $@ $<
+
+# remove undefined congressional districts
+shp/us/congress-ungrouped.shp: shp/us/congress-unfiltered.shp
+	rm -f $@
+	ogr2ogr -f 'ESRI Shapefile' -where "GEOID NOT LIKE '%ZZ'" $@ $<
 
 # remove duplicate states for water (e.g., Great Lakes)
 shp/us/states.shp: shp/us/states-unfiltered.shp bin/geouniq

@@ -55,6 +55,12 @@ gz/tl_2012_us_cbsa.zip:
 	curl 'http://www2.census.gov/geo/tiger/TIGER2012/CBSA/$(notdir $@)' -o $@.download
 	mv $@.download $@
 
+# Congressional Districts (Alternative)
+gz/tl_2013_us_cd113.zip:
+	mkdir -p $(dir $@)
+	curl 'ftp://ftp2.census.gov/geo/tiger/TIGER2013/CD/$(notdir $@)' -o $@.download
+	mv $@.download $@
+
 shp/us/nation-unmerged.shp: gz/nationalp010g_nt00797.tar.gz
 shp/us/states-unfiltered.shp: gz/statep010_nt00798.tar.gz
 shp/us/counties-unfiltered.shp: gz/countyp010_nt00795.tar.gz
@@ -67,7 +73,8 @@ shp/us/railroads.shp: gz/railrdl010_nt00800.tar.gz
 shp/us/roads-unmerged.shp: gz/roadtrl010_nt00801.tar.gz
 shp/us/streams-unmerged.shp: gz/streaml010_nt00804.tar.gz
 shp/us/waterbodies.shp: gz/wtrbdyp010_nt00803.tar.gz
-shp/us/congress.shp: gz/cgd113p010g.shp_nt00845.tar.gz
+# shp/us/congress.shp: gz/cgd113p010g.shp_nt00845.tar.gz
+shp/us/congress-ungrouped.shp: gz/tl_2013_us_cd113.zip
 shp/us/zipcodes-unmerged.shp: gz/tl_2012_us_zcta510.zip
 shp/us/cbsa.shp: gz/tl_2012_us_cbsa.zip
 
@@ -604,6 +611,16 @@ png/%.png: shp/%.shp bin/rasterize
 	node --max_old_space_size=8192 bin/rasterize $< $@
 	optipng $@
 
+topo/us-congress-10m-ungrouped.json: shp/us/congress-ungrouped.shp
+	mkdir -p $(dir $@)
+	node_modules/.bin/topojson \
+		-o $@ \
+		--no-pre-quantization \
+		--post-quantization=1e6 \
+		--simplify=7e-7 \
+		--id-property=+GEOID \
+		-- districts=$<
+
 topo/us-counties-10m-ungrouped.json: shp/us/counties.shp
 	mkdir -p $(dir $@)
 	node_modules/.bin/topojson \
@@ -612,13 +629,13 @@ topo/us-counties-10m-ungrouped.json: shp/us/counties.shp
 		--post-quantization=1e6 \
 		--simplify=7e-7 \
 		--id-property=+FIPS \
-		-- shp/us/counties.shp
+		-- $<
 
 # Group polygons into multipolygons.
-topo/us-counties-10m.json: topo/us-counties-10m-ungrouped.json
+topo/us-%-10m.json: topo/us-%-10m-ungrouped.json
 	node_modules/.bin/topojson-group \
 		-o $@ \
-		-- topo/us-counties-10m-ungrouped.json
+		-- topo/us-$*-10m-ungrouped.json
 
 # Merge counties into states.
 topo/us-states-10m.json: topo/us-counties-10m.json

@@ -38,13 +38,12 @@ Before you can run `make`, you’ll need to install Node.js. Here’s how to do 
 brew install node
 ```
 
-And then, clone this repository, install its dependencies and run `make`:
+Then, clone this repository and install its dependencies:
 
 ```bash
 git clone https://github.com/mbostock/us-atlas.git
 cd us-atlas
 npm install
-make
 ```
 
 If the installation of [node-canvas](https://github.com/learnboost/node-canvas) fails for you, try
@@ -63,14 +62,14 @@ If you want to install this software using an alternate method see the website f
 
 ## Generating TopoJSON
 
-Once you have everything installed, simply run:
+Once you have everything installed, you can make various targets defined in the Makefile. For example, to produce a TopoJSON file of the U.S. county, state and nation boundaries at 1:10,000,000 resolution:
 
 ```
-make
+make topo/us-10m.json
 ```
 
-This will generate a large number of TopoJSON files of varying size in the `topo` directory. As a by-product of producing these files, you’ll also download shapefiles directly from the National Atlas or the Census Bureau.
+As a by-product of producing one of these files, you’ll download shapefiles directly from the National Atlas or the Census Bureau.
 
-`make` and `make all` generate TopoJSON files for the boundaries of the United States. In addition, you can run `make topo/us-streams.json` and `make topo/us-roads.json` to generate TopoJSON for streams and roads. These aren't made by default because of their size. `us-streams.json` requires a 180M download and 4.5GB of memory to generate.
+Some targets, such as `make topo/us-streams.json` and `make topo/us-roads.json` are quite large; the U.S. streams dataset requires a 180M download and at least 4.5GB of memory to generate.
 
 If you want to generate a custom map, I recommend modifying the Makefile. Or, just use the Makefile as a set of examples, and run the appropriate `ogr2ogr` and `topojson` commands from the terminal.

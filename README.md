@@ -60,16 +60,16 @@ export PKG_CONFIG_PATH="/opt/X11/lib/pkgconfig"
 
 If you want to install this software using an alternate method see the website for [TopoJSON](https://github.com/mbostock/topojson). I also recommend reading my tutorial, [Let’s Make a Map](http://bost.ocks.org/mike/map/).
 
-## Generating TopoJSON
+## Makefile Targets
 
-Once you have everything installed, you can make various targets defined in the Makefile. For example, to produce a TopoJSON file of the U.S. county, state and nation boundaries at 1:10,000,000 resolution:
+Once you have everything installed, you can make various targets defined in the Makefile.
 
-```
-make topo/us-10m.json
-```
+<b>topo/us-10m.json</b>
 
-As a by-product of producing one of these files, you’ll download shapefiles directly from the National Atlas or the Census Bureau.
+The U.S. county, state and nation boundaries simplified at 1:10,000,000 scale.
 
-Some targets, such as `make topo/us-streams.json` and `make topo/us-roads.json` are quite large; the U.S. streams dataset requires a 180M download and at least 4.5GB of memory to generate.
+<b>topo/us-congress-10m.json</b>
 
-If you want to generate a custom map, I recommend modifying the Makefile. Or, just use the Makefile as a set of examples, and run the appropriate `ogr2ogr` and `topojson` commands from the terminal.
+The districts of the 113th U.S. Congress simplified at 1:10,000,000 scale.
+
+There are partial targets defined for a large number of other boundary areas and geographic features. However, you’ll have to figure these out on your own for now. Sorry!

@@ -659,3 +659,13 @@ topo/us-10m.json: topo/us-states-10m.json
 		--out-object=land \
 		--no-key \
 		-- topo/us-states-10m.json
+
+topo/us-states-no-counties-10m.json: shp/us/states.shp
+	mkdir -p $(dir $@)
+	node_modules/.bin/topojson \
+		-o $@ \
+		--no-pre-quantization \
+		--post-quantization=1e6 \
+		--simplify=7e-7 \
+		--id-property=+STATE_FIPS \
+		-- $<

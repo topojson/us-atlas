@@ -73,3 +73,7 @@ The U.S. county, state and nation boundaries simplified at 1:10,000,000 scale.
 The districts of the 113th U.S. Congress simplified at 1:10,000,000 scale.
 
 There are partial targets defined for a large number of other boundary areas and geographic features. However, you’ll have to figure these out on your own for now. Sorry!
+
+<b>topo/us-states-no-counties-10m.json</b>
+
+The same as us-10m, but without county boundaries.

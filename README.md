@@ -32,7 +32,7 @@ This repository provides a convenient mechanism for generating TopoJSON files fr
 
 ## Installing via Homebrew
 
-Before you can make any TopoJSON files, you’ll need to install Node.js and gdal. Here’s how to do that using [Homebrew](http://mxcl.github.com/homebrew/) on Mac OS X:
+Before you can make any TopoJSON files, you’ll need to install Node.js and GDAL. Here’s how to do that using [Homebrew](http://mxcl.github.com/homebrew/) on Mac OS X:
 
 ```bash
 brew install node gdal

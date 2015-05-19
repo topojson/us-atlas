@@ -616,6 +616,16 @@ png/%.png: shp/%.shp bin/rasterize
 	node --max_old_space_size=8192 bin/rasterize $< $@
 	optipng $@
 
+topo/%/counties-10m-ungrouped.json: shp/%/counties.shp
+	mkdir -p $(dir $@)
+	node_modules/.bin/topojson \
+		-o $@ \
+		--no-pre-quantization \
+		--post-quantization=1e6 \
+		--simplify=7e-7 \
+		--id-property=+FIPS \
+		-- $<
+
 topo/us-congress-10m-ungrouped.json: shp/us/congress-ungrouped.shp
 	mkdir -p $(dir $@)
 	node_modules/.bin/topojson \

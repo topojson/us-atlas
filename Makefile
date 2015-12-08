@@ -636,6 +636,16 @@ topo/us-counties-10m-ungrouped.json: shp/us/counties.shp
 		--id-property=+FIPS \
 		-- $<
 
+topo/us-%-counties-10m-ungrouped.json: shp/%/counties.shp
+	mkdir -p $(dir $@)
+	node_modules/.bin/topojson \
+		-o $@ \
+		--no-pre-quantization \
+		--post-quantization=1e6 \
+		--simplify=7e-7 \
+		--id-property=+FIPS \
+		-- $<
+
 # Group polygons into multipolygons.
 topo/us-%-10m.json: topo/us-%-10m-ungrouped.json
 	node_modules/.bin/topojson-group \

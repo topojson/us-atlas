@@ -634,6 +634,7 @@ topo/us-counties-10m-ungrouped.json: shp/us/counties.shp
 		--post-quantization=1e6 \
 		--simplify=7e-7 \
 		--id-property=+FIPS \
+		--properties COUNTY,COUNTYP010 \
 		-- $<
 
 topo/us-%-counties-10m-ungrouped.json: shp/%/counties.shp
@@ -644,6 +645,7 @@ topo/us-%-counties-10m-ungrouped.json: shp/%/counties.shp
 		--post-quantization=1e6 \
 		--simplify=7e-7 \
 		--id-property=+FIPS \
+		--properties COUNTY,COUNTYP010 \
 		-- $<
 
 # Group polygons into multipolygons.

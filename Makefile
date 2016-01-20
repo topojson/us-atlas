@@ -49,6 +49,11 @@ gz/tl_2012_%_tabblock.zip:
 	curl 'http://www2.census.gov/geo/tiger/TIGER2012/TABBLOCK/$(notdir $@)' -o $@.download
 	mv $@.download $@
 
+gz/tabblock2010_%_pophu.zip:
+	mkdir -p $(dir $@)
+	curl 'http://www2.census.gov/geo/tiger/TIGER2010BLKPOPHU/$(notdir $@)' -o $@.download
+	mv $@.download $@
+
 # Core Based Statistical Areas
 gz/tl_2012_us_cbsa.zip:
 	mkdir -p $(dir $@)
@@ -261,6 +266,59 @@ shp/pr/blocks.shp: gz/tl_2012_72_tabblock.zip
 shp/um/blocks.shp: gz/tl_2012_74_tabblock.zip
 shp/vi/blocks.shp: gz/tl_2012_78_tabblock.zip
 
+# Unzip gz/tabblock2010_{statefips}_pophu.zip to shp/xx/pop_blocks.shp
+shp/al/pop_blocks.shp: gz/tabblock2010_01_pophu.zip
+shp/ak/pop_blocks.shp: gz/tabblock2010_02_pophu.zip
+shp/az/pop_blocks.shp: gz/tabblock2010_04_pophu.zip
+shp/ar/pop_blocks.shp: gz/tabblock2010_05_pophu.zip
+shp/ca/pop_blocks.shp: gz/tabblock2010_06_pophu.zip
+shp/co/pop_blocks.shp: gz/tabblock2010_08_pophu.zip
+shp/ct/pop_blocks.shp: gz/tabblock2010_09_pophu.zip
+shp/de/pop_blocks.shp: gz/tabblock2010_10_pophu.zip
+shp/dc/pop_blocks.shp: gz/tabblock2010_11_pophu.zip
+shp/fl/pop_blocks.shp: gz/tabblock2010_12_pophu.zip
+shp/ga/pop_blocks.shp: gz/tabblock2010_13_pophu.zip
+shp/hi/pop_blocks.shp: gz/tabblock2010_15_pophu.zip
+shp/id/pop_blocks.shp: gz/tabblock2010_16_pophu.zip
+shp/il/pop_blocks.shp: gz/tabblock2010_17_pophu.zip
+shp/in/pop_blocks.shp: gz/tabblock2010_18_pophu.zip
+shp/ia/pop_blocks.shp: gz/tabblock2010_19_pophu.zip
+shp/ks/pop_blocks.shp: gz/tabblock2010_20_pophu.zip
+shp/ky/pop_blocks.shp: gz/tabblock2010_21_pophu.zip
+shp/la/pop_blocks.shp: gz/tabblock2010_22_pophu.zip
+shp/me/pop_blocks.shp: gz/tabblock2010_23_pophu.zip
+shp/md/pop_blocks.shp: gz/tabblock2010_24_pophu.zip
+shp/ma/pop_blocks.shp: gz/tabblock2010_25_pophu.zip
+shp/mi/pop_blocks.shp: gz/tabblock2010_26_pophu.zip
+shp/mn/pop_blocks.shp: gz/tabblock2010_27_pophu.zip
+shp/ms/pop_blocks.shp: gz/tabblock2010_28_pophu.zip
+shp/mo/pop_blocks.shp: gz/tabblock2010_29_pophu.zip
+shp/mt/pop_blocks.shp: gz/tabblock2010_30_pophu.zip
+shp/ne/pop_blocks.shp: gz/tabblock2010_31_pophu.zip
+shp/nv/pop_blocks.shp: gz/tabblock2010_32_pophu.zip
+shp/nh/pop_blocks.shp: gz/tabblock2010_33_pophu.zip
+shp/nj/pop_blocks.shp: gz/tabblock2010_34_pophu.zip
+shp/nm/pop_blocks.shp: gz/tabblock2010_35_pophu.zip
+shp/ny/pop_blocks.shp: gz/tabblock2010_36_pophu.zip
+shp/nc/pop_blocks.shp: gz/tabblock2010_37_pophu.zip
+shp/nd/pop_blocks.shp: gz/tabblock2010_38_pophu.zip
+shp/oh/pop_blocks.shp: gz/tabblock2010_39_pophu.zip
+shp/ok/pop_blocks.shp: gz/tabblock2010_40_pophu.zip
+shp/or/pop_blocks.shp: gz/tabblock2010_41_pophu.zip
+shp/pa/pop_blocks.shp: gz/tabblock2010_42_pophu.zip
+shp/ri/pop_blocks.shp: gz/tabblock2010_44_pophu.zip
+shp/sc/pop_blocks.shp: gz/tabblock2010_45_pophu.zip
+shp/sd/pop_blocks.shp: gz/tabblock2010_46_pophu.zip
+shp/tn/pop_blocks.shp: gz/tabblock2010_47_pophu.zip
+shp/tx/pop_blocks.shp: gz/tabblock2010_48_pophu.zip
+shp/ut/pop_blocks.shp: gz/tabblock2010_49_pophu.zip
+shp/vt/pop_blocks.shp: gz/tabblock2010_50_pophu.zip
+shp/va/pop_blocks.shp: gz/tabblock2010_51_pophu.zip
+shp/wa/pop_blocks.shp: gz/tabblock2010_53_pophu.zip
+shp/wv/pop_blocks.shp: gz/tabblock2010_54_pophu.zip
+shp/wi/pop_blocks.shp: gz/tabblock2010_55_pophu.zip
+shp/wy/pop_blocks.shp: gz/tabblock2010_56_pophu.zip
+
 shp/us/%.shp:
 	rm -rf $(basename $@)
 	mkdir -p $(basename $@)
@@ -298,7 +356,7 @@ shp/us/%.json: shp/us/%-unmerged.shp bin/geomerge
 	ogr2ogr -f 'GeoJSON' $(basename $@)-unmerged.json $<
 	bin/geomerge < $(basename $@)-unmerged.json > $@
 
-shp/us/zipcodes-unmerged.shp shp/us/cbsa.shp shp/%/tracts.shp shp/%/blockgroups.shp shp/%/blocks.shp:
+shp/us/zipcodes-unmerged.shp shp/us/cbsa.shp shp/%/tracts.shp shp/%/blockgroups.shp shp/%/blocks.shp shp/%/pop_blocks.shp:
 	rm -rf $(basename $@)
 	mkdir -p $(basename $@)
 	unzip -d $(basename $@) $<
@@ -676,3 +734,23 @@ STATES=al ak az ar ca co ct de dc fl ga hi id il in ia ks ky la me md ma mi mn m
 .PHONY: all-counties
 all-counties:
 	for i in ${STATES} ; do make topo/us-$$i-counties-10m.json ; done
+
+topo/us-%-pop-blocks.json: shp/%/pop_blocks.shp
+	mkdir -p $(dir $@)
+	node_modules/.bin/topojson \
+		-o $@ \
+		--no-pre-quantization \
+		--post-quantization=1e6 \
+		--simplify=7e-7 \
+		--id-property=+BLOCKID10 \
+		--properties HOUSING10,POP10 \
+		-- $<
+
+geojson/us-%-pop-blocks.geojson: topo/us-%-pop-blocks.json
+	mkdir -p $(basename $@)
+	node_modules/.bin/topojson-geojson -o $(basename $@) \
+		--id-property=BLOCKID10 \
+		$<
+	cp $(basename $@)/pop_blocks.json $@
+	rm -rf $(basename $@)
+

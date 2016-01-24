@@ -695,17 +695,6 @@ topo/us-counties-10m-ungrouped.json: shp/us/counties.shp
 		--properties COUNTY,COUNTYP010 \
 		-- $<
 
-topo/us-%-counties-10m-ungrouped.json: shp/%/counties.shp
-	mkdir -p $(dir $@)
-	node_modules/.bin/topojson \
-		-o $@ \
-		--no-pre-quantization \
-		--post-quantization=1e6 \
-		--simplify=7e-7 \
-		--id-property=+FIPS \
-		--properties COUNTY,COUNTYP010 \
-		-- $<
-
 # Group polygons into multipolygons.
 topo/us-%-10m.json: topo/us-%-10m-ungrouped.json
 	node_modules/.bin/topojson-group \
@@ -731,9 +720,49 @@ topo/us-10m.json: topo/us-states-10m.json
 		-- topo/us-states-10m.json
 
 STATES=al ak az ar ca co ct de dc fl ga hi id il in ia ks ky la me md ma mi mn ms mo mt ne nv nh nj nm ny nc nd oh ok or pa ri sc sd tn tx ut vt va wa wv wi wy
-.PHONY: all-counties
-all-counties:
-	for i in ${STATES} ; do make topo/us-$$i-counties-10m.json ; done
+.PHONY: all-combined
+all-combined:
+	for i in ${STATES} ; do make topo/us-$$i-combined.json ; done
+
+topo/us-%-combined.json: topo/us-%-counties-10m.json topo/us-%-cities.json
+	node_modules/.bin/topojson \
+		-o $@ \
+		--no-pre-quantization \
+		--post-quantization=1e6 \
+		--simplify=1e-10 \
+		--properties \
+		-- $^
+
+topo/us-%-counties-10m-ungrouped.json: shp/%/counties.shp
+	mkdir -p $(dir $@)
+	node_modules/.bin/topojson \
+		-o $@ \
+		--no-pre-quantization \
+		--post-quantization=1e6 \
+		--simplify=7e-7 \
+		--id-property=+FIPS \
+		--properties COUNTY,COUNTYP010 \
+		-- $<
+
+topo/us-%-cities.json: geojson/%/cities.geojson
+	mkdir -p $(dir $@)
+	node_modules/.bin/topojson \
+		-o $@ \
+		--no-pre-quantization \
+		--post-quantization=1e6 \
+		--simplify=7e-7 \
+		--id-property=geonameid \
+		--properties name,scalerank,pop_max \
+		-- $<
+
+geojson/%/counties.geojson: shp/us/counties.shp
+	mkdir -p $(dir $@)
+	rm -f $@
+	ogr2ogr -f 'GeoJSON' -where "STATE = '`echo $* | tr a-z A-Z`'" $@ $<
+
+geojson/%/cities.geojson:
+	mkdir -p $(dir $@)
+	node_modules/.bin/turf filter data/naturalearth-us-cities.geojson adm1name "`./expand-state-name $*`" > $@
 
 topo/us-%-pop-blocks.json: shp/%/pop_blocks.shp
 	mkdir -p $(dir $@)

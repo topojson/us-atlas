@@ -22,5 +22,8 @@
   "optionalDependencies": {
     "canvas": "1",
     "d3": "3"
+  },
+  "dependencies": {
+    "turf-cli": "^1.1.0"
   }
 }

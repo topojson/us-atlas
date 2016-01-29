@@ -724,6 +724,10 @@ STATES=al ak az ar ca co ct de dc fl ga hi id il in ia ks ky la me md ma mi mn m
 all-combined:
 	for i in ${STATES} ; do make topo/us-$$i-combined.json ; done
 
+.PHONY: all-pop-blocks
+all-pop-blocks:
+	for i in ${STATES} ; do make geojson/us-$$i-pop-blocks.geojson && rm shp/$$i/pop_blocks.shp ; done
+
 topo/us-%-combined.json: topo/us-%-counties-10m.json topo/us-%-cities.json
 	node_modules/.bin/topojson \
 		-o $@ \

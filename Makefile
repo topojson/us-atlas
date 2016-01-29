@@ -728,7 +728,7 @@ all-combined:
 all-pop-blocks:
 	for i in ${STATES} ; do make geojson/us-$$i-pop-blocks.geojson && rm shp/$$i/pop_blocks.shp ; done
 
-topo/us-%-combined.json: topo/us-%-counties-10m.json topo/us-%-cities.json
+topo/us-%-combined.json: topo/us-%-counties-10m.json geojson/%/counties-insets.geojson topo/us-%-cities.json
 	node_modules/.bin/topojson \
 		-o $@ \
 		--no-pre-quantization \
@@ -736,6 +736,9 @@ topo/us-%-combined.json: topo/us-%-counties-10m.json topo/us-%-cities.json
 		--simplify=1e-10 \
 		--properties \
 		-- $^
+
+geojson/%/counties-insets.geojson: geojson/%/counties.geojson
+	cat $< | ./inset-polygons > $@
 
 topo/us-%-counties-10m-ungrouped.json: shp/%/counties.shp
 	mkdir -p $(dir $@)

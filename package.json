@@ -24,6 +24,8 @@
     "d3": "3"
   },
   "dependencies": {
+    "get-stdin": "^5.0.1",
+    "turf-buffer": "^1.1.0",
     "turf-cli": "^1.1.0"
   }
 }

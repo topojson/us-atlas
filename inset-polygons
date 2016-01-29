@@ -1,0 +1,20 @@
+#!/usr/bin/env node
+'use strict'
+
+var buffer = require('turf-buffer')
+var getStdin = require('get-stdin')
+
+getStdin().then(function (stdin) {
+  var polygons = JSON.parse(stdin)
+
+  // TODO:
+  // 1. Remove the magic number
+  polygons.features = polygons.features
+  .map(function (f, i) {
+    var feat = buffer(f, -2.5, 'miles')
+    feat.properties = { FIPS: f.properties.FIPS }
+    return feat
+  })
+
+  console.log(JSON.stringify(polygons))
+})

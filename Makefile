@@ -733,7 +733,6 @@ topo/us-%-combined.json: topo/us-%-counties-10m.json geojson/%/counties-insets.g
 		-o $@ \
 		--no-pre-quantization \
 		--post-quantization=1e6 \
-		--simplify=1e-10 \
 		--properties \
 		-- $^
 
@@ -746,7 +745,7 @@ topo/us-%-counties-10m-ungrouped.json: shp/%/counties.shp
 		-o $@ \
 		--no-pre-quantization \
 		--post-quantization=1e6 \
-		--simplify=7e-7 \
+		--simplify=3e-8 \
 		--id-property=+FIPS \
 		--properties COUNTY,COUNTYP010 \
 		-- $<
@@ -762,10 +761,11 @@ topo/us-%-cities.json: geojson/%/cities.geojson
 		--properties name,scalerank,pop_max \
 		-- $<
 
-geojson/%/counties.geojson: shp/us/counties.shp
+geojson/%/counties.geojson: topo/us-%-counties-10m.json
 	mkdir -p $(dir $@)
 	rm -f $@
-	ogr2ogr -f 'GeoJSON' -where "STATE = '`echo $* | tr a-z A-Z`'" $@ $<
+	topojson-geojson -o $(dir $@) $<
+	mv $(dir $@)/counties.json $@
 
 geojson/%/cities.geojson:
 	mkdir -p $(dir $@)

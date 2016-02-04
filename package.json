@@ -25,7 +25,10 @@
   },
   "dependencies": {
     "get-stdin": "^5.0.1",
+    "turf-area": "^1.1.1",
     "turf-buffer": "^1.1.0",
-    "turf-cli": "^1.1.0"
+    "turf-cli": "^1.1.0",
+    "turf-distance": "^1.1.0",
+    "turf-extent": "^1.0.4"
   }
 }

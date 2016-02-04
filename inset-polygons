@@ -2,19 +2,39 @@
 'use strict'
 
 var buffer = require('turf-buffer')
+var extent = require('turf-extent')
+var distance = require('turf-distance')
 var getStdin = require('get-stdin')
 
 getStdin().then(function (stdin) {
   var polygons = JSON.parse(stdin)
+  let width = getWidth(polygons)
+  let initialBuffer = -1 * width * (5 / 300)
+  let minFeatureWidth = -initialBuffer * 1.5
 
-  // TODO:
-  // 1. Remove the magic number
   polygons.features = polygons.features
   .map(function (f, i) {
-    var feat = buffer(f, -2.5, 'miles')
+    var feat = buffer(f, initialBuffer, 'miles')
     feat.properties = { FIPS: f.properties.FIPS }
+    if (getWidth(feat) < minFeatureWidth) { return f }
     return feat
   })
 
   console.log(JSON.stringify(polygons))
 })
+
+function getWidth (f) {
+  let bbox = extent(f)
+  return distance(point(bbox[0], bbox[1]), point(bbox[2], bbox[1]), 'miles')
+}
+
+function point (x, y) {
+  return {
+    type: 'Feature',
+    properties: {},
+    geometry: {
+      type: 'Point',
+      coordinates: [x, y]
+    }
+  }
+}

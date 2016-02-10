@@ -6,26 +6,74 @@ var extent = require('turf-extent')
 var distance = require('turf-distance')
 var getStdin = require('get-stdin')
 
+var insetRatio = process.argv.length > 2 ? parseFloat(process.argv[2]) : 0.02
+
+console.error('inset ratio', insetRatio)
+
+var discontiguous = ['AK', 'HI', 'PR']
+function isContiguous (feat) {
+  if (!feat.properties) { return true }
+  var ret = discontiguous.indexOf(feat.properties.postal) < 0
+  return ret
+}
+
 getStdin().then(function (stdin) {
   var polygons = JSON.parse(stdin)
-  let width = getWidth(polygons)
-  let initialBuffer = -1 * width * (5 / 300)
-  let minFeatureWidth = -initialBuffer * 1.5
-
+  let fullWidth = getWidth(polygons)
+  console.error(polygons.features.length + ' features')
+  console.error('Full width', fullWidth)
+  console.error('Default buffer', fullWidth * insetRatio)
   polygons.features = polygons.features
+  .map(wrap)
   .map(function (f, i) {
-    var feat = buffer(f, initialBuffer, 'miles')
-    feat.properties = { FIPS: f.properties.FIPS }
-    if (getWidth(feat) < minFeatureWidth) { return f }
-    return feat
+    let name = f.properties.postal || f.properties.FIPS || i
+    try {
+      let contiguous = isContiguous(f)
+      let width = contiguous ? fullWidth : (2 * getWidth(f))
+      let initialBuffer = -1 * width * insetRatio
+      let minFeatureWidth = -initialBuffer * 1.5
+      console.error(name, initialBuffer)
+      var feat = buffer(f, initialBuffer, 'miles')
+      feat.properties = Object.assign({}, f.properties)
+      if (getWidth(feat) < minFeatureWidth) {
+        console.error('Below minimum width: ', name)
+        return f
+      }
+      return feat
+    } catch (e) {
+      console.error(name)
+      console.error(e.stack)
+    }
+    return f
   })
-
+  console.error(polygons.features.length + ' inset features')
   console.log(JSON.stringify(polygons))
+})
+.catch(function (err) {
+  console.error(err.stack)
 })
 
 function getWidth (f) {
+  if (f.type === 'FeatureCollection') { f = fc(f.features.filter(isContiguous)) }
   let bbox = extent(f)
   return distance(point(bbox[0], bbox[1]), point(bbox[2], bbox[1]), 'miles')
+}
+
+function wrap (coordinates) {
+  if (!Array.isArray(coordinates)) {
+    // assume it's a feature
+    var f = coordinates
+    f.geometry.coordinates = wrap(f.geometry.coordinates)
+    return f
+  }
+
+  if (Array.isArray(coordinates[0])) {
+    return coordinates.map(wrap)
+  }
+  if (coordinates[0] > 0) {
+    coordinates[0] -= 360
+  }
+  return coordinates
 }
 
 function point (x, y) {
@@ -38,3 +86,11 @@ function point (x, y) {
     }
   }
 }
+
+function fc (feats) {
+  return {
+    type: 'FeatureCollection',
+    features: feats
+  }
+}
+

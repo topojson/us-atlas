@@ -24,10 +24,11 @@
     "d3": "3"
   },
   "dependencies": {
+    "geojson-xyz": "^3.0.0",
     "get-stdin": "^5.0.1",
     "turf-area": "^1.1.1",
     "turf-buffer": "^1.1.0",
-    "turf-cli": "^1.1.0",
+    "turf-cli": "anandthakker/turf-cli#1bd1c53710edb23335ab06d1c05b0e40a080078a",
     "turf-distance": "^1.1.0",
     "turf-extent": "^1.0.4"
   }

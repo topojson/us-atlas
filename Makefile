@@ -15,6 +15,9 @@
 # territories without counties:
 # as fm gu mh mp pw um
 
+# add node_modules/.bin to path for turf-cli
+export PATH := node_modules/.bin:$(PATH)
+
 all:
 
 .SECONDARY:
@@ -690,9 +693,9 @@ topo/us-counties-10m-ungrouped.json: shp/us/counties.shp
 		-o $@ \
 		--no-pre-quantization \
 		--post-quantization=1e6 \
-		--simplify=7e-7 \
+		--simplify=7e-6 \
 		--id-property=+FIPS \
-		--properties COUNTY,COUNTYP010 \
+		--properties STATE,COUNTY,COUNTYP010 \
 		-- $<
 
 # Group polygons into multipolygons.
@@ -729,12 +732,13 @@ all-pop-blocks:
 	for i in ${STATES} ; do make geojson/us-$$i-pop-blocks.geojson && rm shp/$$i/pop_blocks.shp ; done
 
 # National combined (states, insets)
-topo/us-combined.json: topo/us-states-10m.json geojson/states-insets.geojson
+topo/us-combined.json: geojson/states.geojson geojson/states-insets.geojson
 	node_modules/.bin/topojson \
 		-o $@ \
 		--no-pre-quantization \
 		--post-quantization=1e6 \
-		--properties \
+		--id-property=postal \
+		--properties postal \
 		-- $^
 
 # Per-state combined (counties, insets, cities)
@@ -768,16 +772,16 @@ geojson/%/counties-insets.geojson: geojson/%/counties.geojson
 	cat $< | ./inset-polygons > $@
 
 # State insets
-geojson/states.geojson: topo/us-states-10m.json
+geojson/states.geojson:
 	mkdir -p $(dir $@)
 	rm -f $@
-	topojson-geojson -o $(dir $@) $<
-	rm $(dir $@)/counties.json
-	mv $(dir $@)/states.json $@
+	geojson-xyz ne_110m_admin_1_states_provinces > $@
+
+geojson/states-insets.geojson: geojson/states.geojson
+	cat $< | ./inset-polygons 0.01 > $@
 
 geojson/%/counties-insets.geojson: geojson/%/counties.geojson
-	cat $< | ./inset-polygons > $@
-
+	cat $< | ./inset-polygons 0.02 > $@
 
 # Cities
 topo/us-%-cities.json: geojson/%/cities.geojson

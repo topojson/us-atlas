@@ -728,6 +728,16 @@ all-combined:
 all-pop-blocks:
 	for i in ${STATES} ; do make geojson/us-$$i-pop-blocks.geojson && rm shp/$$i/pop_blocks.shp ; done
 
+# National combined (states, insets)
+topo/us-combined.json: topo/us-states-10m.json geojson/states-insets.geojson
+	node_modules/.bin/topojson \
+		-o $@ \
+		--no-pre-quantization \
+		--post-quantization=1e6 \
+		--properties \
+		-- $^
+
+# Per-state combined (counties, insets, cities)
 topo/us-%-combined.json: topo/us-%-counties-10m.json geojson/%/counties-insets.geojson topo/us-%-cities.json
 	node_modules/.bin/topojson \
 		-o $@ \
@@ -736,9 +746,7 @@ topo/us-%-combined.json: topo/us-%-counties-10m.json geojson/%/counties-insets.g
 		--properties \
 		-- $^
 
-geojson/%/counties-insets.geojson: geojson/%/counties.geojson
-	cat $< | ./inset-polygons > $@
-
+# Per-state ounties and county insets
 topo/us-%-counties-10m-ungrouped.json: shp/%/counties.shp
 	mkdir -p $(dir $@)
 	node_modules/.bin/topojson \
@@ -750,6 +758,28 @@ topo/us-%-counties-10m-ungrouped.json: shp/%/counties.shp
 		--properties COUNTY,COUNTYP010 \
 		-- $<
 
+geojson/%/counties.geojson: topo/us-%-counties-10m.json
+	mkdir -p $(dir $@)
+	rm -f $@
+	topojson-geojson -o $(dir $@) $<
+	mv $(dir $@)/counties.json $@
+
+geojson/%/counties-insets.geojson: geojson/%/counties.geojson
+	cat $< | ./inset-polygons > $@
+
+# State insets
+geojson/states.geojson: topo/us-states-10m.json
+	mkdir -p $(dir $@)
+	rm -f $@
+	topojson-geojson -o $(dir $@) $<
+	rm $(dir $@)/counties.json
+	mv $(dir $@)/states.json $@
+
+geojson/%/counties-insets.geojson: geojson/%/counties.geojson
+	cat $< | ./inset-polygons > $@
+
+
+# Cities
 topo/us-%-cities.json: geojson/%/cities.geojson
 	mkdir -p $(dir $@)
 	node_modules/.bin/topojson \
@@ -761,16 +791,11 @@ topo/us-%-cities.json: geojson/%/cities.geojson
 		--properties name,scalerank,pop_max \
 		-- $<
 
-geojson/%/counties.geojson: topo/us-%-counties-10m.json
-	mkdir -p $(dir $@)
-	rm -f $@
-	topojson-geojson -o $(dir $@) $<
-	mv $(dir $@)/counties.json $@
-
 geojson/%/cities.geojson:
 	mkdir -p $(dir $@)
 	node_modules/.bin/turf filter data/naturalearth-us-cities.geojson adm1name "`./expand-state-name $*`" > $@
 
+# Census blocks
 topo/us-%-pop-blocks.json: shp/%/pop_blocks.shp
 	mkdir -p $(dir $@)
 	node_modules/.bin/topojson \

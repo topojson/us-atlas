@@ -27,6 +27,7 @@
     "geojson-xyz": "^3.0.0",
     "get-stdin": "^5.0.1",
     "turf-area": "^1.1.1",
+    "turf-bbox-clip": "turfjs/turf-bbox-clip",
     "turf-buffer": "^1.1.0",
     "turf-cli": "anandthakker/turf-cli#1bd1c53710edb23335ab06d1c05b0e40a080078a",
     "turf-distance": "^1.1.0",

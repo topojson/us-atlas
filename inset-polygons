@@ -4,12 +4,17 @@
 var buffer = require('turf-buffer')
 var extent = require('turf-extent')
 var distance = require('turf-distance')
+var clip = require('turf-bbox-clip')
 var getStdin = require('get-stdin')
 
 var insetRatio = process.argv.length > 2 ? parseFloat(process.argv[2]) : 0.02
 
 console.error('inset ratio', insetRatio)
 
+// Special case handling for non-contiguous states/territories: we don't want
+// to include them when we calculate the "full" width of the nation, and we
+// don't want to use that "full" width when deciding how much to inset their
+// borders
 var discontiguous = ['AK', 'HI', 'PR']
 function isContiguous (feat) {
   if (!feat.properties) { return true }
@@ -24,7 +29,7 @@ getStdin().then(function (stdin) {
   console.error('Full width', fullWidth)
   console.error('Default buffer', fullWidth * insetRatio)
   polygons.features = polygons.features
-  .map(wrap)
+  .map(clipAtDateline)
   .map(function (f, i) {
     let name = f.properties.postal || f.properties.FIPS || i
     try {
@@ -32,13 +37,13 @@ getStdin().then(function (stdin) {
       let width = contiguous ? fullWidth : (2 * getWidth(f))
       let initialBuffer = -1 * width * insetRatio
       let minFeatureWidth = -initialBuffer * 1.5
-      console.error(name, initialBuffer)
       var feat = buffer(f, initialBuffer, 'miles')
       feat.properties = Object.assign({}, f.properties)
       if (getWidth(feat) < minFeatureWidth) {
         console.error('Below minimum width: ', name)
         return f
       }
+      process.stderr.write('.')
       return feat
     } catch (e) {
       console.error(name)
@@ -59,21 +64,16 @@ function getWidth (f) {
   return distance(point(bbox[0], bbox[1]), point(bbox[2], bbox[1]), 'miles')
 }
 
-function wrap (coordinates) {
-  if (!Array.isArray(coordinates)) {
-    // assume it's a feature
-    var f = coordinates
-    f.geometry.coordinates = wrap(f.geometry.coordinates)
-    return f
-  }
+function clipAtDateline (feature) {
+  var clipped = clip(feature, [-180, -85, -67, 85])
+  clipped.geometry.coordinates = clipped.geometry.coordinates.filter(dropEmpty)
+  return clipped
 
-  if (Array.isArray(coordinates[0])) {
-    return coordinates.map(wrap)
+  function dropEmpty (coords) {
+    if (!coords || !coords.length) { return false }
+    if (Array.isArray(coords[0])) { return coords.filter(dropEmpty) }
+    return coords
   }
-  if (coordinates[0] > 0) {
-    coordinates[0] -= 360
-  }
-  return coordinates
 }
 
 function point (x, y) {

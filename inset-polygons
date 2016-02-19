@@ -31,7 +31,7 @@ getStdin().then(function (stdin) {
   polygons.features = polygons.features
   .map(clipAtDateline)
   .map(function (f, i) {
-    let name = f.properties.postal || f.properties.FIPS || i
+    let name = f.properties.postal || f.properties.COUNTY || i
     try {
       let contiguous = isContiguous(f)
       let width = contiguous ? fullWidth : (2 * getWidth(f))
@@ -39,7 +39,8 @@ getStdin().then(function (stdin) {
       let minFeatureWidth = -initialBuffer * 1.5
       var feat = buffer(f, initialBuffer, 'miles')
       feat.properties = Object.assign({}, f.properties)
-      if (getWidth(feat) < minFeatureWidth) {
+      let insetWidth = getWidth(feat)
+      if (isNaN(insetWidth) || insetWidth < minFeatureWidth) {
         console.error('Below minimum width: ', name)
         return f
       }

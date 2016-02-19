@@ -742,7 +742,7 @@ topo/us-combined.json: geojson/states.geojson geojson/states-insets.geojson
 		-- $^
 
 # Per-state combined (counties, insets, cities)
-topo/us-%-combined.json: geojson/ak/counties.geojson geojson/%/counties-insets.geojson topo/us-%-cities.json
+topo/us-%-combined.json: geojson/%/counties.geojson geojson/%/counties-insets.geojson topo/us-%-cities.json
 	node_modules/.bin/topojson \
 		-o $@ \
 		--no-pre-quantization \

@@ -766,10 +766,11 @@ geojson/%/counties.geojson: topo/us-%-counties-10m.json
 	mkdir -p $(dir $@)
 	rm -f $@
 	topojson-geojson -o $(dir $@) $<
-	mv $(dir $@)/counties.json $@
+	cat $(dir $@)/counties.json | ./clip-at-dateline > $@
+	rm $(dir $@)/counties.json
 
 geojson/%/counties-insets.geojson: geojson/%/counties.geojson
-	cat $< | ./inset-polygons > $@
+	cat $< | ./clip-at-dateline | ./inset-polygons > $@
 
 # State insets
 geojson/states.geojson:
@@ -778,10 +779,7 @@ geojson/states.geojson:
 	geojson-xyz ne_110m_admin_1_states_provinces > $@
 
 geojson/states-insets.geojson: geojson/states.geojson
-	cat $< | ./inset-polygons 0.01 > $@
-
-geojson/%/counties-insets.geojson: geojson/%/counties.geojson
-	cat $< | ./inset-polygons 0.02 > $@
+	cat $< | ./clip-at-dateline | ./inset-polygons 0.01 > $@
 
 # Cities
 topo/us-%-cities.json: geojson/%/cities.geojson

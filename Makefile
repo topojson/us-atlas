@@ -69,6 +69,12 @@ gz/tl_2013_us_cd113.zip:
 	curl 'ftp://ftp2.census.gov/geo/tiger/TIGER2013/CD/$(notdir $@)' -o $@.download
 	mv $@.download $@
 
+# State legislative districts lower
+gz/tl_2015_%_sldl.zip:
+	mkdir -p $(dir $@)
+	curl 'http://www2.census.gov/geo/tiger/TIGER2015/SLDL/$(notdir $@)' -o $@.download
+	mv $@.download $@
+
 shp/us/nation-unmerged.shp: gz/nationalp010g_nt00797.tar.gz
 shp/us/states-unfiltered.shp: gz/statep010_nt00798.tar.gz
 shp/us/counties-unfiltered.shp: gz/countyp010_nt00795.tar.gz
@@ -322,6 +328,57 @@ shp/wv/pop_blocks.shp: gz/tabblock2010_54_pophu.zip
 shp/wi/pop_blocks.shp: gz/tabblock2010_55_pophu.zip
 shp/wy/pop_blocks.shp: gz/tabblock2010_56_pophu.zip
 
+shp/al/sldl.shp: gz/tl_2015_01_sldl.zip
+shp/ak/sldl.shp: gz/tl_2015_02_sldl.zip
+shp/az/sldl.shp: gz/tl_2015_04_sldl.zip
+shp/ar/sldl.shp: gz/tl_2015_05_sldl.zip
+shp/ca/sldl.shp: gz/tl_2015_06_sldl.zip
+shp/co/sldl.shp: gz/tl_2015_08_sldl.zip
+shp/ct/sldl.shp: gz/tl_2015_09_sldl.zip
+shp/de/sldl.shp: gz/tl_2015_10_sldl.zip
+shp/fl/sldl.shp: gz/tl_2015_12_sldl.zip
+shp/ga/sldl.shp: gz/tl_2015_13_sldl.zip
+shp/hi/sldl.shp: gz/tl_2015_15_sldl.zip
+shp/id/sldl.shp: gz/tl_2015_16_sldl.zip
+shp/il/sldl.shp: gz/tl_2015_17_sldl.zip
+shp/in/sldl.shp: gz/tl_2015_18_sldl.zip
+shp/ia/sldl.shp: gz/tl_2015_19_sldl.zip
+shp/ks/sldl.shp: gz/tl_2015_20_sldl.zip
+shp/ky/sldl.shp: gz/tl_2015_21_sldl.zip
+shp/la/sldl.shp: gz/tl_2015_22_sldl.zip
+shp/me/sldl.shp: gz/tl_2015_23_sldl.zip
+shp/md/sldl.shp: gz/tl_2015_24_sldl.zip
+shp/ma/sldl.shp: gz/tl_2015_25_sldl.zip
+shp/mi/sldl.shp: gz/tl_2015_26_sldl.zip
+shp/mn/sldl.shp: gz/tl_2015_27_sldl.zip
+shp/ms/sldl.shp: gz/tl_2015_28_sldl.zip
+shp/mo/sldl.shp: gz/tl_2015_29_sldl.zip
+shp/mt/sldl.shp: gz/tl_2015_30_sldl.zip
+shp/nv/sldl.shp: gz/tl_2015_32_sldl.zip
+shp/nh/sldl.shp: gz/tl_2015_33_sldl.zip
+shp/nj/sldl.shp: gz/tl_2015_34_sldl.zip
+shp/nm/sldl.shp: gz/tl_2015_35_sldl.zip
+shp/ny/sldl.shp: gz/tl_2015_36_sldl.zip
+shp/nc/sldl.shp: gz/tl_2015_37_sldl.zip
+shp/nd/sldl.shp: gz/tl_2015_38_sldl.zip
+shp/oh/sldl.shp: gz/tl_2015_39_sldl.zip
+shp/ok/sldl.shp: gz/tl_2015_40_sldl.zip
+shp/or/sldl.shp: gz/tl_2015_41_sldl.zip
+shp/pa/sldl.shp: gz/tl_2015_42_sldl.zip
+shp/ri/sldl.shp: gz/tl_2015_44_sldl.zip
+shp/sc/sldl.shp: gz/tl_2015_45_sldl.zip
+shp/sd/sldl.shp: gz/tl_2015_46_sldl.zip
+shp/tn/sldl.shp: gz/tl_2015_47_sldl.zip
+shp/tx/sldl.shp: gz/tl_2015_48_sldl.zip
+shp/ut/sldl.shp: gz/tl_2015_49_sldl.zip
+shp/vt/sldl.shp: gz/tl_2015_50_sldl.zip
+shp/va/sldl.shp: gz/tl_2015_51_sldl.zip
+shp/wa/sldl.shp: gz/tl_2015_53_sldl.zip
+shp/wv/sldl.shp: gz/tl_2015_54_sldl.zip
+shp/wi/sldl.shp: gz/tl_2015_55_sldl.zip
+shp/wy/sldl.shp: gz/tl_2015_56_sldl.zip
+shp/pr/sldl.shp: gz/tl_2015_72_sldl.zip
+
 shp/us/%.shp:
 	rm -rf $(basename $@)
 	mkdir -p $(basename $@)
@@ -359,7 +416,7 @@ shp/us/%.json: shp/us/%-unmerged.shp bin/geomerge
 	ogr2ogr -f 'GeoJSON' $(basename $@)-unmerged.json $<
 	bin/geomerge < $(basename $@)-unmerged.json > $@
 
-shp/us/zipcodes-unmerged.shp shp/us/cbsa.shp shp/%/tracts.shp shp/%/blockgroups.shp shp/%/blocks.shp shp/%/pop_blocks.shp:
+shp/us/zipcodes-unmerged.shp shp/us/cbsa.shp shp/%/tracts.shp shp/%/blockgroups.shp shp/%/blocks.shp shp/%/pop_blocks.shp shp/%/sldl.shp:
 	rm -rf $(basename $@)
 	mkdir -p $(basename $@)
 	unzip -d $(basename $@) $<
@@ -817,3 +874,33 @@ geojson/us-%-pop-blocks.geojson: topo/us-%-pop-blocks.json
 	cp $(basename $@)/pop_blocks.json $@
 	rm -rf $(basename $@)
 
+# State legislative district lower
+topo/us-%-sldl.json: shp/%/sldl.shp
+	mkdir -p $(dir $@)
+	node_modules/.bin/topojson \
+		-o $@ \
+		--no-pre-quantization \
+		--post-quantization=1e6 \
+		--simplify=3e-8 \
+		--id-property=+GEOID \
+		--properties NAMELSAD \
+		-- $<
+
+geojson/%/sldl.json: topo/us-%-sldl.json
+	node_modules/.bin/topojson-geojson -o geojson/ak \
+		--id-property=+id \
+		--properties NAMELSAD \
+		$<
+
+geojson/%/sldl-clipped.geojson: geojson/%/sldl.json
+	cat $< | ./clip-at-dateline > $@
+
+# Special cases
+# Include SLDLs (for Alaska)
+topo/us-%-snowflake.json: geojson/%/counties.geojson topo/us-%-cities.json geojson/%/sldl-clipped.geojson
+	node_modules/.bin/topojson \
+		-o $@ \
+		--no-pre-quantization \
+		--post-quantization=1e6 \
+		--properties \
+		-- $^

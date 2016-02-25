@@ -888,7 +888,6 @@ topo/us-%-sldl.json: shp/%/sldl.shp
 
 geojson/%/sldl.geojson: topo/us-%-sldl.json
 	node_modules/.bin/topojson-geojson -o $(dir $@) \
-		--id-property=+id \
 		--properties NAMELSAD \
 		$<
 		cat $(dir $@)sldl.json | ./clip-at-dateline > $@

@@ -799,7 +799,7 @@ topo/us-combined.json: geojson/states.geojson geojson/states-insets.geojson
 		-- $^
 
 # Per-state combined (counties, insets, cities)
-topo/us-%-combined.json: geojson/%/counties.geojson geojson/%/counties-insets.geojson topo/us-%-cities.json
+topo/us-%-combined.json: geojson/%/subunits.geojson geojson/%/counties.geojson geojson/%/counties-insets.geojson topo/us-%-cities.json
 	node_modules/.bin/topojson \
 		-o $@ \
 		--no-pre-quantization \
@@ -886,17 +886,22 @@ topo/us-%-sldl.json: shp/%/sldl.shp
 		--properties NAMELSAD \
 		-- $<
 
-geojson/%/sldl.json: topo/us-%-sldl.json
-	node_modules/.bin/topojson-geojson -o geojson/ak \
+geojson/%/sldl.geojson: topo/us-%-sldl.json
+	node_modules/.bin/topojson-geojson -o $(dir $@) \
 		--id-property=+id \
 		--properties NAMELSAD \
 		$<
+		cat $(dir $@)sldl.json | ./clip-at-dateline > $@
+		rm $(dir $@)sldl.json
 
-geojson/%/sldl-clipped.geojson: geojson/%/sldl.json
-	cat $< | ./clip-at-dateline > $@
+geojson/%/subunits.geojson:
+	turf featurecollection '[]' > $@
 
 # Special cases
 # Include SLDLs (for Alaska)
+geojson/ak/subunits.geojson: geojson/ak/sldl.geojson
+	cp $< $@
+
 topo/us-%-snowflake.json: geojson/%/counties.geojson topo/us-%-cities.json geojson/%/sldl-clipped.geojson
 	node_modules/.bin/topojson \
 		-o $@ \

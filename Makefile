@@ -788,14 +788,14 @@ all-combined:
 all-pop-blocks:
 	for i in ${STATES} ; do make geojson/us-$$i-pop-blocks.geojson && rm shp/$$i/pop_blocks.shp ; done
 
-# National combined (states, insets)
-topo/us-combined.json: geojson/states.geojson geojson/states-insets.geojson
+# National combined (states)
+topo/us-combined.json: shp/us/states.shp
 	node_modules/.bin/topojson \
 		-o $@ \
 		--no-pre-quantization \
 		--post-quantization=1e6 \
-		--id-property=postal \
-		--properties postal \
+		--id-property=STATE_FIPS \
+		--properties STATE_FIPS \
 		-- $^
 
 # Per-state combined (counties, insets, cities)

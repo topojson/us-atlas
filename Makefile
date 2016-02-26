@@ -901,6 +901,22 @@ geojson/%/subunits.geojson:
 geojson/ak/subunits.geojson: geojson/ak/sldl.geojson
 	cp $< $@
 
+# Congressional Districts (for Minnesota)
+geojson/mn/subunits.geojson: shp/us/congress-ungrouped.shp
+	mkdir -p shp/mn
+	ogr2ogr -f 'ESRI Shapefile' -where "STATEFP = '27'" shp/mn/ $<
+	mkdir -p topo/mn
+	node_modules/.bin/topojson \
+		-o topo/mn/congress.json \
+		--no-pre-quantization \
+		--post-quantization=1e6 \
+		--simplify=7e-7 \
+		--id-property=+GEOID \
+		-- shp/mn/congress-ungrouped.shp
+	mkdir -p geojson/mn
+	topojson-geojson -o geojson/mn/ topo/mn/congress.json
+	mv geojson/mn/congress-ungrouped.json geojson/mn/subunits.geojson
+
 topo/us-%-snowflake.json: geojson/%/counties.geojson topo/us-%-cities.json geojson/%/sldl-clipped.geojson
 	node_modules/.bin/topojson \
 		-o $@ \

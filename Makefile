@@ -794,9 +794,16 @@ topo/us-combined.json: shp/us/states.shp
 		-o $@ \
 		--no-pre-quantization \
 		--post-quantization=1e6 \
-		--id-property=STATE_FIPS \
-		--properties STATE_FIPS \
+		--id-property=+STATE_FIPS \
+		--properties STATE_FIPS,postal \
+		--external-properties fips.csv \
 		-- $^
+	node_modules/.bin/topojson \
+	  -o $@ \
+		--no-quantization \
+		--id-property=postal \
+		--properties postal \
+		-- $@
 
 # Per-state combined (counties, insets, cities)
 topo/us-%-combined.json: geojson/%/subunits.geojson geojson/%/counties.geojson geojson/%/counties-insets.geojson topo/us-%-cities.json

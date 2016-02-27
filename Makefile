@@ -791,7 +791,7 @@ all-pop-blocks:
 # National combined (states)
 topo/us-combined.json: shp/us/states.shp
 	node_modules/.bin/topojson \
-		-o $@ \
+		-o temp.json \
 		--no-pre-quantization \
 		--post-quantization=1e6 \
 		--id-property=+STATE_FIPS \
@@ -800,10 +800,12 @@ topo/us-combined.json: shp/us/states.shp
 		-- $^
 	node_modules/.bin/topojson \
 	  -o $@ \
-		--no-quantization \
+		--no-pre-quantization \
+		--post-quantization=1e6 \
 		--id-property=postal \
 		--properties postal \
-		-- $@
+		-- temp.json
+	rm temp.json
 
 # Per-state combined (counties, insets, cities)
 topo/us-%-combined.json: geojson/%/subunits.geojson geojson/%/counties.geojson geojson/%/counties-insets.geojson topo/us-%-cities.json

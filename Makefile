@@ -808,7 +808,7 @@ topo/us-combined.json: shp/us/states.shp
 	rm temp.json
 
 # Per-state combined (counties, insets, cities)
-topo/us-%-combined.json: geojson/%/subunits.geojson geojson/%/counties.geojson geojson/%/counties-insets.geojson topo/us-%-cities.json
+topo/us-%-combined.json: geojson/%/subunits.geojson geojson/%/districts.geojson geojson/%/counties.geojson geojson/%/counties-insets.geojson topo/us-%-cities.json
 	node_modules/.bin/topojson \
 		-o $@ \
 		--no-pre-quantization \
@@ -910,21 +910,25 @@ geojson/%/subunits.geojson:
 geojson/ak/subunits.geojson: geojson/ak/sldl.geojson
 	cp $< $@
 
+geojson/%/districts.geojson:
+	turf featurecollection '[]' > $@
+
 # Congressional Districts (for Minnesota)
-geojson/mn/subunits.geojson: shp/us/congress-ungrouped.shp
+shp/mn/congress-ungrouped.shp: shp/us/congress-ungrouped.shp
 	mkdir -p shp/mn
 	ogr2ogr -f 'ESRI Shapefile' -where "STATEFP = '27'" shp/mn/ $<
+geojson/mn/districts.geojson: shp/mn/congress-ungrouped.shp
 	mkdir -p topo/mn
 	node_modules/.bin/topojson \
 		-o topo/mn/congress.json \
 		--no-pre-quantization \
 		--post-quantization=1e6 \
 		--simplify=7e-7 \
-		--id-property=+GEOID \
+		--id-property=NAMELSAD \
 		-- shp/mn/congress-ungrouped.shp
 	mkdir -p geojson/mn
 	topojson-geojson -o geojson/mn/ topo/mn/congress.json
-	mv geojson/mn/congress-ungrouped.json geojson/mn/subunits.geojson
+	mv geojson/mn/congress-ungrouped.json geojson/mn/districts.geojson
 
 topo/us-%-snowflake.json: geojson/%/counties.geojson topo/us-%-cities.json geojson/%/sldl-clipped.geojson
 	node_modules/.bin/topojson \

@@ -789,7 +789,7 @@ all-pop-blocks:
 	for i in ${STATES} ; do make geojson/us-$$i-pop-blocks.geojson && rm shp/$$i/pop_blocks.shp ; done
 
 # National combined (states)
-topo/us-combined.json: shp/us/states.shp
+topo/us-combined.json: geojson/states.geojson
 	node_modules/.bin/topojson \
 		-o temp.json \
 		--no-pre-quantization \
@@ -839,10 +839,12 @@ geojson/%/counties-insets.geojson: geojson/%/counties.geojson
 	cat $< | ./clip-at-dateline | ./inset-polygons > $@
 
 # State insets
-geojson/states.geojson:
+geojson/states.geojson: shp/us/states.shp
 	mkdir -p $(dir $@)
 	rm -f $@
-	geojson-xyz ne_110m_admin_1_states_provinces > $@
+	ogr2ogr -f "GeoJSON" $(dir $@)temp.json $<
+	cat $(dir $@)temp.json | ./clip-at-dateline > $@
+	rm $(dir $@)temp.json
 
 geojson/states-insets.geojson: geojson/states.geojson
 	cat $< | ./clip-at-dateline | ./inset-polygons 0.01 > $@

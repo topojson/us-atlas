@@ -794,6 +794,7 @@ topo/us-combined.json: geojson/states.geojson
 		-o temp.json \
 		--no-pre-quantization \
 		--post-quantization=1e6 \
+		--simplify=7e-6 \
 		--id-property=+STATE_FIPS \
 		--properties STATE_FIPS,postal \
 		--external-properties fips.csv \

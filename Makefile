@@ -944,6 +944,16 @@ geojson/mn/districts.geojson: topo/us-mn-congress.json
 	mv $(dir $@)congress-clipped.json $(dir $@)districts.geojson
 
 shp/mn/congress-ungrouped.shp: shp/us/congress-ungrouped.shp
-	mkdir -p shp/mn
-	ogr2ogr -f 'ESRI Shapefile' -where "STATEFP = '27'" shp/mn/ $<
+	mkdir -p $(dir $@)
+	ogr2ogr -f 'ESRI Shapefile' -where "STATEFP = '27'" $(dir $@) $<
+
+# KS
+geojson/ks/districts.geojson: topo/us-ks-congress.json
+	mkdir -p $(dir $@)
+	topojson-geojson -o $(dir $@) $<
+	mv $(dir $@)congress-clipped.json $(dir $@)districts.geojson
+
+shp/ks/congress-ungrouped.shp: shp/us/congress-ungrouped.shp
+	mkdir -p $(dir $@)
+	ogr2ogr -f 'ESRI Shapefile' -where "STATEFP = '20'" $(dir $@) $<
 

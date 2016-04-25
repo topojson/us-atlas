@@ -808,7 +808,27 @@ topo/us-combined.json: geojson/states.geojson
 		-- temp.json
 	rm temp.json
 
-# Per-state combined (counties, insets, cities)
+topo/us-northeast-combined.json: geojson/northeast/states.geojson
+	node_modules/.bin/topojson \
+		-o temp.json \
+		--no-pre-quantization \
+		--post-quantization=1e6 \
+		--simplify=7e-6 \
+		--id-property=+STATE_FIPS \
+		--properties STATE_FIPS,postal \
+		--external-properties fips.csv \
+		-- $^
+	node_modules/.bin/topojson \
+	  -o $@ \
+		--no-pre-quantization \
+		--post-quantization=1e6 \
+		--id-property=postal \
+		--properties postal \
+		-- temp.json
+	rm temp.json
+
+
+# Per-state combined (counties, cities)
 topo/us-%-combined.json: geojson/%/subunits.geojson geojson/%/districts.geojson geojson/%/counties.geojson topo/us-%-cities.json
 	node_modules/.bin/topojson \
 		-o $@ \
@@ -817,7 +837,7 @@ topo/us-%-combined.json: geojson/%/subunits.geojson geojson/%/districts.geojson 
 		--properties \
 		-- $^
 
-# Per-state ounties and county insets
+# Per-state counties
 topo/us-%-counties-10m-ungrouped.json: shp/%/counties.shp
 	mkdir -p $(dir $@)
 	node_modules/.bin/topojson \
@@ -836,10 +856,7 @@ geojson/%/counties.geojson: topo/us-%-counties-10m.json
 	cat $(dir $@)/counties.json | ./clip-at-dateline > $@
 	rm $(dir $@)/counties.json
 
-geojson/%/counties-insets.geojson: geojson/%/counties.geojson
-	cat $< | ./clip-at-dateline | ./inset-polygons > $@
-
-# State insets
+# States
 geojson/states.geojson: shp/us/states.shp
 	mkdir -p $(dir $@)
 	rm -f $@
@@ -847,8 +864,12 @@ geojson/states.geojson: shp/us/states.shp
 	cat $(dir $@)temp.json | ./clip-at-dateline > $@
 	rm $(dir $@)temp.json
 
-geojson/states-insets.geojson: geojson/states.geojson
-	cat $< | ./clip-at-dateline | ./inset-polygons 0.01 > $@
+geojson/northeast/states.geojson: shp/us/states.shp
+	mkdir -p $(dir $@)
+	rm -f $@
+	ogr2ogr -f "GeoJSON" -where "STATE_FIPS IN ('09', '10', '24', '25', '33', '34', '36', '42', '44', '50')" $(dir $@)temp.json $<
+	cat $(dir $@)temp.json | ./clip-at-dateline > $@
+	rm $(dir $@)temp.json
 
 # Cities
 topo/us-%-cities.json: geojson/%/cities.geojson

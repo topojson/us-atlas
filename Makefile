@@ -18,6 +18,9 @@
 # add node_modules/.bin to path for turf-cli
 export PATH := node_modules/.bin:$(PATH)
 
+echo:
+	echo ${PATH}
+
 all:
 
 .SECONDARY:
@@ -67,6 +70,12 @@ gz/tl_2015_us_cbsa.zip:
 gz/tl_2015_us_cd114.zip:
 	mkdir -p $(dir $@)
 	curl 'ftp://ftp2.census.gov/geo/tiger/TIGER2015/CD/$(notdir $@)' -o $@.download
+	mv $@.download $@
+
+# State legislative districts upper
+gz/tl_2015_%_sldu.zip:
+	mkdir -p $(dir $@)
+	curl 'http://www2.census.gov/geo/tiger/TIGER2015/SLDU/$(notdir $@)' -o $@.download
 	mv $@.download $@
 
 # State legislative districts lower
@@ -379,6 +388,57 @@ shp/wi/sldl.shp: gz/tl_2015_55_sldl.zip
 shp/wy/sldl.shp: gz/tl_2015_56_sldl.zip
 shp/pr/sldl.shp: gz/tl_2015_72_sldl.zip
 
+shp/al/sldu.shp: gz/tl_2015_01_sldu.zip
+shp/ak/sldu.shp: gz/tl_2015_02_sldu.zip
+shp/az/sldu.shp: gz/tl_2015_04_sldu.zip
+shp/ar/sldu.shp: gz/tl_2015_05_sldu.zip
+shp/ca/sldu.shp: gz/tl_2015_06_sldu.zip
+shp/co/sldu.shp: gz/tl_2015_08_sldu.zip
+shp/ct/sldu.shp: gz/tl_2015_09_sldu.zip
+shp/de/sldu.shp: gz/tl_2015_10_sldu.zip
+shp/fl/sldu.shp: gz/tl_2015_12_sldu.zip
+shp/ga/sldu.shp: gz/tl_2015_13_sldu.zip
+shp/hi/sldu.shp: gz/tl_2015_15_sldu.zip
+shp/id/sldu.shp: gz/tl_2015_16_sldu.zip
+shp/il/sldu.shp: gz/tl_2015_17_sldu.zip
+shp/in/sldu.shp: gz/tl_2015_18_sldu.zip
+shp/ia/sldu.shp: gz/tl_2015_19_sldu.zip
+shp/ks/sldu.shp: gz/tl_2015_20_sldu.zip
+shp/ky/sldu.shp: gz/tl_2015_21_sldu.zip
+shp/la/sldu.shp: gz/tl_2015_22_sldu.zip
+shp/me/sldu.shp: gz/tl_2015_23_sldu.zip
+shp/md/sldu.shp: gz/tl_2015_24_sldu.zip
+shp/ma/sldu.shp: gz/tl_2015_25_sldu.zip
+shp/mi/sldu.shp: gz/tl_2015_26_sldu.zip
+shp/mn/sldu.shp: gz/tl_2015_27_sldu.zip
+shp/ms/sldu.shp: gz/tl_2015_28_sldu.zip
+shp/mo/sldu.shp: gz/tl_2015_29_sldu.zip
+shp/mt/sldu.shp: gz/tl_2015_30_sldu.zip
+shp/nv/sldu.shp: gz/tl_2015_32_sldu.zip
+shp/nh/sldu.shp: gz/tl_2015_33_sldu.zip
+shp/nj/sldu.shp: gz/tl_2015_34_sldu.zip
+shp/nm/sldu.shp: gz/tl_2015_35_sldu.zip
+shp/ny/sldu.shp: gz/tl_2015_36_sldu.zip
+shp/nc/sldu.shp: gz/tl_2015_37_sldu.zip
+shp/nd/sldu.shp: gz/tl_2015_38_sldu.zip
+shp/oh/sldu.shp: gz/tl_2015_39_sldu.zip
+shp/ok/sldu.shp: gz/tl_2015_40_sldu.zip
+shp/or/sldu.shp: gz/tl_2015_41_sldu.zip
+shp/pa/sldu.shp: gz/tl_2015_42_sldu.zip
+shp/ri/sldu.shp: gz/tl_2015_44_sldu.zip
+shp/sc/sldu.shp: gz/tl_2015_45_sldu.zip
+shp/sd/sldu.shp: gz/tl_2015_46_sldu.zip
+shp/tn/sldu.shp: gz/tl_2015_47_sldu.zip
+shp/tx/sldu.shp: gz/tl_2015_48_sldu.zip
+shp/ut/sldu.shp: gz/tl_2015_49_sldu.zip
+shp/vt/sldu.shp: gz/tl_2015_50_sldu.zip
+shp/va/sldu.shp: gz/tl_2015_51_sldu.zip
+shp/wa/sldu.shp: gz/tl_2015_53_sldu.zip
+shp/wv/sldu.shp: gz/tl_2015_54_sldu.zip
+shp/wi/sldu.shp: gz/tl_2015_55_sldu.zip
+shp/wy/sldu.shp: gz/tl_2015_56_sldu.zip
+shp/pr/sldu.shp: gz/tl_2015_72_sldu.zip
+
 shp/us/%.shp:
 	rm -rf $(basename $@)
 	mkdir -p $(basename $@)
@@ -416,7 +476,7 @@ shp/us/%.json: shp/us/%-unmerged.shp bin/geomerge
 	ogr2ogr -f 'GeoJSON' $(basename $@)-unmerged.json $<
 	bin/geomerge < $(basename $@)-unmerged.json > $@
 
-shp/us/zipcodes-unmerged.shp shp/us/cbsa.shp shp/%/tracts.shp shp/%/blockgroups.shp shp/%/blocks.shp shp/%/pop_blocks.shp shp/%/sldl.shp:
+shp/us/zipcodes-unmerged.shp shp/us/cbsa.shp shp/%/tracts.shp shp/%/blockgroups.shp shp/%/blocks.shp shp/%/pop_blocks.shp shp/%/sldl.shp shp/%/sldu.shp:
 	rm -rf $(basename $@)
 	mkdir -p $(basename $@)
 	unzip -d $(basename $@) $<
@@ -907,6 +967,25 @@ geojson/us-%-pop-blocks.geojson: topo/us-%-pop-blocks.json
 	cp $(basename $@)/pop_blocks.json $@
 	rm -rf $(basename $@)
 
+# State legislative district upper
+topo/us-%-sldu.json: shp/%/sldu.shp
+	mkdir -p $(dir $@)
+	node_modules/.bin/topojson \
+		-o $@ \
+		--no-pre-quantization \
+		--post-quantization=1e6 \
+		--simplify=3e-8 \
+		--id-property=+GEOID \
+		--properties NAMELSAD \
+		-- $<
+
+geojson/%/sldu.geojson: topo/us-%-sldu.json
+	node_modules/.bin/topojson-geojson -o $(dir $@) \
+		--properties NAMELSAD \
+		$<
+		cat $(dir $@)sldu.json | ./clip-at-dateline > $@
+		rm $(dir $@)sldu.json
+
 # State legislative district lower
 topo/us-%-sldl.json: shp/%/sldl.shp
 	mkdir -p $(dir $@)
@@ -935,6 +1014,9 @@ geojson/%/subunits.geojson:
 geojson/ak/subunits.geojson: geojson/ak/sldl.geojson
 	cp $< $@
 
+# SLDUs for North Dakota
+geojson/nd/subunits.geojson: geojson/nd/sldu.geojson
+	cp $< $@
 
 # Congressional Districts
 # The targets with '%' take care of going from a state's district shapefile to the

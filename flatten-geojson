@@ -1,0 +1,9 @@
+#!/usr/bin/env node
+
+var geojsonStream = require('geojson-stream')
+
+process.stdin.pipe(geojsonStream.parse())
+.on('data', function (feat) {
+  console.log(JSON.stringify(feat) + '\n')
+})
+

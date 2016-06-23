@@ -1,0 +1,17 @@
+#!/usr/bin/env node
+
+var reproject = require('reproject')
+var geojsonStream = require('geojson-stream')
+var through = require('through2')
+var argv = require('minimist')(process.argv.slice(2))
+var projections = require('./projections.json')
+
+process.stdin.pipe(geojsonStream.parse())
+.pipe(through.obj(write))
+.pipe(geojsonStream.stringify())
+.pipe(process.stdout)
+
+function write (feature, _, next) {
+  this.push(reproject.reproject(feature, argv.from, argv.to, projections))
+  next()
+}

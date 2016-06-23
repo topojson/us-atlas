@@ -1,0 +1,76 @@
+#!/usr/bin/env node
+
+var fs = require('fs')
+var path = require('path')
+var JSONStream = require('JSONStream')
+
+var states = {}
+fs.readFileSync(path.join(__dirname, '../fips.csv'), 'utf-8')
+  .split('\n').filter(Boolean)
+  .map(line => line.split(','))
+  .forEach(line => {
+    if (line[1].length === 1) { line[1] = '0' + line[1] }
+    states[line[0]] = {
+      statePostal: line[0],
+      fipsCode: line[1]
+    }
+  })
+
+fs.readFileSync(path.join(__dirname, '2012-electoral-college.csv'), 'utf-8')
+  .split('\n').filter(Boolean)
+  .map(line => line.split(','))
+  .filter(line => states[line[0]])
+  .forEach(line => {
+    states[line[0]].electors = +line[2]
+  })
+
+var fields = [
+  {
+    key: 'id',
+    value: ru => ru.fipsCode
+  },
+  {
+    key: 'statePostal'
+  },
+  {
+    key: 'winningParty',
+    value: ru => ru.candidates[0].party
+  },
+  {
+    key: 'marginOfWinVotes',
+    value: ru => ru.candidates[0].voteCount - ru.candidates[1].voteCount
+  },
+  {
+    key: 'marginOfWinPercent',
+    value: ru => ((ru.candidates[0].voteCount - ru.candidates[1].voteCount) / totalVotes(ru)).toFixed(3)
+  },
+  {
+    key: 'voteCount',
+    value: ru => totalVotes(ru)
+  },
+  {
+    key: 'electorCount',
+    value: ru => ru.electors || 'null'
+  }
+]
+
+console.log(fields.map(p => p.key).join(','))
+process.stdin.pipe(JSONStream.parse(['races', true, 'reportingUnits', true]))
+.on('data', function (ru) {
+  // augment state w/ some metadata
+  if (ru.level === 'state') {
+    Object.assign(ru, states[ru.statePostal])
+  }
+  // sort candidates by vote count
+  ru.candidates.sort((a, b) => b.voteCount - a.voteCount)
+
+  var line = fields
+    .map(field => field.value ? field.value(ru) : ru[field.key])
+    .join(',')
+
+  console.log(line)
+})
+
+function totalVotes (ru) {
+  return ru.candidates.reduce((memo, c) => c.voteCount + memo, 0)
+}

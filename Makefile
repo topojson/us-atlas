@@ -916,8 +916,15 @@ geojson/%/counties.geojson: topo/us-%-counties-10m.json
 	cat $(dir $@)/counties.json | ./clip-at-dateline > $@
 	rm $(dir $@)/counties.json
 
-# States
+# National
 geojson/states.geojson: shp/us/states.shp
+	mkdir -p $(dir $@)
+	rm -f $@
+	ogr2ogr -f "GeoJSON" $(dir $@)temp.json $<
+	cat $(dir $@)temp.json | ./clip-at-dateline > $@
+	rm $(dir $@)temp.json
+
+geojson/counties.geojson: shp/us/counties.shp
 	mkdir -p $(dir $@)
 	rm -f $@
 	ogr2ogr -f "GeoJSON" $(dir $@)temp.json $<
@@ -1059,4 +1066,32 @@ geojson/ks/districts.geojson: topo/us-ks-congress.json
 shp/ks/congress-ungrouped.shp: shp/us/congress-ungrouped.shp
 	mkdir -p $(dir $@)
 	ogr2ogr -f 'ESRI Shapefile' -where "STATEFP = '20'" $(dir $@) $<
+
+#
+# Albers-projected Vector Tiles
+#
+geojson/albers/%.geojson: geojson/%.geojson
+	mkdir -p $(dir $@)
+	cat $^ \
+		| ./reproject-geojson --from WGS84 --to albers \
+		| ./normalize-properties STATE_FIPS:id FIPS:id \
+		| ./flatten-geojson \
+		> $@
+
+election-results/2012.csv:
+	mkdir -p $(dir $@)
+	cat data/2012-results.json | data/ap-to-csv > $@
+
+tiles/%-results.mbtiles: election-results/%.csv geojson/albers/states.geojson geojson/albers/counties.geojson
+	mkdir -p $(dir $@)
+	tippecanoe --projection EPSG:3857 \
+		--no-polygon-splitting \
+		--include id \
+		-o $(dir $@)bare.mbtiles \
+		-z10 \
+		-L states:geojson/albers/states.geojson -L counties:geojson/albers/counties.geojson \
+		-n $*-results
+	tile-join -o $@ -c election-results/$*.csv $(dir $@)bare.mbtiles
+	# rm $(dir $@)bare.mbtiles
+
 

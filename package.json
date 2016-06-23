@@ -24,8 +24,12 @@
     "d3": "3"
   },
   "dependencies": {
+    "JSONStream": "^1.1.2",
+    "geojson-stream": "0.0.1",
     "geojson-xyz": "^3.0.0",
     "get-stdin": "^5.0.1",
+    "minimist": "^1.2.0",
+    "reproject": "^1.1.1",
     "turf-area": "^1.1.1",
     "turf-bbox-clip": "turfjs/turf-bbox-clip",
     "turf-buffer": "^1.1.0",

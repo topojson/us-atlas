@@ -25,9 +25,11 @@
   },
   "dependencies": {
     "JSONStream": "^1.1.2",
+    "geojson-join": "^1.0.0",
     "geojson-stream": "0.0.1",
     "geojson-xyz": "^3.0.0",
     "get-stdin": "^5.0.1",
+    "mapbox-upload": "^4.2.2",
     "minimist": "^1.2.0",
     "reproject": "^1.1.1",
     "turf-area": "^1.1.1",

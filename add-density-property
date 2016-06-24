@@ -1,0 +1,26 @@
+#!/usr/bin/env node
+
+var through = require('through2')
+var geojsonStream = require('geojson-stream')
+var area = require('turf-area')
+var argv = require('minimist')(process.argv.slice(2))
+
+var SQ_MILES_PER_SQ_METER = 3.86102e-7
+
+process.stdin.pipe(geojsonStream.parse())
+.pipe(through.obj(write))
+.pipe(geojsonStream.stringify())
+.pipe(process.stdout)
+
+function write (feat, _, next) {
+  var A = area(feat) * SQ_MILES_PER_SQ_METER
+  if (A) {
+    argv._.forEach(function (key) {
+      var value = feat.properties[key]
+      if (!value) { return }
+      feat.properties[key + '_density'] = value / A
+    })
+  }
+  this.push(feat)
+  next()
+}

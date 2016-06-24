@@ -1075,23 +1075,39 @@ geojson/albers/%.geojson: geojson/%.geojson
 	cat $^ \
 		| ./reproject-geojson --from WGS84 --to albers \
 		| ./normalize-properties STATE_FIPS:id FIPS:id \
-		| ./flatten-geojson \
 		> $@
 
 election-results/2012.csv:
 	mkdir -p $(dir $@)
 	cat data/2012-results.json | data/ap-to-csv > $@
 
-tiles/%-results.mbtiles: election-results/%.csv geojson/albers/states.geojson geojson/albers/counties.geojson
+election-results/2012-%.geojson: geojson/albers/%.geojson
+	cat geojson/albers/$*.geojson \
+		| node_modules/.bin/geojson-join \
+			--format=csv --againstField=id --geojsonField=id election-results/2012.csv \
+		| ./add-density-property voteCount \
+		| ./flatten-geojson \
+		> $@
+
+tiles/%-results.mbtiles: election-results/%.csv election-results/%-states.geojson election-results/%-counties.geojson
 	mkdir -p $(dir $@)
 	tippecanoe --projection EPSG:3857 \
-		--no-polygon-splitting \
+		--named-layer=states:election-results/$*-states.geojson \
+		--named-layer=counties:election-results/$*-counties.geojson \
+		--read-parallel \
 		--include id \
-		-o $(dir $@)bare.mbtiles \
-		-z10 \
-		-L states:geojson/albers/states.geojson -L counties:geojson/albers/counties.geojson \
-		-n $*-results
-	tile-join -o $@ -c election-results/$*.csv $(dir $@)bare.mbtiles
-	# rm $(dir $@)bare.mbtiles
+		--no-polygon-splitting \
+		--maximum-zoom=10 \
+		--name=$*-results \
+		--output $@
 
+.PHONY: upload/%
+upload/%: tiles/%.mbtiles
+ifndef MapboxAccessToken
+	$(error MapboxAccessToken not defined)
+endif
+ifndef MB_ACCOUNT
+	$(error MB_ACCOUNT not defined)
+endif
+	node_modules/.bin/mapbox-upload $(MB_ACCOUNT).$* $^
 

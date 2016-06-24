@@ -1095,7 +1095,6 @@ tiles/%-results.mbtiles: election-results/%.csv election-results/%-states.geojso
 		--named-layer=states:election-results/$*-states.geojson \
 		--named-layer=counties:election-results/$*-counties.geojson \
 		--read-parallel \
-		--include id \
 		--no-polygon-splitting \
 		--maximum-zoom=10 \
 		--name=$*-results \

@@ -931,6 +931,13 @@ geojson/counties.geojson: shp/us/counties.shp
 	cat $(dir $@)temp.json | ./clip-at-dateline > $@
 	rm $(dir $@)temp.json
 
+geojson/districts.geojson: shp/us/congress-ungrouped.shp
+	mkdir -p $(dir $@)
+	rm -rf $@
+	ogr2ogr -f "GeoJSON" $(dir $@)temp.json $<
+	cat $(dir $@)temp.json | ./clip-at-dateline > $@
+	rm $(dir $@)temp.json
+
 geojson/northeast/states.geojson: shp/us/states.shp
 	mkdir -p $(dir $@)
 	rm -f $@
@@ -1042,6 +1049,50 @@ topo/us-%-congress.json: shp/%/congress-clipped.shp
 		--id-property=NAMELSAD \
 		-- $<
 
+#
+# Albers-projected Vector Tiles
+#
+geojson/albers/%.geojson: geojson/%.geojson
+	mkdir -p $(dir $@)
+	cat $^ \
+		| ./reproject-geojson --from WGS84 --to albers \
+		| ./normalize-properties GEOID:id STATE_FIPS:id FIPS:id  \
+		> $@
+
+election-results/2012.csv:
+	mkdir -p $(dir $@)
+	data/ap-to-csv data/2012-county-results.json data/2012-district-results.json > $@
+
+election-results/2012-%.geojson: geojson/albers/%.geojson
+	cat geojson/albers/$*.geojson \
+		| node_modules/.bin/geojson-join \
+			--format=csv --againstField=id --geojsonField=id election-results/2012.csv \
+		| ./add-density-property voteCount \
+		| ./flatten-geojson \
+		> $@
+
+tiles/%-results.mbtiles: election-results/%.csv election-results/%-states.geojson election-results/%-counties.geojson election-results/%-districts.geojson
+	mkdir -p $(dir $@)
+	tippecanoe --projection EPSG:3857 \
+		--named-layer=states:election-results/$*-states.geojson \
+		--named-layer=counties:election-results/$*-counties.geojson \
+		--named-layer=districts:election-results/$*-districts.geojson \
+		--read-parallel \
+		--no-polygon-splitting \
+		--maximum-zoom=10 \
+		--name=$*-results \
+		--output $@
+
+.PHONY: upload/%
+upload/%: tiles/%.mbtiles
+ifndef MapboxAccessToken
+	$(error MapboxAccessToken not defined)
+endif
+ifndef MB_ACCOUNT
+	$(error MB_ACCOUNT not defined)
+endif
+	node_modules/.bin/mapbox-upload $(MB_ACCOUNT).$* $^
+
 # Default to empty districts - override below in individual states
 geojson/%/districts.geojson:
 	turf featurecollection '[]' > $@
@@ -1066,47 +1117,4 @@ geojson/ks/districts.geojson: topo/us-ks-congress.json
 shp/ks/congress-ungrouped.shp: shp/us/congress-ungrouped.shp
 	mkdir -p $(dir $@)
 	ogr2ogr -f 'ESRI Shapefile' -where "STATEFP = '20'" $(dir $@) $<
-
-#
-# Albers-projected Vector Tiles
-#
-geojson/albers/%.geojson: geojson/%.geojson
-	mkdir -p $(dir $@)
-	cat $^ \
-		| ./reproject-geojson --from WGS84 --to albers \
-		| ./normalize-properties STATE_FIPS:id FIPS:id \
-		> $@
-
-election-results/2012.csv:
-	mkdir -p $(dir $@)
-	cat data/2012-results.json | data/ap-to-csv > $@
-
-election-results/2012-%.geojson: geojson/albers/%.geojson
-	cat geojson/albers/$*.geojson \
-		| node_modules/.bin/geojson-join \
-			--format=csv --againstField=id --geojsonField=id election-results/2012.csv \
-		| ./add-density-property voteCount \
-		| ./flatten-geojson \
-		> $@
-
-tiles/%-results.mbtiles: election-results/%.csv election-results/%-states.geojson election-results/%-counties.geojson
-	mkdir -p $(dir $@)
-	tippecanoe --projection EPSG:3857 \
-		--named-layer=states:election-results/$*-states.geojson \
-		--named-layer=counties:election-results/$*-counties.geojson \
-		--read-parallel \
-		--no-polygon-splitting \
-		--maximum-zoom=10 \
-		--name=$*-results \
-		--output $@
-
-.PHONY: upload/%
-upload/%: tiles/%.mbtiles
-ifndef MapboxAccessToken
-	$(error MapboxAccessToken not defined)
-endif
-ifndef MB_ACCOUNT
-	$(error MB_ACCOUNT not defined)
-endif
-	node_modules/.bin/mapbox-upload $(MB_ACCOUNT).$* $^
 

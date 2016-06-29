@@ -27,7 +27,7 @@ fs.readFileSync(path.join(__dirname, '2012-electoral-college.csv'), 'utf-8')
 var fields = [
   {
     key: 'id',
-    value: ru => ru.fipsCode
+    value: ru => ru.level === 'district' ? ru.districtId : ru.fipsCode
   },
   {
     key: 'statePostal'
@@ -38,11 +38,11 @@ var fields = [
   },
   {
     key: 'marginOfWinVotes',
-    value: ru => ru.candidates[0].voteCount - ru.candidates[1].voteCount
+    value: ru => ru.candidates.length <= 1 ? -1 : ru.candidates[0].voteCount - ru.candidates[1].voteCount
   },
   {
     key: 'marginOfWinPercent',
-    value: ru => ((ru.candidates[0].voteCount - ru.candidates[1].voteCount) / totalVotes(ru)).toFixed(3)
+    value: ru => ru.candidates.length <= 1 ? -1 : ((ru.candidates[0].voteCount - ru.candidates[1].voteCount) / totalVotes(ru)).toFixed(3)
   },
   {
     key: 'voteCount',
@@ -55,8 +55,39 @@ var fields = [
 ]
 
 console.log(fields.map(p => p.key).join(','))
-process.stdin.pipe(JSONStream.parse(['races', true, 'reportingUnits', true]))
-.on('data', function (ru) {
+
+var start = process.argv.slice(2).reduce((next, file) => doResultsFile.bind(null, file, next), function () {})
+start()
+
+var statesWritten = []
+function doResultsFile (file, done) {
+  fs.createReadStream(file)
+  .pipe(JSONStream.parse(['races', true]))
+  .on('data', function (race) {
+    race.reportingUnits.forEach(function (ru) {
+      // attach congressional district ids to match with shapefile
+      if (race.officeID === 'H') {
+        ru.level = 'district'
+        var districtNumber = race.seatNum
+        if (districtNumber.length === 1) { districtNumber = '0' + districtNumber }
+        ru.districtId = states[ru.statePostal].fipsCode + '' + districtNumber
+      }
+
+      processReportingUnit(ru)
+    })
+  })
+  .on('end', function () {
+    done()
+  })
+}
+
+function processReportingUnit (ru) {
+  // avoid duplicate states
+  if (ru.level === 'state') {
+    if (statesWritten.indexOf(ru.statePostal) >= 0) { return }
+    statesWritten.push(ru.statePostal)
+  }
+
   // augment state w/ some metadata
   if (ru.level === 'state') {
     Object.assign(ru, states[ru.statePostal])
@@ -65,11 +96,11 @@ process.stdin.pipe(JSONStream.parse(['races', true, 'reportingUnits', true]))
   ru.candidates.sort((a, b) => b.voteCount - a.voteCount)
 
   var line = fields
-    .map(field => field.value ? field.value(ru) : ru[field.key])
-    .join(',')
+  .map(field => field.value ? field.value(ru) : ru[field.key])
+  .join(',')
 
   console.log(line)
-})
+}
 
 function totalVotes (ru) {
   return ru.candidates.reduce((memo, c) => c.voteCount + memo, 0)

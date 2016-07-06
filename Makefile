@@ -1052,6 +1052,13 @@ topo/us-%-congress.json: shp/%/congress-clipped.shp
 #
 # Albers-projected Vector Tiles
 #
+geojson/albers/state-centroids.geojson:
+	mkdir -p $(dir $@)
+	cat data/state-centroids.geojson \
+		| ./reproject-geojson --from WGS84 --to albers \
+		| ./normalize-properties postal:statePostal name:name \
+		> $@
+
 geojson/albers/%.geojson: geojson/%.geojson
 	mkdir -p $(dir $@)
 	cat $^ \
@@ -1063,6 +1070,13 @@ election-results/2012.csv:
 	mkdir -p $(dir $@)
 	data/ap-to-csv data/2012-county-results.json data/2012-district-results.json > $@
 
+election-results/2012-state-centroids.geojson: geojson/albers/state-centroids.geojson
+	cat geojson/albers/$*.geojson \
+		| node_modules/.bin/geojson-join \
+			--format=csv --againstField=statePostal --geojsonField=statePostal election-results/2012.csv \
+		| ./flatten-geojson \
+		> $@
+
 election-results/2012-%.geojson: geojson/albers/%.geojson
 	cat geojson/albers/$*.geojson \
 		| node_modules/.bin/geojson-join \
@@ -1071,15 +1085,17 @@ election-results/2012-%.geojson: geojson/albers/%.geojson
 		| ./flatten-geojson \
 		> $@
 
-tiles/%-results.mbtiles: election-results/%.csv election-results/%-states.geojson election-results/%-counties.geojson election-results/%-districts.geojson
+tiles/%-results.mbtiles: election-results/%.csv election-results/%-states.geojson election-results/%-counties.geojson election-results/%-districts.geojson election-results/%-state-centroids.geojson
 	mkdir -p $(dir $@)
 	tippecanoe --projection EPSG:3857 \
 		--named-layer=states:election-results/$*-states.geojson \
 		--named-layer=counties:election-results/$*-counties.geojson \
 		--named-layer=districts:election-results/$*-districts.geojson \
+		--named-layer=state-centroids:election-results/$*-state-centroids.geojson \
 		--read-parallel \
 		--no-polygon-splitting \
 		--maximum-zoom=10 \
+		--drop-rate=0 \
 		--name=$*-results \
 		--output $@
 

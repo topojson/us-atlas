@@ -16,11 +16,12 @@
     "url": "http://github.com/mbostock/us-atlas.git"
   },
   "devDependencies": {
-    "shapefile": "0.1",
     "topojson": ">=1.6.2 <2"
   },
   "optionalDependencies": {
+    "shapefile": "0.3",
     "canvas": "1",
-    "d3": "3"
+    "d3-geo": "1",
+    "d3-queue": "3"
   }
 }

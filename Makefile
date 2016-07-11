@@ -61,9 +61,9 @@ gz/tl_2013_us_cd113.zip:
 	curl 'ftp://ftp2.census.gov/geo/tiger/TIGER2013/CD/$(notdir $@)' -o $@.download
 	mv $@.download $@
 
-shp/us/nation-unmerged.shp: gz/nationalp010g_nt00797.tar.gz
-shp/us/states-unfiltered.shp: gz/statep010_nt00798.tar.gz
-shp/us/counties-unfiltered.shp: gz/countyp010_nt00795.tar.gz
+shp/us/nation-unmerged.shp: gz/nationp010g.shp_nt00936.tar.gz
+shp/us/states-unfiltered.shp: gz/statesp010g.shp_nt00938.tar.gz
+shp/us/counties-unfiltered.shp: gz/countyp010g.shp_nt00934.tar.gz
 shp/us/coast.shp: gz/coastll010_nt00794.tar.gz
 shp/us/airports.shp: gz/airprtx010g_nt00802.tar.gz
 shp/us/ferries.shp: gz/ferry_l010g_nt00796.tar.gz

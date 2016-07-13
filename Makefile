@@ -1055,23 +1055,26 @@ topo/us-%-congress.json: shp/%/congress-clipped.shp
 geojson/albers/state-centroids.geojson:
 	mkdir -p $(dir $@)
 	cat data/state-centroids.geojson \
-		| ./reproject-geojson --from WGS84 --to albers \
+		| ./reproject-geojson \
 		| ./normalize-properties postal:statePostal name:name \
 		> $@
 
 geojson/albers/%.geojson: geojson/%.geojson
 	mkdir -p $(dir $@)
 	cat $^ \
-		| ./reproject-geojson --from WGS84 --to albers \
+		| ./reproject-geojson \
 		| ./normalize-properties GEOID:id STATE_FIPS:id FIPS:id  \
 		> $@
+
+geojson/albers/state-bounds.json: geojson/albers/states.geojson
+	cat $^ | ./extract-projected-bounds > $@
 
 election-results/2012.csv:
 	mkdir -p $(dir $@)
 	data/ap-to-csv data/2012-county-results.json data/2012-district-results.json > $@
 
 election-results/2012-state-centroids.geojson: geojson/albers/state-centroids.geojson
-	cat geojson/albers/$*.geojson \
+	cat geojson/albers/state-centroids.geojson \
 		| node_modules/.bin/geojson-join \
 			--format=csv --againstField=statePostal --geojsonField=statePostal election-results/2012.csv \
 		| ./flatten-geojson \

@@ -1,10 +1,8 @@
 #!/usr/bin/env node
 
-var reproject = require('reproject')
 var geojsonStream = require('geojson-stream')
+var extent = require('turf-extent')
 var through = require('through2')
-var argv = require('minimist')(process.argv.slice(2))
-var projections = require('./projections.json')
 
 process.stdin.pipe(geojsonStream.parse())
 .pipe(through.obj(write))
@@ -12,6 +10,22 @@ process.stdin.pipe(geojsonStream.parse())
 .pipe(process.stdout)
 
 function write (feature, _, next) {
-  this.push(reproject.reproject(feature, argv.from, argv.to, projections))
+  reproject(feature.geometry.coordinates)
+  feature.bbox = extent(feature)
+  this.push(feature)
   next()
+}
+
+var d3 = require('d3-geo')
+// Scale the Albers projection output so that it matches up with the coordinate
+// system of web mercator.
+var C = 2 * Math.PI * 6378137.0
+var proj = d3.geoAlbersUsa().scale(C)
+
+function reproject (coordinates) {
+  if (Array.isArray(coordinates[0])) { return coordinates.forEach(reproject) }
+  var projected = proj(coordinates)
+  if (!projected) { return }
+  coordinates[0] = projected[0]
+  coordinates[1] = -projected[1]
 }

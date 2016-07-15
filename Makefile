@@ -1069,9 +1069,9 @@ geojson/albers/%.geojson: geojson/%.geojson
 geojson/albers/state-bounds.json: geojson/albers/states.geojson
 	cat $^ | ./extract-projected-bounds > $@
 
-election-results/2012.csv:
+election-results/historical.csv:
 	mkdir -p $(dir $@)
-	data/ap-to-csv data/2012-county-results.json data/2012-district-results.json > $@
+	data/ap-to-csv data/historical.json > $@
 
 election-results/2012-state-centroids.geojson: geojson/albers/state-centroids.geojson
 	cat geojson/albers/state-centroids.geojson \

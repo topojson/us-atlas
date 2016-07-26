@@ -938,6 +938,19 @@ geojson/districts.geojson: shp/us/congress-ungrouped.shp
 	cat $(dir $@)temp.json | ./clip-at-dateline > $@
 	rm $(dir $@)temp.json
 
+geojson/us-10m/%.geojson: geojson/%.geojson
+	node_modules/.bin/topojson \
+		-o temp.json \
+		--no-pre-quantization \
+		--post-quantization=1e6 \
+		--simplify=7e-6 \
+		--properties GEOID,STATE_FIPS,FIPS\
+		--external-properties fips.csv \
+		-- $^
+	node_modules/.bin/topojson-geojson -o $(dir $@) temp.json
+	mv $(basename $@).json $@
+	rm temp.json
+
 geojson/northeast/states.geojson: shp/us/states.shp
 	mkdir -p $(dir $@)
 	rm -f $@
@@ -956,6 +969,109 @@ topo/us-%-cities.json: geojson/%/cities.geojson
 		--id-property=geonameid \
 		--properties name,scalerank,pop_max \
 		-- $<
+
+#
+# Albers-projected Vector Tiles
+#
+geojson/albers/state-centroids.geojson:
+	mkdir -p $(dir $@)
+	cat data/state-centroids.geojson \
+		| ./reproject-geojson \
+		| ./normalize-properties postal:statePostal name:name \
+		> $@
+
+geojson/albers/%.geojson: geojson/%.geojson
+	mkdir -p $(dir $@)
+	cat $^ \
+		| ./reproject-geojson \
+		| ./normalize-properties GEOID:id STATE_FIPS:id FIPS:id  \
+		> $@
+
+geojson/albers/state-bounds.json: geojson/albers/states.geojson
+	cat $^ | ./extract-projected-bounds > $@
+
+election-results/2012.csv:
+	mkdir -p $(dir $@)
+	data/ap-to-csv data/2012-county-results.json data/2012-district-results.json > $@
+
+election-results/2012-state-centroids.geojson: geojson/albers/state-centroids.geojson
+	cat geojson/albers/state-centroids.geojson \
+		| node_modules/.bin/geojson-join \
+			--format=csv --againstField=statePostal --geojsonField=statePostal election-results/2012.csv \
+		| ./flatten-geojson \
+		> $@
+
+election-results/2012-%.geojson: geojson/albers/%.geojson
+	cat geojson/albers/$*.geojson \
+		| node_modules/.bin/geojson-join \
+			--format=csv --againstField=id --geojsonField=id election-results/2012.csv \
+		| ./add-density-property voteCount \
+		| ./flatten-geojson \
+		> $@
+
+election-results/2012-%-10m.geojson: geojson/albers/us-10m/%.geojson
+	cat geojson/albers/us-10m/$*.geojson \
+		| node_modules/.bin/geojson-join \
+			--format=csv --againstField=id --geojsonField=id election-results/2012.csv \
+		| ./add-density-property voteCount \
+		| ./flatten-geojson \
+		> $@
+
+tiles/%-results.z0-3.mbtiles: election-results/%.csv \
+	election-results/%-states-10m.geojson \
+	election-results/%-counties-10m.geojson \
+	election-results/%-districts-10m.geojson \
+	election-results/%-state-centroids.geojson
+	mkdir -p $(dir $@)
+	tippecanoe --projection EPSG:3857 \
+		--named-layer=states:election-results/$*-states-10m.geojson \
+		--named-layer=counties:election-results/$*-counties-10m.geojson \
+		--named-layer=districts:election-results/$*-districts-10m.geojson \
+		--named-layer=state-centroids:election-results/$*-state-centroids.geojson \
+		--read-parallel \
+		--no-polygon-splitting \
+		--maximum-zoom=3 \
+		--drop-rate=0 \
+		--name=$*-results \
+		--output $@
+
+tiles/%-results.z4-10.mbtiles: election-results/%.csv \
+	election-results/%-states.geojson \
+	election-results/%-counties.geojson \
+	election-results/%-districts.geojson \
+	election-results/%-state-centroids.geojson
+	mkdir -p $(dir $@)
+	tippecanoe --projection EPSG:3857 \
+		--named-layer=states:election-results/$*-states.geojson \
+		--named-layer=counties:election-results/$*-counties.geojson \
+		--named-layer=districts:election-results/$*-districts.geojson \
+		--named-layer=state-centroids:election-results/$*-state-centroids.geojson \
+		--read-parallel \
+		--no-polygon-splitting \
+		--minimum-zoom=4 \
+		--maximum-zoom=10 \
+		--drop-rate=0 \
+		--name=$*-results \
+		--output $@
+
+tiles/%-results.mbtiles: tiles/%-results.z0-3.mbtiles tiles/%-results.z4-10.mbtiles
+	tile-join -f -o $@ $^
+
+.PHONY: upload/%
+upload/%: tiles/%.mbtiles
+ifndef MapboxAccessToken
+	$(error MapboxAccessToken not defined)
+endif
+ifndef MB_ACCOUNT
+	$(error MB_ACCOUNT not defined)
+endif
+	node_modules/.bin/mapbox-upload $(MB_ACCOUNT).$* $^
+
+
+#
+# State cities, districts, subunits
+#
+
 
 geojson/%/cities.geojson:
 	mkdir -p $(dir $@)
@@ -1048,69 +1164,6 @@ topo/us-%-congress.json: shp/%/congress-clipped.shp
 		--simplify=7e-7 \
 		--id-property=NAMELSAD \
 		-- $<
-
-#
-# Albers-projected Vector Tiles
-#
-geojson/albers/state-centroids.geojson:
-	mkdir -p $(dir $@)
-	cat data/state-centroids.geojson \
-		| ./reproject-geojson \
-		| ./normalize-properties postal:statePostal name:name \
-		> $@
-
-geojson/albers/%.geojson: geojson/%.geojson
-	mkdir -p $(dir $@)
-	cat $^ \
-		| ./reproject-geojson \
-		| ./normalize-properties GEOID:id STATE_FIPS:id FIPS:id  \
-		> $@
-
-geojson/albers/state-bounds.json: geojson/albers/states.geojson
-	cat $^ | ./extract-projected-bounds > $@
-
-election-results/2012.csv:
-	mkdir -p $(dir $@)
-	data/ap-to-csv data/2012-county-results.json data/2012-district-results.json > $@
-
-election-results/2012-state-centroids.geojson: geojson/albers/state-centroids.geojson
-	cat geojson/albers/state-centroids.geojson \
-		| node_modules/.bin/geojson-join \
-			--format=csv --againstField=statePostal --geojsonField=statePostal election-results/2012.csv \
-		| ./flatten-geojson \
-		> $@
-
-election-results/2012-%.geojson: geojson/albers/%.geojson
-	cat geojson/albers/$*.geojson \
-		| node_modules/.bin/geojson-join \
-			--format=csv --againstField=id --geojsonField=id election-results/2012.csv \
-		| ./add-density-property voteCount \
-		| ./flatten-geojson \
-		> $@
-
-tiles/%-results.mbtiles: election-results/%.csv election-results/%-states.geojson election-results/%-counties.geojson election-results/%-districts.geojson election-results/%-state-centroids.geojson
-	mkdir -p $(dir $@)
-	tippecanoe --projection EPSG:3857 \
-		--named-layer=states:election-results/$*-states.geojson \
-		--named-layer=counties:election-results/$*-counties.geojson \
-		--named-layer=districts:election-results/$*-districts.geojson \
-		--named-layer=state-centroids:election-results/$*-state-centroids.geojson \
-		--read-parallel \
-		--no-polygon-splitting \
-		--maximum-zoom=10 \
-		--drop-rate=0 \
-		--name=$*-results \
-		--output $@
-
-.PHONY: upload/%
-upload/%: tiles/%.mbtiles
-ifndef MapboxAccessToken
-	$(error MapboxAccessToken not defined)
-endif
-ifndef MB_ACCOUNT
-	$(error MB_ACCOUNT not defined)
-endif
-	node_modules/.bin/mapbox-upload $(MB_ACCOUNT).$* $^
 
 # Default to empty districts - override below in individual states
 geojson/%/districts.geojson:

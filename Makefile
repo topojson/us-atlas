@@ -1017,7 +1017,7 @@ election-results/2012-%-10m.geojson: geojson/albers/us-10m/%.geojson
 		| ./flatten-geojson \
 		> $@
 
-tiles/%-results.z0-3.mbtiles: election-results/%.csv \
+tiles/%-results.z0-2.mbtiles: election-results/%.csv \
 	election-results/%-states-10m.geojson \
 	election-results/%-counties-10m.geojson \
 	election-results/%-districts-10m.geojson \
@@ -1030,12 +1030,12 @@ tiles/%-results.z0-3.mbtiles: election-results/%.csv \
 		--named-layer=state-centroids:election-results/$*-state-centroids.geojson \
 		--read-parallel \
 		--no-polygon-splitting \
-		--maximum-zoom=3 \
+		--maximum-zoom=2 \
 		--drop-rate=0 \
 		--name=$*-results \
 		--output $@
 
-tiles/%-results.z4-10.mbtiles: election-results/%.csv \
+tiles/%-results.z3-10.mbtiles: election-results/%.csv \
 	election-results/%-states.geojson \
 	election-results/%-counties.geojson \
 	election-results/%-districts.geojson \
@@ -1048,13 +1048,13 @@ tiles/%-results.z4-10.mbtiles: election-results/%.csv \
 		--named-layer=state-centroids:election-results/$*-state-centroids.geojson \
 		--read-parallel \
 		--no-polygon-splitting \
-		--minimum-zoom=4 \
+		--minimum-zoom=3 \
 		--maximum-zoom=10 \
 		--drop-rate=0 \
 		--name=$*-results \
 		--output $@
 
-tiles/%-results.mbtiles: tiles/%-results.z0-3.mbtiles tiles/%-results.z4-10.mbtiles
+tiles/%-results.mbtiles: tiles/%-results.z0-2.mbtiles tiles/%-results.z3-10.mbtiles
 	tile-join -f -o $@ $^
 
 .PHONY: upload/%

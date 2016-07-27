@@ -969,7 +969,6 @@ topo/us-%-cities.json: geojson/%/cities.geojson
 		--id-property=geonameid \
 		--properties name,scalerank,pop_max \
 		-- $<
-
 #
 # Albers-projected Vector Tiles
 #
@@ -1190,3 +1189,10 @@ shp/ks/congress-ungrouped.shp: shp/us/congress-ungrouped.shp
 	mkdir -p $(dir $@)
 	ogr2ogr -f 'ESRI Shapefile' -where "STATEFP = '20'" $(dir $@) $<
 
+#
+# Historical JSON
+#
+data/simplified-historical.json: data/historical.json
+	cat data/historical.json \
+		| ./simplify-historical \
+		> $@

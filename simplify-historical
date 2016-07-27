@@ -1,0 +1,36 @@
+#!/usr/bin/env node
+var getStdin = require('get-stdin')
+
+var candidates = {}
+function recordCandidate (c) {
+  if (!candidates[c.candidateUID]) {
+    candidates[c.candidateUID] = {
+      first: c.first,
+      fullname: c.fullname,
+      last: c.last,
+      party: c.party,
+      incumbent: Boolean(c.incumbent)
+    }
+  }
+}
+
+getStdin().then(function (stdin) {
+  var doc = JSON.parse(stdin)
+
+  doc.results.forEach(function (race) {
+    race.reportingUnits.forEach(function (ru) {
+      ru.candidates = ru.candidates.map(function (c) {
+        recordCandidate(c)
+        return {
+          candidateUID: c.candidateUID,
+          voteCount: c.voteCount
+        }
+      })
+    })
+  })
+  doc.candidates = candidates
+  console.log(JSON.stringify(doc))
+})
+.catch(function (err) {
+  console.error(err.stack)
+})

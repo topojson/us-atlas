@@ -997,6 +997,16 @@ geojson/albers/us-10m/counties.geojson: geojson/counties.geojson
 geojson/albers/state-bounds.json: geojson/albers/states.geojson
 	cat $^ | ./extract-projected-bounds > $@
 
+geojson/albers/small-state-labels.geojson:
+	# Note: reprojecting using 'mercator' because the incoming data was _already_ reprojected
+	# to albers so it could be edited in the Mapbox Studio dataset editor
+	cat data/albers-small-state-labels.geojson \
+		| jq '{ type: "FeatureCollection", \
+					  features: .features | map(. | select(.geometry.type == "Point" or .geometry.type == "LineString")) \
+					}' \
+		| ./reproject-geojson --projection mercator \
+		> $@
+
 election-results/historical.csv:
 	mkdir -p $(dir $@)
 	data/ap-to-csv data/historical.json > $@
@@ -1005,6 +1015,13 @@ election-results/historical-state-centroids.geojson: geojson/albers/state-centro
 	cat geojson/albers/state-centroids.geojson \
 		| node_modules/.bin/geojson-join \
 			--format=csv --againstField=statePostal --geojsonField=statePostal election-results/historical.csv \
+		| ./flatten-geojson \
+		> $@
+
+election-results/historical-small-state-labels.geojson: geojson/albers/small-state-labels.geojson
+	cat $^ \
+		| node_modules/.bin/geojson-join \
+			--format=csv --againstField=id --geojsonField=id election-results/historical.csv \
 		| ./flatten-geojson \
 		> $@
 
@@ -1035,6 +1052,7 @@ tiles/%-results.z0-2.mbtiles: election-results/%.csv \
 		--named-layer=counties:election-results/$*-counties-10m.geojson \
 		--named-layer=districts:election-results/$*-districts-10m.geojson \
 		--named-layer=state-centroids:election-results/$*-state-centroids.geojson \
+		--named-layer=small-state-labels:election-results/$*-small-state-labels.geojson \
 		--read-parallel \
 		--no-polygon-splitting \
 		--maximum-zoom=2 \
@@ -1053,6 +1071,7 @@ tiles/%-results.z3-10.mbtiles: election-results/%.csv \
 		--named-layer=counties:election-results/$*-counties.geojson \
 		--named-layer=districts:election-results/$*-districts.geojson \
 		--named-layer=state-centroids:election-results/$*-state-centroids.geojson \
+		--named-layer=small-state-labels:election-results/$*-small-state-labels.geojson \
 		--read-parallel \
 		--no-polygon-splitting \
 		--minimum-zoom=3 \

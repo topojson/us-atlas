@@ -33330,7 +33330,7 @@
     {
       "type": "Feature",
       "properties": {
-        "id": 9
+        "id": "09"
       },
       "geometry": {
         "coordinates": [
@@ -58931,7 +58931,7 @@
     {
       "type": "Feature",
       "properties": {
-        "id": 9,
+        "id": "09",
         "statePostal": "CT"
       },
       "geometry": {

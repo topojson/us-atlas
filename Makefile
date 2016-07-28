@@ -1197,10 +1197,3 @@ shp/ks/congress-ungrouped.shp: shp/us/congress-ungrouped.shp
 	mkdir -p $(dir $@)
 	ogr2ogr -f 'ESRI Shapefile' -where "STATEFP = '20'" $(dir $@) $<
 
-#
-# Historical JSON
-#
-data/simplified-historical.json: data/historical.json
-	cat data/historical.json \
-		| ./simplify-historical \
-		> $@

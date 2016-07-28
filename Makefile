@@ -939,6 +939,7 @@ geojson/districts.geojson: shp/us/congress-ungrouped.shp
 	rm $(dir $@)temp.json
 
 geojson/us-10m/%.geojson: geojson/%.geojson
+	mkdir -p $(dir $@)
 	node_modules/.bin/topojson \
 		-o temp.json \
 		--no-pre-quantization \
@@ -986,6 +987,13 @@ geojson/albers/%.geojson: geojson/%.geojson
 		| ./normalize-properties GEOID:id STATE_FIPS:id FIPS:id  \
 		> $@
 
+geojson/albers/us-10m/counties.geojson: geojson/counties.geojson
+	mkdir -p $(dir $@)
+	cat $^ \
+		| ./reproject-geojson \
+		| ./normalize-properties GEOID:id STATE_FIPS:id FIPS:id  \
+		> $@
+
 geojson/albers/state-bounds.json: geojson/albers/states.geojson
 	cat $^ | ./extract-projected-bounds > $@
 
@@ -993,14 +1001,14 @@ election-results/historical.csv:
 	mkdir -p $(dir $@)
 	data/ap-to-csv data/historical.json > $@
 
-election-results/2012-state-centroids.geojson: geojson/albers/state-centroids.geojson
+election-results/historical-state-centroids.geojson: geojson/albers/state-centroids.geojson
 	cat geojson/albers/state-centroids.geojson \
 		| node_modules/.bin/geojson-join \
 			--format=csv --againstField=statePostal --geojsonField=statePostal election-results/historical.csv \
 		| ./flatten-geojson \
 		> $@
 
-election-results/2012-%.geojson: geojson/albers/%.geojson
+election-results/historical-%.geojson: geojson/albers/%.geojson
 	cat geojson/albers/$*.geojson \
 		| node_modules/.bin/geojson-join \
 			--format=csv --againstField=id --geojsonField=id election-results/historical.csv \
@@ -1008,7 +1016,7 @@ election-results/2012-%.geojson: geojson/albers/%.geojson
 		| ./flatten-geojson \
 		> $@
 
-election-results/2012-%-10m.geojson: geojson/albers/us-10m/%.geojson
+election-results/historical-%-10m.geojson: geojson/albers/us-10m/%.geojson
 	cat geojson/albers/us-10m/$*.geojson \
 		| node_modules/.bin/geojson-join \
 			--format=csv --againstField=id --geojsonField=id election-results/historical.csv \

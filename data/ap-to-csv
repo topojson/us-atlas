@@ -4,6 +4,8 @@ var fs = require('fs')
 var path = require('path')
 var JSONStream = require('JSONStream')
 
+// get state postal, fips
+// states = { al: { statePostal: al, fipsCode: 1 }, ...}
 var states = {}
 fs.readFileSync(path.join(__dirname, '../fips.csv'), 'utf-8')
   .split('\n').filter(Boolean)
@@ -16,6 +18,8 @@ fs.readFileSync(path.join(__dirname, '../fips.csv'), 'utf-8')
     }
   })
 
+// get electoral college count
+// states = { al: { statePostal: al, fipsCode: 1, electors: 9 }, ...}
 fs.readFileSync(path.join(__dirname, '2012-electoral-college.csv'), 'utf-8')
   .split('\n').filter(Boolean)
   .map(line => line.split(','))
@@ -50,21 +54,28 @@ var fields = [
   },
   {
     key: 'electorCount',
-    value: ru => ru.electors || 'null'
+    value: ru => ru.electors || states[ru.statePostal].electors || 'null'
   }
 ]
 
 console.log(fields.map(p => p.key).join(','))
 
-var start = process.argv.slice(2).reduce((next, file) => doResultsFile.bind(null, file, next), function () {})
-start()
+var files = process.argv.slice(2)
+if (files.length > 1) {
+  files.reduce((next, file) => doResultsFile.bind(null, file, next), function () {})
+} else {
+  doResultsFile(files[0], function () {})
+}
 
 var statesWritten = []
 function doResultsFile (file, done) {
   fs.createReadStream(file)
-  .pipe(JSONStream.parse(['races', true]))
+  .pipe(JSONStream.parse(['results', true]))
   .on('data', function (race) {
+    var statePostal = race.statePostal.toUpperCase()
     race.reportingUnits.forEach(function (ru) {
+      // attach statePostal to each ru in case it's missing
+      ru.statePostal = statePostal;
       // attach congressional district ids to match with shapefile
       if (race.officeID === 'H') {
         ru.level = 'district'

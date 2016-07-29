@@ -3,6 +3,7 @@
 var geojsonStream = require('geojson-stream')
 var extent = require('turf-extent')
 var through = require('through2')
+var argv = require('minimist')(process.argv.slice(2))
 
 process.stdin.pipe(geojsonStream.parse())
 .pipe(through.obj(write))
@@ -17,10 +18,17 @@ function write (feature, _, next) {
 }
 
 var d3 = require('d3-geo')
-// Scale the Albers projection output so that it matches up with the coordinate
-// system of web mercator.
-var C = 2 * Math.PI * 6378137.0
-var proj = d3.geoAlbersUsa().scale(C)
+var R = 6378137.0
+var proj
+if (!argv.projection || argv.projection === 'albers') {
+  // Scale the Albers projection output so that it matches up with the
+  // coordinate system of web mercator.
+  proj = d3.geoAlbersUsa().scale(2 * Math.PI * R)
+} else if (argv.projection === 'mercator') {
+  proj = d3.geoMercator().translate([0, 0]).scale(R)
+} else {
+  throw new Error('Unsupported projection ' + argv.projection)
+}
 
 function reproject (coordinates) {
   if (Array.isArray(coordinates[0])) { return coordinates.forEach(reproject) }

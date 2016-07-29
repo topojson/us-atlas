@@ -32,8 +32,26 @@ if (!argv.projection || argv.projection === 'albers') {
 
 function reproject (coordinates) {
   if (Array.isArray(coordinates[0])) { return coordinates.forEach(reproject) }
+  if (argv.reverse) {
+    reverse(coordinates)
+    return
+  }
+
+  forward(coordinates)
+}
+
+function forward (coordinates) {
   var projected = proj(coordinates)
   if (!projected) { return }
   coordinates[0] = projected[0]
   coordinates[1] = -projected[1]
 }
+
+function reverse (projected) {
+  projected[1] = -projected[1]
+  var reversed = proj.invert(projected)
+  if (!reversed) { return }
+  projected[0] = reversed[0]
+  projected[1] = reversed[1]
+}
+

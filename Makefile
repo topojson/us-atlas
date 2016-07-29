@@ -970,16 +970,10 @@ topo/us-%-cities.json: geojson/%/cities.geojson
 		--id-property=geonameid \
 		--properties name,scalerank,pop_max \
 		-- $<
+
 #
 # Albers-projected Vector Tiles
 #
-geojson/albers/state-centroids.geojson:
-	mkdir -p $(dir $@)
-	cat data/state-centroids.geojson \
-		| ./reproject-geojson \
-		| ./normalize-properties postal:statePostal name:name \
-		> $@
-
 geojson/albers/%.geojson: geojson/%.geojson
 	mkdir -p $(dir $@)
 	cat $^ \
@@ -997,10 +991,13 @@ geojson/albers/us-10m/counties.geojson: geojson/counties.geojson
 geojson/albers/state-bounds.json: geojson/albers/states.geojson
 	cat $^ | ./extract-projected-bounds > $@
 
-geojson/albers/small-state-labels.geojson:
+geojson/albers/state-labels-dataset.geojson:
+	curl "https://api.mapbox.com/datasets/v1/devseed/cir7ui0aj00unghm3095sjuuv/features?access_token=$(MapboxAccessToken)" > $@
+
+geojson/albers/state-labels.geojson: geojson/albers/state-labels-dataset.geojson
 	# Note: reprojecting using 'mercator' because the incoming data was _already_ reprojected
 	# to albers so it could be edited in the Mapbox Studio dataset editor
-	cat data/albers-small-state-labels.geojson \
+	cat $^ \
 		| jq '{ type: "FeatureCollection", \
 					  features: .features | map(. | select(.geometry.type == "Point" or .geometry.type == "LineString")) \
 					}' \
@@ -1011,15 +1008,14 @@ election-results/historical.csv:
 	mkdir -p $(dir $@)
 	data/ap-to-csv data/historical.json > $@
 
-election-results/historical-state-centroids.geojson: geojson/albers/state-centroids.geojson
-	cat geojson/albers/state-centroids.geojson \
-		| node_modules/.bin/geojson-join \
-			--format=csv --againstField=statePostal --geojsonField=statePostal election-results/historical.csv \
-		| ./flatten-geojson \
-		> $@
-
-election-results/historical-small-state-labels.geojson: geojson/albers/small-state-labels.geojson
+election-results/historical-state-labels.geojson: geojson/albers/state-labels.geojson
 	cat $^ \
+		| node_modules/.bin/geojson-join \
+			--format=csv --againstField=postal --geojsonField=postal fips.csv \
+		| ./normalize-properties \
+				statePostal:statePostal postal:statePostal \
+				STATE_FIPS:id id:id \
+				type:type \
 		| node_modules/.bin/geojson-join \
 			--format=csv --againstField=id --geojsonField=id election-results/historical.csv \
 		| ./flatten-geojson \
@@ -1045,14 +1041,13 @@ tiles/%-results.z0-2.mbtiles: election-results/%.csv \
 	election-results/%-states-10m.geojson \
 	election-results/%-counties-10m.geojson \
 	election-results/%-districts-10m.geojson \
-	election-results/%-state-centroids.geojson
+	election-results/%-state-labels.geojson
 	mkdir -p $(dir $@)
 	tippecanoe --projection EPSG:3857 \
 		--named-layer=states:election-results/$*-states-10m.geojson \
 		--named-layer=counties:election-results/$*-counties-10m.geojson \
 		--named-layer=districts:election-results/$*-districts-10m.geojson \
-		--named-layer=state-centroids:election-results/$*-state-centroids.geojson \
-		--named-layer=small-state-labels:election-results/$*-small-state-labels.geojson \
+		--named-layer=state-labels:election-results/$*-state-labels.geojson \
 		--read-parallel \
 		--no-polygon-splitting \
 		--maximum-zoom=2 \
@@ -1063,15 +1058,13 @@ tiles/%-results.z0-2.mbtiles: election-results/%.csv \
 tiles/%-results.z3-10.mbtiles: election-results/%.csv \
 	election-results/%-states.geojson \
 	election-results/%-counties.geojson \
-	election-results/%-districts.geojson \
-	election-results/%-state-centroids.geojson
+	election-results/%-districts.geojson
 	mkdir -p $(dir $@)
 	tippecanoe --projection EPSG:3857 \
 		--named-layer=states:election-results/$*-states.geojson \
 		--named-layer=counties:election-results/$*-counties.geojson \
 		--named-layer=districts:election-results/$*-districts.geojson \
-		--named-layer=state-centroids:election-results/$*-state-centroids.geojson \
-		--named-layer=small-state-labels:election-results/$*-small-state-labels.geojson \
+		--named-layer=state-labels:election-results/$*-state-labels.geojson \
 		--read-parallel \
 		--no-polygon-splitting \
 		--minimum-zoom=3 \

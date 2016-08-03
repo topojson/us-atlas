@@ -1025,32 +1025,90 @@ election-results/historical-state-labels.geojson: geojson/albers/state-labels.ge
 		| ./flatten-geojson \
 		> $@
 
-election-results/historical-%.geojson: geojson/albers/%.geojson
+election-results/historical-president-%.geojson: geojson/albers/%.geojson
 	cat geojson/albers/$*.geojson \
 		| node_modules/.bin/geojson-join \
-			--format=csv --againstField=id --geojsonField=id election-results/historical.csv \
+			--format=csv --againstField=id --geojsonField=id election-results/historical-president.csv \
 		| ./add-density-property voteCount \
 		| ./flatten-geojson \
 		> $@
 
-election-results/historical-%-10m.geojson: geojson/albers/us-10m/%.geojson
+election-results/historical-senate-%.geojson: geojson/albers/%.geojson
+	cat geojson/albers/$*.geojson \
+		| node_modules/.bin/geojson-join \
+			--format=csv --againstField=id --geojsonField=id election-results/historical-senate.csv \
+		| ./add-density-property voteCount \
+		| ./flatten-geojson \
+		> $@
+
+election-results/historical-house-%.geojson: geojson/albers/%.geojson
+	cat geojson/albers/$*.geojson \
+		| node_modules/.bin/geojson-join \
+			--format=csv --againstField=id --geojsonField=id election-results/historical-house.csv \
+		| ./add-density-property voteCount \
+		| ./flatten-geojson \
+		> $@
+
+election-results/historical-governor-%.geojson: geojson/albers/%.geojson
+	cat geojson/albers/$*.geojson \
+		| node_modules/.bin/geojson-join \
+			--format=csv --againstField=id --geojsonField=id election-results/historical-governor.csv \
+		| ./add-density-property voteCount \
+		| ./flatten-geojson \
+		> $@
+
+election-results/historical-president-%-10m.geojson: geojson/albers/us-10m/%.geojson
 	cat geojson/albers/us-10m/$*.geojson \
 		| node_modules/.bin/geojson-join \
-			--format=csv --againstField=id --geojsonField=id election-results/historical.csv \
+			--format=csv --againstField=id --geojsonField=id election-results/historical-president.csv \
+		| ./add-density-property voteCount \
+		| ./flatten-geojson \
+		> $@
+
+election-results/historical-senate-%-10m.geojson: geojson/albers/us-10m/%.geojson
+	cat geojson/albers/us-10m/$*.geojson \
+		| node_modules/.bin/geojson-join \
+			--format=csv --againstField=id --geojsonField=id election-results/historical-senate.csv \
+		| ./add-density-property voteCount \
+		| ./flatten-geojson \
+		> $@
+
+election-results/historical-house-%-10m.geojson: geojson/albers/us-10m/%.geojson
+	cat geojson/albers/us-10m/$*.geojson \
+		| node_modules/.bin/geojson-join \
+			--format=csv --againstField=id --geojsonField=id election-results/historical-house.csv \
+		| ./add-density-property voteCount \
+		| ./flatten-geojson \
+		> $@
+
+election-results/historical-governor-%-10m.geojson: geojson/albers/us-10m/%.geojson
+	cat geojson/albers/us-10m/$*.geojson \
+		| node_modules/.bin/geojson-join \
+			--format=csv --againstField=id --geojsonField=id election-results/historical-governor.csv \
 		| ./add-density-property voteCount \
 		| ./flatten-geojson \
 		> $@
 
 tiles/%-results.z0-2.mbtiles: election-results/%.csv \
-	election-results/%-states-10m.geojson \
-	election-results/%-counties-10m.geojson \
-	election-results/%-districts-10m.geojson \
+	election-results/%-president.csv \
+        election-results/%-senate.csv \
+        election-results/%-house.csv \
+        election-results/%-governor.csv \
+	election-results/%-president-states-10m.geojson \
+	election-results/%-president-counties-10m.geojson \
+	election-results/%-senate-states.geojson \
+	election-results/%-senate-counties-10m.geojson \
+	election-results/%-house-districts-10m.geojson \
+	election-results/%-governor-states-10m.geojson \
 	election-results/%-state-labels.geojson
 	mkdir -p $(dir $@)
 	tippecanoe --projection EPSG:3857 \
-		--named-layer=states:election-results/$*-states-10m.geojson \
-		--named-layer=counties:election-results/$*-counties-10m.geojson \
-		--named-layer=districts:election-results/$*-districts-10m.geojson \
+		--named-layer=president-states:election-results/$*-president-states-10m.geojson \
+		--named-layer=president-counties:election-results/$*-president-counties-10m.geojson \
+		--named-layer=senate-states:election-results/$*-senate-states-10m.geojson \
+		--named-layer=senate-counties:election-results/$*-senate-counties-10m.geojson \
+		--named-layer=house-districts:election-results/$*-house-districts-10m.geojson \
+		--named-layer=governor-states:election-results/$*-governor-states-10m.geojson \
 		--named-layer=state-labels:election-results/$*-state-labels.geojson \
 		--read-parallel \
 		--no-polygon-splitting \
@@ -1060,14 +1118,24 @@ tiles/%-results.z0-2.mbtiles: election-results/%.csv \
 		--output $@
 
 tiles/%-results.z3-10.mbtiles: election-results/%.csv \
-	election-results/%-states.geojson \
-	election-results/%-counties.geojson \
-	election-results/%-districts.geojson
+	election-results/%-president.csv \
+        election-results/%-senate.csv \
+        election-results/%-house.csv \
+        election-results/%-governor.csv \
+	election-results/%-president-states.geojson \
+	election-results/%-president-counties.geojson \
+	election-results/%-senate-states.geojson \
+	election-results/%-senate-counties.geojson \
+	election-results/%-house-districts.geojson \
+	election-results/%-governor-states.geojson
 	mkdir -p $(dir $@)
 	tippecanoe --projection EPSG:3857 \
-		--named-layer=states:election-results/$*-states.geojson \
-		--named-layer=counties:election-results/$*-counties.geojson \
-		--named-layer=districts:election-results/$*-districts.geojson \
+		--named-layer=president-states:election-results/$*-president-states.geojson \
+		--named-layer=president-counties:election-results/$*-president-counties.geojson \
+		--named-layer=senate-states:election-results/$*-senate-states.geojson \
+		--named-layer=senate-counties:election-results/$*-senate-counties.geojson \
+		--named-layer=house-districts:election-results/$*-house-districts.geojson \
+		--named-layer=governor-states:election-results/$*-governor-states.geojson \
 		--named-layer=state-labels:election-results/$*-state-labels.geojson \
 		--read-parallel \
 		--no-polygon-splitting \

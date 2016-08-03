@@ -34,6 +34,10 @@ var fields = [
     value: ru => ru.level === 'district' ? ru.districtId : ru.fipsCode
   },
   {
+    key: 'office',
+    value: ru => ru.officeID
+  },
+  {
     key: 'statePostal'
   },
   {
@@ -67,7 +71,6 @@ if (files.length > 1) {
   doResultsFile(files[0], function () {})
 }
 
-var statesWritten = []
 function doResultsFile (file, done) {
   fs.createReadStream(file)
   .pipe(JSONStream.parse(['results', true]))
@@ -83,7 +86,7 @@ function doResultsFile (file, done) {
         if (districtNumber.length === 1) { districtNumber = '0' + districtNumber }
         ru.districtId = states[ru.statePostal].fipsCode + '' + districtNumber
       }
-
+      ru.officeID = race.officeID
       processReportingUnit(ru)
     })
   })
@@ -93,12 +96,6 @@ function doResultsFile (file, done) {
 }
 
 function processReportingUnit (ru) {
-  // avoid duplicate states
-  if (ru.level === 'state') {
-    if (statesWritten.indexOf(ru.statePostal) >= 0) { return }
-    statesWritten.push(ru.statePostal)
-  }
-
   // augment state w/ some metadata
   if (ru.level === 'state') {
     Object.assign(ru, states[ru.statePostal])

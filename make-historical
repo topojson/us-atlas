@@ -1,0 +1,23 @@
+rm election-results/*
+rm tiles/*
+
+make election-results/historical.csv
+make election-results/historical-state-labels.geojson
+
+RACE_TYPE=president make election-results/historical-president-states.geojson
+RACE_TYPE=president make election-results/historical-president-counties.geojson
+RACE_TYPE=senate make election-results/historical-senate-states.geojson
+RACE_TYPE=senate make election-results/historical-senate-counties.geojson
+RACE_TYPE=house make election-results/historical-house-districts.geojson
+RACE_TYPE=governor make election-results/historical-governor-states.geojson
+
+RACE_TYPE=president make election-results/historical-president-states-10m.geojson
+RACE_TYPE=president make election-results/historical-president-counties-10m.geojson
+RACE_TYPE=senate make election-results/historical-senate-states-10m.geojson
+RACE_TYPE=senate make election-results/historical-senate-counties-10m.geojson
+RACE_TYPE=house make election-results/historical-house-districts-10m.geojson
+RACE_TYPE=governor make election-results/historical-governor-states-10m.geojson
+
+make tiles/historical-results.z0-2.mbtiles
+make tiles/historical-results.z3-10.mbtiles
+make tiles/historical-results.mbtiles

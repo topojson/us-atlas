@@ -1010,7 +1010,7 @@ election-results/historical.csv:
 
 election-results/historical-%.csv: election-results/historical.csv
 	cat $^ \
-		| ./filter-csv --raceType=$* > $@
+		| ./filter-by-racetype --raceType=$* > $@
 
 election-results/historical-state-labels.geojson: geojson/albers/state-labels.geojson
 	cat $^ \
@@ -1025,76 +1025,25 @@ election-results/historical-state-labels.geojson: geojson/albers/state-labels.ge
 		| ./flatten-geojson \
 		> $@
 
-election-results/historical-president-%.geojson: geojson/albers/%.geojson
+election-results/historical-$(RACE_TYPE)-%.geojson: geojson/albers/%.geojson \
+        election-results/historical-$(RACE_TYPE).csv
 	cat geojson/albers/$*.geojson \
 		| node_modules/.bin/geojson-join \
-			--format=csv --againstField=id --geojsonField=id election-results/historical-president.csv \
+			--format=csv --againstField=id --geojsonField=id election-results/historical-$(RACE_TYPE).csv \
 		| ./add-density-property voteCount \
 		| ./flatten-geojson \
 		> $@
 
-election-results/historical-senate-%.geojson: geojson/albers/%.geojson
-	cat geojson/albers/$*.geojson \
-		| node_modules/.bin/geojson-join \
-			--format=csv --againstField=id --geojsonField=id election-results/historical-senate.csv \
-		| ./add-density-property voteCount \
-		| ./flatten-geojson \
-		> $@
-
-election-results/historical-house-%.geojson: geojson/albers/%.geojson
-	cat geojson/albers/$*.geojson \
-		| node_modules/.bin/geojson-join \
-			--format=csv --againstField=id --geojsonField=id election-results/historical-house.csv \
-		| ./add-density-property voteCount \
-		| ./flatten-geojson \
-		> $@
-
-election-results/historical-governor-%.geojson: geojson/albers/%.geojson
-	cat geojson/albers/$*.geojson \
-		| node_modules/.bin/geojson-join \
-			--format=csv --againstField=id --geojsonField=id election-results/historical-governor.csv \
-		| ./add-density-property voteCount \
-		| ./flatten-geojson \
-		> $@
-
-election-results/historical-president-%-10m.geojson: geojson/albers/us-10m/%.geojson
+election-results/historical-$(RACE_TYPE)-%-10m.geojson: geojson/albers/us-10m/%.geojson \
+        election-results/historical-$(RACE_TYPE).csv
 	cat geojson/albers/us-10m/$*.geojson \
 		| node_modules/.bin/geojson-join \
-			--format=csv --againstField=id --geojsonField=id election-results/historical-president.csv \
+			--format=csv --againstField=id --geojsonField=id election-results/historical-$(RACE_TYPE).csv \
 		| ./add-density-property voteCount \
 		| ./flatten-geojson \
 		> $@
 
-election-results/historical-senate-%-10m.geojson: geojson/albers/us-10m/%.geojson
-	cat geojson/albers/us-10m/$*.geojson \
-		| node_modules/.bin/geojson-join \
-			--format=csv --againstField=id --geojsonField=id election-results/historical-senate.csv \
-		| ./add-density-property voteCount \
-		| ./flatten-geojson \
-		> $@
-
-election-results/historical-house-%-10m.geojson: geojson/albers/us-10m/%.geojson
-	cat geojson/albers/us-10m/$*.geojson \
-		| node_modules/.bin/geojson-join \
-			--format=csv --againstField=id --geojsonField=id election-results/historical-house.csv \
-		| ./add-density-property voteCount \
-		| ./flatten-geojson \
-		> $@
-
-election-results/historical-governor-%-10m.geojson: geojson/albers/us-10m/%.geojson
-	cat geojson/albers/us-10m/$*.geojson \
-		| node_modules/.bin/geojson-join \
-			--format=csv --againstField=id --geojsonField=id election-results/historical-governor.csv \
-		| ./add-density-property voteCount \
-		| ./flatten-geojson \
-		> $@
-
-tiles/%-results.z0-2.mbtiles: election-results/%.csv \
-	election-results/%-president.csv \
-        election-results/%-senate.csv \
-        election-results/%-house.csv \
-        election-results/%-governor.csv \
-	election-results/%-president-states-10m.geojson \
+tiles/%-results.z0-2.mbtiles: election-results/%-president-states-10m.geojson \
 	election-results/%-president-counties-10m.geojson \
 	election-results/%-senate-states.geojson \
 	election-results/%-senate-counties-10m.geojson \
@@ -1117,17 +1066,13 @@ tiles/%-results.z0-2.mbtiles: election-results/%.csv \
 		--name=$*-results \
 		--output $@
 
-tiles/%-results.z3-10.mbtiles: election-results/%.csv \
-	election-results/%-president.csv \
-        election-results/%-senate.csv \
-        election-results/%-house.csv \
-        election-results/%-governor.csv \
-	election-results/%-president-states.geojson \
+tiles/%-results.z3-10.mbtiles: election-results/%-president-states.geojson \
 	election-results/%-president-counties.geojson \
 	election-results/%-senate-states.geojson \
 	election-results/%-senate-counties.geojson \
 	election-results/%-house-districts.geojson \
-	election-results/%-governor-states.geojson
+	election-results/%-governor-states.geojson \
+	election-results/%-state-labels.geojson
 	mkdir -p $(dir $@)
 	tippecanoe --projection EPSG:3857 \
 		--named-layer=president-states:election-results/$*-president-states.geojson \

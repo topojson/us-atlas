@@ -1008,6 +1008,10 @@ election-results/historical.csv:
 	mkdir -p $(dir $@)
 	data/ap-to-csv data/historical.json > $@
 
+election-results/historical-%.csv: election-results/historical.csv
+	cat $^ \
+		| ./filter-csv --raceType=$* > $@
+
 election-results/historical-state-labels.geojson: geojson/albers/state-labels.geojson
 	cat $^ \
 		| node_modules/.bin/geojson-join \

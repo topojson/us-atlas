@@ -34,10 +34,6 @@ var fields = [
     value: ru => ru.level === 'district' ? ru.districtId : ru.fipsCode
   },
   {
-    key: 'office',
-    value: ru => ru.officeID
-  },
-  {
     key: 'statePostal'
   },
   {
@@ -59,6 +55,10 @@ var fields = [
   {
     key: 'electorCount',
     value: ru => ru.electors || states[ru.statePostal].electors || 'null'
+  },
+  {
+    key: 'office',
+    value: ru => ru.officeID
   }
 ]
 

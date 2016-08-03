@@ -1,0 +1,26 @@
+#!/usr/bin/env node
+
+var through = require('through2')
+var csv = require('csv')
+var argv = require('minimist')(process.argv.slice(2))
+
+var raceTypes = {
+  'presidential': 'P',
+  'house': 'H',
+  'senate': 'S',
+  'governor': 'G'
+}
+var type = raceTypes[argv.raceType]
+if (!type) {
+  throw new Error('Not a supported type')
+}
+
+process.stdin
+.pipe(csv.parse())
+.pipe(through.obj(function (chunk, enc, callback) {
+  if (chunk[0] === 'id' || chunk[chunk.length-1] === type) {
+    this.push(chunk.slice(0, -1).join(',') + '\n')
+  }
+  callback()
+}))
+.pipe(process.stdout)

@@ -1027,8 +1027,9 @@ election-results/historical-state-labels.geojson: geojson/albers/state-labels.ge
 		| ./flatten-geojson \
 		> $@
 
-election-results/historical-$(RACE_TYPE)-%.geojson: geojson/albers/%.geojson \
+election-results/110m/historical-$(RACE_TYPE)-%.geojson: geojson/albers/%.geojson \
         election-results/historical-$(RACE_TYPE).csv
+	mkdir -p $(dir $@)
 	cat geojson/albers/$*.geojson \
 		| node_modules/.bin/geojson-join \
 			--format=csv --againstField=id --geojsonField=id election-results/historical-$(RACE_TYPE).csv \
@@ -1036,8 +1037,9 @@ election-results/historical-$(RACE_TYPE)-%.geojson: geojson/albers/%.geojson \
 		| ./flatten-geojson \
 		> $@
 
-election-results/historical-$(RACE_TYPE)-%-10m.geojson: geojson/albers/us-10m/%.geojson \
+election-results/10m/historical-$(RACE_TYPE)-%.geojson: geojson/albers/us-10m/%.geojson \
         election-results/historical-$(RACE_TYPE).csv
+	mkdir -p $(dir $@)
 	cat geojson/albers/us-10m/$*.geojson \
 		| node_modules/.bin/geojson-join \
 			--format=csv --againstField=id --geojsonField=id election-results/historical-$(RACE_TYPE).csv \
@@ -1045,21 +1047,21 @@ election-results/historical-$(RACE_TYPE)-%-10m.geojson: geojson/albers/us-10m/%.
 		| ./flatten-geojson \
 		> $@
 
-tiles/%-results.z0-2.mbtiles: election-results/%-president-states-10m.geojson \
-	election-results/%-president-counties-10m.geojson \
-	election-results/%-senate-states.geojson \
-	election-results/%-senate-counties-10m.geojson \
-	election-results/%-house-districts-10m.geojson \
-	election-results/%-governor-states-10m.geojson \
+tiles/%-results.z0-2.mbtiles: election-results/10m/%-president-states.geojson \
+	election-results/10m/%-president-counties.geojson \
+	election-results/10m/%-senate-states.geojson \
+	election-results/10m/%-senate-counties.geojson \
+	election-results/10m/%-house-districts.geojson \
+	election-results/10m/%-governor-states.geojson \
 	election-results/%-state-labels.geojson
 	mkdir -p $(dir $@)
 	tippecanoe --projection EPSG:3857 \
-		--named-layer=president-states:election-results/$*-president-states-10m.geojson \
-		--named-layer=president-counties:election-results/$*-president-counties-10m.geojson \
-		--named-layer=senate-states:election-results/$*-senate-states-10m.geojson \
-		--named-layer=senate-counties:election-results/$*-senate-counties-10m.geojson \
-		--named-layer=house-districts:election-results/$*-house-districts-10m.geojson \
-		--named-layer=governor-states:election-results/$*-governor-states-10m.geojson \
+		--named-layer=president-states:election-results/10m/$*-president-states.geojson \
+		--named-layer=president-counties:election-results/10m/$*-president-counties.geojson \
+		--named-layer=senate-states:election-results/10m/$*-senate-states.geojson \
+		--named-layer=senate-counties:election-results/10m/$*-senate-counties.geojson \
+		--named-layer=house-districts:election-results/10m/$*-house-districts.geojson \
+		--named-layer=governor-states:election-results/10m/$*-governor-states.geojson \
 		--named-layer=state-labels:election-results/$*-state-labels.geojson \
 		--read-parallel \
 		--no-polygon-splitting \
@@ -1068,22 +1070,86 @@ tiles/%-results.z0-2.mbtiles: election-results/%-president-states-10m.geojson \
 		--name=$*-results \
 		--output $@
 
-tiles/%-results.z3-10.mbtiles: election-results/%-president-states.geojson \
-	election-results/%-president-counties.geojson \
-	election-results/%-senate-states.geojson \
-	election-results/%-senate-counties.geojson \
-	election-results/%-house-districts.geojson \
-	election-results/%-governor-states.geojson \
+tiles/%-results.z3-10.mbtiles: election-results/110m/%-president-states.geojson \
+	election-results/110m/%-president-counties.geojson \
+	election-results/110m/%-senate-states.geojson \
+	election-results/110m/%-senate-counties.geojson \
+	election-results/110m/%-house-districts.geojson \
+	election-results/110m/%-governor-states.geojson \
 	election-results/%-state-labels.geojson
 	mkdir -p $(dir $@)
 	tippecanoe --projection EPSG:3857 \
-		--named-layer=president-states:election-results/$*-president-states.geojson \
-		--named-layer=president-counties:election-results/$*-president-counties.geojson \
-		--named-layer=senate-states:election-results/$*-senate-states.geojson \
-		--named-layer=senate-counties:election-results/$*-senate-counties.geojson \
-		--named-layer=house-districts:election-results/$*-house-districts.geojson \
-		--named-layer=governor-states:election-results/$*-governor-states.geojson \
+		--named-layer=president-states:election-results/110m/$*-president-states.geojson \
+		--named-layer=president-counties:election-results/110m/$*-president-counties.geojson \
+		--named-layer=senate-states:election-results/110m/$*-senate-states.geojson \
+		--named-layer=senate-counties:election-results/110m/$*-senate-counties.geojson \
+		--named-layer=house-districts:election-results/110m/$*-house-districts.geojson \
+		--named-layer=governor-states:election-results/110m/$*-governor-states.geojson \
 		--named-layer=state-labels:election-results/$*-state-labels.geojson \
+		--read-parallel \
+		--no-polygon-splitting \
+		--minimum-zoom=3 \
+		--maximum-zoom=10 \
+		--drop-rate=0 \
+		--name=$*-results \
+		--output $@
+
+election-results/expected-%.json:
+	mkdir -p $(dir $@)
+	cat data/expectations.json \
+		| ./pick --path=races \
+		| ./filter-by-racetype --raceType=$* --againstProperty=officeID \
+		| ./add-state-fips > $@
+
+election-results/10m/expected-%.geojson: geojson/albers/us-10m/states.geojson \
+	election-results/expected-%.json
+	mkdir -p $(dir $@)
+	cat geojson/albers/us-10m/states.geojson \
+		| node_modules/.bin/geojson-join \
+			--againstField=id --geojsonField=id election-results/expected-$*.json \
+		| ./flatten-geojson \
+		> $@
+
+election-results/110m/expected-%.geojson: geojson/albers/states.geojson \
+	election-results/expected-%.json
+	mkdir -p $(dir $@)
+	cat geojson/albers/states.geojson \
+		| node_modules/.bin/geojson-join \
+			--againstField=id --geojsonField=id election-results/expected-$*.json \
+		| ./flatten-geojson \
+		> $@
+
+tiles/expected-results.z0-2.mbtiles: election-results/10m/expected-president.geojson \
+	election-results/10m/expected-senate.geojson \
+	election-results/10m/expected-house.geojson \
+	election-results/10m/expected-governor.geojson \
+	election-results/historical-state-labels.geojson
+	mkdir -p $(dir $@)
+	tippecanoe --projection EPSG:3857 \
+		--named-layer=president:election-results/10m/expected-president.geojson \
+		--named-layer=senate:election-results/10m/expected-senate.geojson \
+		--named-layer=house:election-results/10m/expected-house.geojson \
+		--named-layer=governor:election-results/10m/expected-governor.geojson \
+		--named-layer=state-labels:election-results/historical-state-labels.geojson \
+		--read-parallel \
+		--no-polygon-splitting \
+		--maximum-zoom=2 \
+		--drop-rate=0 \
+		--name=$*-results \
+		--output $@
+
+tiles/expected-results.z3-10.mbtiles: election-results/110m/expected-president.geojson \
+	election-results/110m/expected-senate.geojson \
+	election-results/110m/expected-house.geojson \
+	election-results/110m/expected-governor.geojson \
+	election-results/historical-state-labels.geojson
+	mkdir -p $(dir $@)
+	tippecanoe --projection EPSG:3857 \
+		--named-layer=president:election-results/110m/expected-president.geojson \
+		--named-layer=senate:election-results/110m/expected-senate.geojson \
+		--named-layer=house:election-results/110m/expected-house.geojson \
+		--named-layer=governor:election-results/110m/expected-governor.geojson \
+		--named-layer=state-labels:election-results/historical-state-labels.geojson \
 		--read-parallel \
 		--no-polygon-splitting \
 		--minimum-zoom=3 \
@@ -1094,6 +1160,9 @@ tiles/%-results.z3-10.mbtiles: election-results/%-president-states.geojson \
 
 tiles/%-results.mbtiles: tiles/%-results.z0-2.mbtiles tiles/%-results.z3-10.mbtiles
 	tile-join -f -o $@ $^
+
+tiles/%-staging.mbtiles: tiles/%-results.mbtiles
+	cp tiles/$*-results.mbtiles $@
 
 .PHONY: upload/%
 upload/%: tiles/%.mbtiles

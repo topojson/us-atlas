@@ -1,0 +1,18 @@
+#!/usr/bin/env node
+
+var through = require('through2')
+var argv = require('minimist')(process.argv.slice(2))
+var JSONStream = require('JSONStream')
+var ndj = require('ndjson')
+
+var path = argv.path
+var list = []
+process.stdin.pipe(JSONStream.parse([path, true]))
+.pipe(through.obj(write))
+.pipe(ndj.serialize())
+.pipe(process.stdout)
+
+function write (obj, enc, cb) {
+  this.push(obj)
+  cb()
+}

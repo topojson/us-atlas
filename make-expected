@@ -1,0 +1,22 @@
+mkdir -p election-results
+mkdir -p tiles
+rm election-results/expected*.{json,geojson}
+rm election-results/10m/expected*
+rm election-results/110m/expected*
+rm tiles/expected*
+
+make election-results/historical-state-labels.geojson
+
+make election-results/10m/expected-president.geojson
+make election-results/10m/expected-senate.geojson
+make election-results/10m/expected-house.geojson
+make election-results/10m/expected-governor.geojson
+make tiles/expected-results.z0-2.mbtiles
+
+make election-results/110m/expected-president.geojson
+make election-results/110m/expected-senate.geojson
+make election-results/110m/expected-house.geojson
+make election-results/110m/expected-governor.geojson
+make tiles/expected-results.z3-10.mbtiles
+
+make tiles/expected-results.mbtiles

@@ -1,8 +1,8 @@
 #!/usr/bin/env node
 
 var through = require('through2')
-var csv = require('csv')
 var argv = require('minimist')(process.argv.slice(2))
+var ndj = require('ndjson')
 
 var raceTypes = {
   'president': 'P',
@@ -15,12 +15,15 @@ if (!type) {
   throw new Error('Not a supported type')
 }
 
-process.stdin
-.pipe(csv.parse())
-.pipe(through.obj(function (chunk, enc, callback) {
-  if (chunk[0] === 'id' || chunk[chunk.length-1] === type) {
-    this.push(chunk.slice(0, -1).join(',') + '\n')
+var property = argv.againstProperty
+process.stdin.pipe(ndj.parse())
+.pipe(through.obj(filter))
+.pipe(ndj.serialize())
+.pipe(process.stdout)
+
+function filter (chunk, enc, callback) {
+  if (chunk[property] === type) {
+    this.push(chunk)
   }
   callback()
-}))
-.pipe(process.stdout)
+}

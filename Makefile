@@ -1010,7 +1010,9 @@ election-results/historical.csv:
 
 election-results/historical-%.csv: election-results/historical.csv
 	cat $^ \
-		| ./filter-by-racetype --raceType=$* > $@
+		| node_modules/.bin/csv-parser \
+		| ./filter-by-racetype --raceType=$* --againstProperty=office \
+                | node_modules/.bin/csv-write-stream > $@
 
 election-results/historical-state-labels.geojson: geojson/albers/state-labels.geojson
 	cat $^ \

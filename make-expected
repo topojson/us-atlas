@@ -19,4 +19,5 @@ make election-results/110m/expected-house.geojson
 make election-results/110m/expected-governor.geojson
 make tiles/expected-results.z3-10.mbtiles
 
-make tiles/expected-results.mbtiles
+make tiles/wapo-2016-expected-results.mbtiles
+make tiles/wapo-2016-expected-results-development.mbtiles

@@ -24,4 +24,5 @@ RACE_TYPE=house make election-results/110m/historical-house-districts.geojson
 RACE_TYPE=governor make election-results/110m/historical-governor-states.geojson
 make tiles/historical-results.z3-10.mbtiles
 
-make tiles/historical-results.mbtiles
+make tiles/wapo-2016-historical-results.mbtiles
+make tiles/wapo-2016-historical-results-development.mbtiles

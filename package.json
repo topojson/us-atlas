@@ -25,6 +25,7 @@
   },
   "dependencies": {
     "JSONStream": "^1.1.2",
+    "csv": "^1.1.0",
     "d3-geo": "^1.1.1",
     "geojson-join": "^1.0.0",
     "geojson-stream": "0.0.1",

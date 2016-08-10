@@ -1161,8 +1161,8 @@ tiles/expected-results.z3-10.mbtiles: election-results/110m/expected-president.g
 tiles/wapo-2016-%-results.mbtiles: tiles/%-results.z0-2.mbtiles tiles/%-results.z3-10.mbtiles
 	tile-join -f -o $@ $^
 
-tiles/wapo-2016-%-results-development.mbtiles: tiles/%-results.mbtiles
-	cp tiles/$*-results.mbtiles $@
+tiles/wapo-2016-%-results-development.mbtiles: tiles/wapo-2016-%-results.mbtiles
+	cp tiles/wapo-2016-$*-results.mbtiles $@
 
 .PHONY: upload/%
 upload/%: tiles/%.mbtiles

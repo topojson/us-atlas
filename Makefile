@@ -994,7 +994,7 @@ geojson/albers/state-bounds.json: geojson/albers/states.geojson
 	cat $^ | ./extract-projected-bounds > $@
 
 geojson/albers/state-labels-dataset.geojson:
-	curl "https://api.mapbox.com/datasets/v1/devseed/cir7ui0aj00unghm3095sjuuv/features?access_token=$(MapboxAccessToken)" > $@
+	curl "https://api.mapbox.com/datasets/v1/devseed/cis7wq7mj04l92zpk9tbk9wgo/features?access_token=$(MapboxAccessToken)" > $@
 
 geojson/albers/state-labels.geojson: geojson/albers/state-labels-dataset.geojson
 	# Note: reprojecting using 'mercator' because the incoming data was _already_ reprojected
@@ -1032,7 +1032,7 @@ geojson/albers/state-label-callouts.geojson: geojson/albers/state-labels-dataset
 		| ./geojson-id id \
 		> $@
 
-tiles/z0-2.mbtiles: geojson/albers/us-10m/states.geojson \
+tiles/z0-4.mbtiles: geojson/albers/us-10m/states.geojson \
 	geojson/albers/us-10m/counties.geojson \
 	geojson/albers/us-10m/districts.geojson \
 	geojson/albers/state-labels.geojson \
@@ -1047,12 +1047,12 @@ tiles/z0-2.mbtiles: geojson/albers/us-10m/states.geojson \
 		--named-layer=state-label-callouts:geojson/albers/state-label-callouts.geojson \
 		--read-parallel \
 		--no-polygon-splitting \
-		--maximum-zoom=2 \
+		--maximum-zoom=4 \
 		--drop-rate=0 \
 		--name=2016-us-election \
 		--output $@
 
-tiles/z3-10.mbtiles: geojson/albers/states.geojson \
+tiles/z5-12.mbtiles: geojson/albers/states.geojson \
 	geojson/albers/counties.geojson \
 	geojson/albers/districts.geojson \
 	geojson/albers/state-labels.geojson \
@@ -1067,17 +1067,17 @@ tiles/z3-10.mbtiles: geojson/albers/states.geojson \
 		--named-layer=state-label-callouts:geojson/albers/state-label-callouts.geojson \
 		--read-parallel \
 		--no-polygon-splitting \
-		--minimum-zoom=3 \
-		--maximum-zoom=10 \
+		--minimum-zoom=5 \
+		--maximum-zoom=12 \
 		--drop-rate=0 \
 		--name=2016-us-election \
 		--output $@
 
-tiles/wapo-2016-us-election.mbtiles: tiles/z0-2.mbtiles tiles/z3-10.mbtiles
+tiles/wapo-2016-election.mbtiles: tiles/z0-4.mbtiles tiles/z5-12.mbtiles
 	tile-join -f -o $@ $^
 
-tiles/wapo-2016-us-election-development.mbtiles: tiles/wapo-2016-us-election.mbtiles
-	cp tiles/wapo-2016-$*-results.mbtiles $@
+tiles/wapo-2016-election-development.mbtiles: tiles/wapo-2016-election.mbtiles
+	cp $^ $@
 
 .PHONY: upload/%
 upload/%: tiles/%.mbtiles

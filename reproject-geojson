@@ -18,11 +18,17 @@ function write (feature, _, next) {
 }
 
 var d3 = require('d3-geo')
-var R = 6378137.0
+var R = 6378137.0 // radius of Earth in meters
+
 var proj
 if (!argv.projection || argv.projection === 'albers') {
   // Scale the Albers projection output so that it matches up with the
   // coordinate system of web mercator.
+
+  // scale down R by a factor of 4 so that we don't have to use z0
+  // https://github.com/developmentseed/wapo-components/issues/1323
+  R /= 4
+
   proj = d3.geoAlbersUsa().scale(2 * Math.PI * R)
 } else if (argv.projection === 'mercator') {
   proj = d3.geoMercator().translate([0, 0]).scale(R)

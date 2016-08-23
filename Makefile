@@ -1001,7 +1001,26 @@ geojson/albers/state-labels.geojson: geojson/albers/state-labels-dataset.geojson
 	# to albers so it could be edited in the Mapbox Studio dataset editor
 	cat $^ \
 		| jq '{ type: "FeatureCollection", \
-					  features: .features | map(. | select(.geometry.type == "Point" or .geometry.type == "LineString")) \
+					  features: .features | \
+							map(. | select(.geometry.type == "Point" and .properties.type != "callout")) \
+					}' \
+		| ./reproject-geojson --projection mercator \
+		| node_modules/.bin/geojson-join \
+			--format=csv --againstField=postal --geojsonField=postal fips.csv \
+		| ./normalize-properties \
+				statePostal:statePostal postal:statePostal \
+				STATE_FIPS:id id:id \
+				type:type \
+		| ./geojson-id id \
+		> $@
+
+geojson/albers/state-label-callouts.geojson: geojson/albers/state-labels-dataset.geojson
+	# Note: reprojecting using 'mercator' because the incoming data was _already_ reprojected
+	# to albers so it could be edited in the Mapbox Studio dataset editor
+	cat $^ \
+		| jq '{ type: "FeatureCollection", \
+					  features: .features | \
+							map(. | select(.properties.type == "callout" or .geometry.type == "LineString")) \
 					}' \
 		| ./reproject-geojson --projection mercator \
 		| node_modules/.bin/geojson-join \
@@ -1016,7 +1035,8 @@ geojson/albers/state-labels.geojson: geojson/albers/state-labels-dataset.geojson
 tiles/z0-2.mbtiles: geojson/albers/us-10m/states.geojson \
 	geojson/albers/us-10m/counties.geojson \
 	geojson/albers/us-10m/districts.geojson \
-	geojson/albers/state-labels.geojson
+	geojson/albers/state-labels.geojson \
+	geojson/albers/state-label-callouts.geojson
 	mkdir -p $(dir $@)
 	tippecanoe --projection EPSG:3857 \
 		-f \
@@ -1024,6 +1044,7 @@ tiles/z0-2.mbtiles: geojson/albers/us-10m/states.geojson \
 		--named-layer=counties:geojson/albers/us-10m/counties.geojson \
 		--named-layer=districts:geojson/albers/us-10m/districts.geojson \
 		--named-layer=state-labels:geojson/albers/state-labels.geojson \
+		--named-layer=state-label-callouts:geojson/albers/state-label-callouts.geojson \
 		--read-parallel \
 		--no-polygon-splitting \
 		--maximum-zoom=2 \
@@ -1034,7 +1055,8 @@ tiles/z0-2.mbtiles: geojson/albers/us-10m/states.geojson \
 tiles/z3-10.mbtiles: geojson/albers/states.geojson \
 	geojson/albers/counties.geojson \
 	geojson/albers/districts.geojson \
-	geojson/albers/state-labels.geojson
+	geojson/albers/state-labels.geojson \
+	geojson/albers/state-label-callouts.geojson
 	mkdir -p $(dir $@)
 	tippecanoe --projection EPSG:3857 \
 		-f \
@@ -1042,6 +1064,7 @@ tiles/z3-10.mbtiles: geojson/albers/states.geojson \
 		--named-layer=counties:geojson/albers/counties.geojson \
 		--named-layer=districts:geojson/albers/districts.geojson \
 		--named-layer=state-labels:geojson/albers/state-labels.geojson \
+		--named-layer=state-label-callouts:geojson/albers/state-label-callouts.geojson \
 		--read-parallel \
 		--no-polygon-splitting \
 		--minimum-zoom=3 \

@@ -37,7 +37,23 @@ if (!argv.projection || argv.projection === 'albers') {
 }
 
 function reproject (coordinates) {
-  if (Array.isArray(coordinates[0])) { return coordinates.forEach(reproject) }
+  if (coordinates.length === 0) { return [] }
+  if (Array.isArray(coordinates[0])) {
+    coordinates.forEach(reproject)
+
+    var isRing = !Array.isArray(coordinates[0][0])
+    for (var i = coordinates.length - 1; i >= 0; i--) {
+      var c = coordinates[i]
+      if (isRing && (typeof c[0] !== 'number' || typeof c[1] !== 'number')) {
+        console.error('dropping unprojectable point')
+        coordinates.splice(i, 1)
+      } else if (c.length === 0) {
+        console.error('dropping empty geometry')
+        coordinates.splice(i, 1)
+      }
+    }
+    return
+  }
   if (argv.reverse) {
     reverse(coordinates)
     return
@@ -48,16 +64,24 @@ function reproject (coordinates) {
 
 function forward (coordinates) {
   var projected = proj(coordinates)
-  if (!projected) { return }
+  if (!projected) {
+    coordinates[0] = coordinates[1] = null
+    return false
+  }
   coordinates[0] = projected[0]
   coordinates[1] = -projected[1]
+  return true
 }
 
 function reverse (projected) {
   projected[1] = -projected[1]
   var reversed = proj.invert(projected)
-  if (!reversed) { return }
+  if (!reversed) {
+    projected[0] = projected[1] = null
+    return false
+  }
   projected[0] = reversed[0]
   projected[1] = reversed[1]
+  return true
 }
 

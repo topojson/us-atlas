@@ -439,13 +439,6 @@ shp/wi/sldu.shp: gz/tl_2015_55_sldu.zip
 shp/wy/sldu.shp: gz/tl_2015_56_sldu.zip
 shp/pr/sldu.shp: gz/tl_2015_72_sldu.zip
 
-shp/us/%.shp:
-	rm -rf $(basename $@)
-	mkdir -p $(basename $@)
-	tar -xzm -C $(basename $@) -f $<
-	for file in $(basename $@)/*; do chmod 644 $$file; mv $$file $(basename $@).$${file##*.}; done
-	rmdir $(basename $@)
-
 # remove water counties (e.g., Great Lakes)
 shp/us/counties.shp: shp/us/counties-unfiltered.shp
 	rm -f $@
@@ -463,6 +456,22 @@ shp/us/states.shp: shp/us/states-unfiltered.shp bin/geouniq
 	bin/geouniq STATE_FIPS < $(basename $@)-unfiltered.json > $(basename $@).json
 	ogr2ogr -f 'ESRI Shapefile' $@ $(basename $@).json
 	rm -f -- $(basename $@).json $(basename $@).json
+
+# National boundary, without the great lakes
+# Note that this depends on the lakes having the property NATION010: 2, which
+# could change if a new version of nation-unmerged is used.
+shp/us/nation-land.shp: shp/us/nation-unmerged.shp
+	ogr2ogr $@ $^ -sql "SELECT * FROM 'nation-unmerged' WHERE NOT NATION010=2"
+
+shp/us/congress-clipped.shp: shp/us/congress-ungrouped.shp shp/us/nation-land.shp
+	ogr2ogr -clipsrc shp/us/nation-land.shp shp/us/congress-clipped.shp shp/us/congress-ungrouped.shp
+
+shp/us/%.shp:
+	rm -rf $(basename $@)
+	mkdir -p $(basename $@)
+	tar -xzm -C $(basename $@) -f $<
+	for file in $(basename $@)/*; do chmod 644 $$file; mv $$file $(basename $@).$${file##*.}; done
+	rmdir $(basename $@)
 
 # merge the nation object into a single MultiPolygon
 shp/us/nation.json: shp/us/nation-unmerged.shp bin/geomerge
@@ -931,15 +940,15 @@ geojson/counties.geojson: shp/us/counties.shp
 	cat $(dir $@)temp.json | ./clip-at-dateline > $@
 	rm $(dir $@)temp.json
 
-geojson/districts.geojson: shp/us/congress-ungrouped.shp
+geojson/districts.geojson: shp/us/congress-clipped.shp
 	mkdir -p $(dir $@)
 	rm -rf $@
 	ogr2ogr -f "GeoJSON" $(dir $@)temp.json $<
 	cat $(dir $@)temp.json | ./clip-at-dateline > $@
 	rm $(dir $@)temp.json
 
-geojson/us-10m/%.geojson: geojson/%.geojson
-	mkdir -p $(dir $@)
+geojson/us-10m: geojson/counties.geojson geojson/districts.geojson geojson/states.geojson
+	mkdir -p $@
 	node_modules/.bin/topojson \
 		-o temp.json \
 		--no-pre-quantization \
@@ -948,16 +957,9 @@ geojson/us-10m/%.geojson: geojson/%.geojson
 		--properties GEOID,STATE_FIPS,FIPS\
 		--external-properties fips.csv \
 		-- $^
-	node_modules/.bin/topojson-geojson -o $(dir $@) temp.json
-	mv $(basename $@).json $@
+	node_modules/.bin/topojson-geojson -o $@ temp.json
+	for f in $$(ls $@) ; do mv $@/$$f $@/$$(basename $$f .json).geojson; done
 	rm temp.json
-
-geojson/northeast/states.geojson: shp/us/states.shp
-	mkdir -p $(dir $@)
-	rm -f $@
-	ogr2ogr -f "GeoJSON" -where "STATE_FIPS IN ('09', '10', '24', '25', '33', '34', '36', '42', '44', '50')" $(dir $@)temp.json $<
-	cat $(dir $@)temp.json | ./clip-at-dateline > $@
-	rm $(dir $@)temp.json
 
 # Cities
 topo/us-%-cities.json: geojson/%/cities.geojson
@@ -1161,8 +1163,6 @@ geojson/%/sldl.geojson: topo/us-%-sldl.json
 # The targets with '%' take care of going from a state's district shapefile to the
 # districts.geojson we need, but each individual state has to be added below (following
 # the example of MN)
-shp/%/congress-clipped.shp: shp/%/congress-ungrouped.shp shp/%/states.shp
-	ogr2ogr -clipsrc $(dir $@)states.shp $(dir $@)congress-clipped.shp $(dir $@)congress-ungrouped.shp
 
 topo/us-%-congress.json: shp/%/congress-clipped.shp
 	mkdir -p $(dir $@)

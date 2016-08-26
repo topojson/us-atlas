@@ -1157,19 +1157,6 @@ geojson/%/sldl.geojson: topo/us-%-sldl.json
 		cat $(dir $@)sldl.json | ./clip-at-dateline > $@
 		rm $(dir $@)sldl.json
 
-geojson/%/subunits.geojson:
-	mkdir -p $(basename $@)
-	turf featurecollection '[]' > $@
-
-# Special cases
-# Include SLDLs (for Alaska)
-geojson/ak/subunits.geojson: geojson/ak/sldl.geojson
-	cp $< $@
-
-# SLDUs for North Dakota
-geojson/nd/subunits.geojson: geojson/nd/sldu.geojson
-	cp $< $@
-
 # Congressional Districts
 # The targets with '%' take care of going from a state's district shapefile to the
 # districts.geojson we need, but each individual state has to be added below (following
@@ -1186,29 +1173,4 @@ topo/us-%-congress.json: shp/%/congress-clipped.shp
 		--simplify=7e-7 \
 		--id-property=NAMELSAD \
 		-- $<
-
-# Default to empty districts - override below in individual states
-geojson/%/districts.geojson:
-	turf featurecollection '[]' > $@
-
-# Individual states
-# MN
-geojson/mn/districts.geojson: topo/us-mn-congress.json
-	mkdir -p $(dir $@)
-	topojson-geojson -o $(dir $@) $<
-	mv $(dir $@)congress-clipped.json $(dir $@)districts.geojson
-
-shp/mn/congress-ungrouped.shp: shp/us/congress-ungrouped.shp
-	mkdir -p $(dir $@)
-	ogr2ogr -f 'ESRI Shapefile' -where "STATEFP = '27'" $(dir $@) $<
-
-# KS
-geojson/ks/districts.geojson: topo/us-ks-congress.json
-	mkdir -p $(dir $@)
-	topojson-geojson -o $(dir $@) $<
-	mv $(dir $@)congress-clipped.json $(dir $@)districts.geojson
-
-shp/ks/congress-ungrouped.shp: shp/us/congress-ungrouped.shp
-	mkdir -p $(dir $@)
-	ogr2ogr -f 'ESRI Shapefile' -where "STATEFP = '20'" $(dir $@) $<
 

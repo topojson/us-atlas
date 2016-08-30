@@ -1,0 +1,29 @@
+#!/usr/bin/env node
+'use strict'
+
+var clip = require('turf-bbox-clip')
+var getStdin = require('get-stdin')
+
+getStdin().then(function (stdin) {
+  var polygons = JSON.parse(stdin)
+  polygons.features = polygons.features
+  .map(clipAtDateline)
+  console.log(JSON.stringify(polygons))
+})
+.catch(function (err) {
+  console.error(err.stack)
+})
+
+function clipAtDateline (feature) {
+  var clipped = clip(feature, [-180, -85, -67, 85])
+  clipped.id = feature.id
+  clipped.geometry.coordinates = clipped.geometry.coordinates.filter(dropEmpty)
+  return clipped
+
+  function dropEmpty (coords) {
+    if (!coords || !coords.length) { return false }
+    if (Array.isArray(coords[0])) { return coords.filter(dropEmpty) }
+    return coords
+  }
+}
+

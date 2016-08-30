@@ -1,0 +1,24 @@
+#!/usr/bin/env node
+
+var through = require('through2')
+var geojsonStream = require('geojson-stream')
+
+var keys = process.argv.slice(2).map(function (pair) { return pair.split(':') })
+
+process.stdin.pipe(geojsonStream.parse())
+.pipe(through.obj(write))
+.pipe(geojsonStream.stringify())
+.pipe(process.stdout)
+
+function write (feat, _, next) {
+  var properties = {}
+  keys.forEach(function (pair) {
+    if (typeof feat.properties[pair[0]] !== 'undefined') {
+      properties[pair[1]] = feat.properties[pair[0]]
+    }
+  })
+  feat.properties = properties
+
+  this.push(feat)
+  next()
+}

@@ -1,0 +1,29 @@
+#!/usr/bin/env node
+
+var through = require('through2')
+var argv = require('minimist')(process.argv.slice(2))
+var ndj = require('ndjson')
+
+var raceTypes = {
+  'president': 'P',
+  'house': 'H',
+  'senate': 'S',
+  'governor': 'G'
+}
+var type = raceTypes[argv.raceType]
+if (!type) {
+  throw new Error('Not a supported type')
+}
+
+var property = argv.againstProperty
+process.stdin.pipe(ndj.parse())
+.pipe(through.obj(filter))
+.pipe(ndj.serialize())
+.pipe(process.stdout)
+
+function filter (chunk, enc, callback) {
+  if (chunk[property] === type) {
+    this.push(chunk)
+  }
+  callback()
+}

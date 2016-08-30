@@ -1,0 +1,28 @@
+mkdir -p election-results
+mkdir -p tiles
+rm election-results/110m/historical*
+rm election-results/10m/historical*
+rm election-results/historical*
+rm tiles/historical*
+
+make election-results/historical.csv
+make election-results/historical-state-labels.geojson
+
+RACE_TYPE=president make election-results/10m/historical-president-states.geojson
+RACE_TYPE=president make election-results/10m/historical-president-counties.geojson
+RACE_TYPE=senate make election-results/10m/historical-senate-states.geojson
+RACE_TYPE=senate make election-results/10m/historical-senate-counties.geojson
+RACE_TYPE=house make election-results/10m/historical-house-districts.geojson
+RACE_TYPE=governor make election-results/10m/historical-governor-states.geojson
+make tiles/historical-results.z0-2.mbtiles
+
+RACE_TYPE=president make election-results/110m/historical-president-states.geojson
+RACE_TYPE=president make election-results/110m/historical-president-counties.geojson
+RACE_TYPE=senate make election-results/110m/historical-senate-states.geojson
+RACE_TYPE=senate make election-results/110m/historical-senate-counties.geojson
+RACE_TYPE=house make election-results/110m/historical-house-districts.geojson
+RACE_TYPE=governor make election-results/110m/historical-governor-states.geojson
+make tiles/historical-results.z3-10.mbtiles
+
+make tiles/wapo-2016-historical-results.mbtiles
+make tiles/wapo-2016-historical-results-development.mbtiles

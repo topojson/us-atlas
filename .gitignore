@@ -3,4 +3,7 @@ geo
 png
 shp
 topo
+geojson
 node_modules
+election-results
+tiles

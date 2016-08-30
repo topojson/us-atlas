@@ -1,0 +1,32 @@
+#!/usr/bin/env node
+
+var fs = require('fs')
+var path = require('path')
+var through = require('through2')
+var ndj = require('ndjson')
+var JSONStream = require('JSONStream')
+
+// get state postal, fips
+// states = { al: { statePostal: al, fipsCode: 1 }, ...}
+var states = {}
+fs.readFileSync(path.join(__dirname, './fips.csv'), 'utf-8')
+  .split('\n').filter(Boolean)
+  .map(line => line.split(','))
+  .forEach(line => {
+    if (line[1].length === 1) { line[1] = '0' + line[1] }
+    states[line[0]] = {
+      statePostal: line[0],
+      fipsCode: line[1]
+    }
+  })
+
+process.stdin.pipe(ndj.parse())
+.pipe(through.obj(write))
+.pipe(JSONStream.stringify())
+.pipe(process.stdout)
+
+function write (chunk, enc, callback) {
+  chunk.id = states[chunk.statePostal].fipsCode
+  this.push(chunk)
+  callback()
+}

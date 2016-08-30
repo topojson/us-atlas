@@ -1,0 +1,115 @@
+#!/usr/bin/env node
+
+var fs = require('fs')
+var path = require('path')
+var JSONStream = require('JSONStream')
+
+// get state postal, fips
+// states = { al: { statePostal: al, fipsCode: 1 }, ...}
+var states = {}
+fs.readFileSync(path.join(__dirname, '../fips.csv'), 'utf-8')
+  .split('\n').filter(Boolean)
+  .map(line => line.split(','))
+  .forEach(line => {
+    if (line[1].length === 1) { line[1] = '0' + line[1] }
+    states[line[0]] = {
+      statePostal: line[0],
+      fipsCode: line[1]
+    }
+  })
+
+// get electoral college count
+// states = { al: { statePostal: al, fipsCode: 1, electors: 9 }, ...}
+fs.readFileSync(path.join(__dirname, '2012-electoral-college.csv'), 'utf-8')
+  .split('\n').filter(Boolean)
+  .map(line => line.split(','))
+  .filter(line => states[line[0]])
+  .forEach(line => {
+    states[line[0]].electors = +line[2]
+  })
+
+var fields = [
+  {
+    key: 'id',
+    value: ru => ru.level === 'district' ? ru.districtId : ru.fipsCode
+  },
+  {
+    key: 'statePostal'
+  },
+  {
+    key: 'winningParty',
+    value: ru => ru.candidates[0].party
+  },
+  {
+    key: 'marginOfWinVotes',
+    value: ru => ru.candidates.length <= 1 ? -1 : ru.candidates[0].voteCount - ru.candidates[1].voteCount
+  },
+  {
+    key: 'marginOfWinPercent',
+    value: ru => ru.candidates.length <= 1 ? -1 : ((ru.candidates[0].voteCount - ru.candidates[1].voteCount) / totalVotes(ru)).toFixed(3)
+  },
+  {
+    key: 'voteCount',
+    value: ru => totalVotes(ru)
+  },
+  {
+    key: 'electorCount',
+    value: ru => ru.electors || states[ru.statePostal].electors || 'null'
+  },
+  {
+    key: 'office',
+    value: ru => ru.officeID
+  }
+]
+
+console.log(fields.map(p => p.key).join(','))
+
+var files = process.argv.slice(2)
+if (files.length > 1) {
+  files.reduce((next, file) => doResultsFile.bind(null, file, next), function () {})
+} else {
+  doResultsFile(files[0], function () {})
+}
+
+function doResultsFile (file, done) {
+  fs.createReadStream(file)
+  .pipe(JSONStream.parse(['results', true]))
+  .on('data', function (race) {
+    var statePostal = race.statePostal.toUpperCase()
+    race.reportingUnits.forEach(function (ru) {
+      // attach statePostal to each ru in case it's missing
+      ru.statePostal = statePostal;
+      // attach congressional district ids to match with shapefile
+      if (race.officeID === 'H') {
+        ru.level = 'district'
+        var districtNumber = race.seatNum
+        if (districtNumber.length === 1) { districtNumber = '0' + districtNumber }
+        ru.districtId = states[ru.statePostal].fipsCode + '' + districtNumber
+      }
+      ru.officeID = race.officeID
+      processReportingUnit(ru)
+    })
+  })
+  .on('end', function () {
+    done()
+  })
+}
+
+function processReportingUnit (ru) {
+  // augment state w/ some metadata
+  if (ru.level === 'state') {
+    Object.assign(ru, states[ru.statePostal])
+  }
+  // sort candidates by vote count
+  ru.candidates.sort((a, b) => b.voteCount - a.voteCount)
+
+  var line = fields
+  .map(field => field.value ? field.value(ru) : ru[field.key])
+  .join(',')
+
+  console.log(line)
+}
+
+function totalVotes (ru) {
+  return ru.candidates.reduce((memo, c) => c.voteCount + memo, 0)
+}

@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<style>
+
+path {
+  fill: #ccc;
+  stroke: #fff;
+  stroke-width: .5px;
+}
+
+path:hover {
+  fill: red;
+}
+
+</style>
+<body>
+<script src="//d3js.org/d3.v3.min.js"></script>
+<script src="//d3js.org/topojson.v1.min.js"></script>
+<script>
+
+var params = {}
+window.location.search.substring(1).split('&').forEach(function (param) {
+  param = param.split('=')
+  params[param[0]] = param[1]
+})
+
+var width = 960,
+    height = 500;
+
+var projection = d3.geo[params.projection || 'mercator']()
+var path = d3.geo.path().projection(projection);
+
+var svg = d3.select("body").append("svg")
+    .attr("width", width)
+    .attr("height", height);
+
+d3.json("topo/" + params.file, function(error, topology) {
+  if (error) throw error;
+
+  var key = params.layer || Object.keys(topology.objects)[0]
+  svg.selectAll("path")
+      .data(topojson.feature(topology, topology.objects[key]).features)
+    .enter().append("path")
+      .attr("d", path);
+});
+
+</script>

@@ -1,0 +1,87 @@
+#!/usr/bin/env node
+
+var geojsonStream = require('geojson-stream')
+var extent = require('turf-extent')
+var through = require('through2')
+var argv = require('minimist')(process.argv.slice(2))
+
+process.stdin.pipe(geojsonStream.parse())
+.pipe(through.obj(write))
+.pipe(geojsonStream.stringify())
+.pipe(process.stdout)
+
+function write (feature, _, next) {
+  reproject(feature.geometry.coordinates)
+  feature.bbox = extent(feature)
+  this.push(feature)
+  next()
+}
+
+var d3 = require('d3-geo')
+var R = 6378137.0 // radius of Earth in meters
+
+var proj
+if (!argv.projection || argv.projection === 'albers') {
+  // Scale the Albers projection output so that it matches up with the
+  // coordinate system of web mercator.
+
+  // scale down R by a factor of 4 so that we don't have to use z0
+  // https://github.com/developmentseed/wapo-components/issues/1323
+  R /= 4
+
+  proj = d3.geoAlbersUsa().scale(2 * Math.PI * R)
+} else if (argv.projection === 'mercator') {
+  proj = d3.geoMercator().translate([0, 0]).scale(R)
+} else {
+  throw new Error('Unsupported projection ' + argv.projection)
+}
+
+function reproject (coordinates) {
+  if (coordinates.length === 0) { return [] }
+  if (Array.isArray(coordinates[0])) {
+    coordinates.forEach(reproject)
+
+    var isRing = !Array.isArray(coordinates[0][0])
+    for (var i = coordinates.length - 1; i >= 0; i--) {
+      var c = coordinates[i]
+      if (isRing && (typeof c[0] !== 'number' || typeof c[1] !== 'number')) {
+        console.error('dropping unprojectable point')
+        coordinates.splice(i, 1)
+      } else if (c.length === 0) {
+        console.error('dropping empty geometry')
+        coordinates.splice(i, 1)
+      }
+    }
+    return
+  }
+  if (argv.reverse) {
+    reverse(coordinates)
+    return
+  }
+
+  forward(coordinates)
+}
+
+function forward (coordinates) {
+  var projected = proj(coordinates)
+  if (!projected) {
+    coordinates[0] = coordinates[1] = null
+    return false
+  }
+  coordinates[0] = projected[0]
+  coordinates[1] = -projected[1]
+  return true
+}
+
+function reverse (projected) {
+  projected[1] = -projected[1]
+  var reversed = proj.invert(projected)
+  if (!reversed) {
+    projected[0] = projected[1] = null
+    return false
+  }
+  projected[0] = reversed[0]
+  projected[1] = reversed[1]
+  return true
+}
+

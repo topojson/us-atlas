@@ -1,0 +1,50 @@
+#!/usr/bin/env node
+
+// Extract bbox from _projected_ geojson features and unproject them back into
+// latlongs
+// This is part of our hack for doing albers in gl-js: the "projected" features
+// were projected using Albers (in `reproject-geojson`), but we are pretending
+// that they're in web mercator, because that's what mapbox gl js will do
+
+var geojsonStream = require('geojson-stream')
+var JSONStream = require('JSONStream')
+var through = require('through2')
+var proj = require('proj4')('EPSG:3857', 'WGS84')
+
+var nation = [Infinity, Infinity, -Infinity, -Infinity]
+
+process.stdin.pipe(geojsonStream.parse())
+.pipe(through.obj(write, end))
+.pipe(JSONStream.stringify())
+.pipe(process.stdout)
+
+function write (feat, _, next) {
+  var bbox = feat.bbox
+  var p1 = proj.forward([bbox[0], bbox[1]])
+  var p2 = proj.forward([bbox[2], bbox[3]])
+
+  bbox = [
+    Math.min(p1[0], p2[0]),
+    Math.min(p1[1], p2[1]),
+    Math.max(p1[0], p2[0]),
+    Math.max(p1[1], p2[1])
+  ]
+
+  nation = nation.map(function (memo, i) {
+    return (i < 2 ? Math.min : Math.max)(memo, bbox[i])
+  })
+
+  next(null, {
+    id: feat.properties.id,
+    bbox: bbox
+  })
+}
+
+function end (cb) {
+  this.push({
+    id: '00',
+    bbox: nation
+  })
+  cb()
+}
+

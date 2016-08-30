@@ -1,0 +1,202 @@
+#!/usr/bin/env node
+
+console.log(getStateName(process.argv[2]))
+
+function getStateName (abbrev) {
+  var states = {
+    al: {
+      name: 'Alabama',
+      abbreviation: 'Ala.'
+    },
+    az: {
+      name: 'Arizona',
+      abbreviation: 'Ariz.'
+    },
+    ak: {
+      name: 'Alaska'
+    },
+    ar: {
+      name: 'Arkansas',
+      abbreviation: 'Ark.'
+    },
+    ca: {
+      name: 'California',
+      abbreviation: 'Calif.'
+    },
+    co: {
+      name: 'Colorado',
+      abbreviation: 'Colo.'
+    },
+    ct: {
+      name: 'Connecticut',
+      abbreviation: 'Conn.'
+    },
+    dc: {
+      name: 'Washington, D.C.'
+    },
+    de: {
+      name: 'Delaware',
+      abbreviation: 'Del.'
+    },
+    fl: {
+      name: 'Florida',
+      abbreviation: 'Fla.'
+    },
+    ga: {
+      name: 'Georgia',
+      abbreviation: 'Ga.'
+    },
+    hi: {
+      name: 'Hawaii'
+    },
+    ia: { name: 'Iowa' },
+    id: {
+      name: 'Idaho'
+    },
+    il: {
+      name: 'Illinois',
+      abbreviation: 'Ill.'
+    },
+    'in': {
+      name: 'Indiana',
+      abbreviation: 'Ind.'
+    },
+    ks: {
+      name: 'Kansas',
+      abbreviation: 'Kan.'
+    },
+    ky: {
+      name: 'Kentucky',
+      abbreviation: 'Ky.'
+    },
+    la: {
+      name: 'Louisiana',
+      abbreviation: 'La.'
+    },
+    ma: {
+      name: 'Massachusetts',
+      abbreviation: 'Mass.'
+    },
+    md: {
+      name: 'Maryland',
+      abbreviation: 'Md.'
+    },
+    me: { name: 'Maine' },
+    mi: {
+      name: 'Michigan',
+      abbreviation: 'Mich.'
+    },
+    mn: {
+      name: 'Minnesota',
+      abbreviation: 'Minn.'
+    },
+    ms: {
+      name: 'Mississippi',
+      abbreviation: 'Miss.'
+    },
+    mo: {
+      name: 'Missouri',
+      abbreviation: 'Mo.'
+    },
+    mt: {
+      name: 'Montana',
+      abbreviation: 'Mont.'
+    },
+    nc: {
+      name: 'North Carolina',
+      abbreviation: 'N.C.'
+    },
+    nd: {
+      name: 'North Dakota',
+      abbreviation: 'N.D.'
+    },
+    nh: {
+      name: 'New Hampshire',
+      abbreviation: 'N.H.'
+    },
+    nj: {
+      name: 'New Jersey',
+      abbreviation: 'N.J.'
+    },
+    nm: {
+      name: 'New Mexico',
+      abbreviation: 'N.M.'
+    },
+    ny: {
+      name: 'New York',
+      abbreviation: 'N.Y.'
+    },
+    ne: {
+      name: 'Nebraska',
+      abbreviation: 'Neb.'
+    },
+    nv: {
+      name: 'Nevada',
+      abbreviation: 'Nev.'
+    },
+    oh: { name: 'Ohio' },
+    ok: {
+      name: 'Oklahoma',
+      abbreviation: 'Okla.'
+    },
+    or: {
+      name: 'Oregon',
+      abbreviation: 'Ore.'
+    },
+    pa: {
+      name: 'Pennsylvania',
+      abbreviation: 'Pa.'
+    },
+    ri: {
+      name: 'Rhode Island',
+      abbreviation: 'R.I.'
+    },
+    sc: {
+      name: 'South Carolina',
+      abbreviation: 'S.C.'
+    },
+    sd: {
+      name: 'South Dakota',
+      abbreviation: 'S.D.'
+    },
+    tn: {
+      name: 'Tennessee',
+      abbreviation: 'Tenn.'
+    },
+    tx: { name: 'Texas' },
+    ut: { name: 'Utah' },
+    va: {
+      name: 'Virginia',
+      abbreviation: 'Va.'
+    },
+    vt: {
+      name: 'Vermont',
+      abbreviation: 'Vt.'
+    },
+    wv: {
+      name: 'West Virginia',
+      abbreviation: 'W.Va.'
+    },
+    wa: {
+      name: 'Washington',
+      abbreviation: 'Wash.'
+    },
+    wi: {
+      name: 'Wisconsin',
+      abbreviation: 'Wis.'
+    },
+    wy: {
+      name: 'Wyoming',
+      abbreviation: 'Wyo.'
+    }
+  }
+
+  for (var s in states) {
+    if (!states[s].abbreviation) {
+      states[s].abbreviation = states[s].name
+    }
+  }
+
+  return states[abbrev].name
+}
+

@@ -1,0 +1,28 @@
+#!/usr/bin/env node
+
+var through = require('through2')
+var geojsonStream = require('geojson-stream')
+
+process.stdin.pipe(geojsonStream.parse())
+.pipe(through.obj(write))
+.pipe(geojsonStream.stringify())
+.pipe(process.stdout)
+
+var singleHouseStates = [
+  '02', // AK
+  '10', // DE
+  '30', // MO
+  '38', // ND
+  '46', // SD
+  '50', // VT
+  '56' // WY
+]
+
+function write (feat, _, next) {
+  var stateFips = feat.properties.STATEFP
+  if (singleHouseStates.indexOf(stateFips) >= 0) {
+    feat.properties.GEOID = stateFips + '01'
+  }
+  this.push(feat)
+  next()
+}

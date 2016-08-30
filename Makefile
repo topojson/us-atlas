@@ -944,7 +944,7 @@ geojson/districts.geojson: shp/us/congress-clipped.shp
 	mkdir -p $(dir $@)
 	rm -rf $@
 	ogr2ogr -f "GeoJSON" $(dir $@)temp.json $<
-	cat $(dir $@)temp.json | ./clip-at-dateline > $@
+	cat $(dir $@)temp.json | ./clip-at-dateline | ./normalize-district > $@
 	rm $(dir $@)temp.json
 
 geojson/us-10m: geojson/counties.geojson geojson/districts.geojson geojson/states.geojson

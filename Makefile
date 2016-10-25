@@ -626,6 +626,17 @@ topo/us-congress-10m-ungrouped.json: shp/us/congress-ungrouped.shp
 		--id-property=+GEOID \
 		-- districts=$<
 
+topo/us-albers-counties-10m-ungrouped.json: shp/us/counties.shp
+	mkdir -p $(dir $@)
+	node_modules/.bin/topojson \
+		-o $@ \
+		--no-pre-quantization \
+		--post-quantization=1e6 \
+		--projection='d3.geo.albersUsa().scale(1280).translate([480, 300])' \
+		--simplify=0.5 \
+		--id-property=FIPS \
+		-- $<
+
 topo/us-counties-10m-ungrouped.json: shp/us/counties.shp
 	mkdir -p $(dir $@)
 	node_modules/.bin/topojson \

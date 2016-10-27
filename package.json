@@ -16,7 +16,9 @@
     "url": "http://github.com/mbostock/us-atlas.git"
   },
   "devDependencies": {
+    "JSONStream": "^1.2.1",
     "shapefile": "0.1",
+    "through2": "^2.0.1",
     "topojson": ">=1.6.2 <2"
   },
   "optionalDependencies": {

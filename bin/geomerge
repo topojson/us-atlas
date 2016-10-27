@@ -2,36 +2,48 @@
 
 var fs = require("fs");
 
-var collection = JSON.parse(fs.readFileSync("/dev/stdin")),
-    spliceIndex = +process.argv[2],
-    targetGeometry = {type: "", coordinates: []};
+var JSONStream = require("JSONStream");
+var through2 = require("through2");
+var targetGeometry = {type: "", coordinates: []};
 
-collection.features.forEach(function(feature, i) {
-  if (i === spliceIndex) return;
-  var sourceGeometry = feature.geometry;
-  if (!sourceGeometry) return; // ignore null
+var startWritten = false;
 
-  var sourceType = sourceGeometry.type,
+process.stdin
+  .pipe(JSONStream.parse('features.*.geometry'))
+  .pipe(through2.obj(function (sourceGeometry, enc, callback) {
+    if (!sourceGeometry) return; // ignore null
+
+    var sourceType = sourceGeometry.type,
       targetType = /^Multi/.test(sourceType) ? sourceType : "Multi" + sourceType;
 
-  if (!targetGeometry.type) targetGeometry.type = targetType;
-  else if (targetGeometry.type !== targetType) throw new Error("incompatible types: " + targetType + " != " + targetGeometry.type);
+    if (!startWritten) {
+      process.stdout.write('{"type":"' + targetType + '","coordinates":');
+      startWritten = true;
+    }
 
-  switch (sourceType) {
-    case "MultiPolygon":
-    case "MultiLineString": {
-      sourceGeometry.coordinates.forEach(function(coordinates) { targetGeometry.coordinates.push(coordinates); });
-      break;
-    }
-    case "Polygon":
-    case "LineString": {
-      targetGeometry.coordinates.push(sourceGeometry.coordinates);
-      break;
-    }
-    default: {
-      throw new Error("unsupported type: " + g.type);
-    }
-  }
-});
+    if (!targetGeometry.type) targetGeometry.type = targetType;
+    else if (targetGeometry.type !== targetType) throw new Error("incompatible types: " + targetType + " != " + targetGeometry.type);
 
-console.log(JSON.stringify(targetGeometry));
+    switch (sourceType) {
+      case "MultiPolygon":
+      case "MultiLineString": {
+        sourceGeometry.coordinates.forEach(function(coordinates) { this.push(coordinates); }.bind(this));
+        callback();
+        break;
+      }
+      case "Polygon":
+      case "LineString": {
+        this.push(sourceGeometry.coordinates);
+        callback();
+        break;
+      }
+      default: {
+        callback(new Error("unsupported type: " + g.type));
+      }
+    }
+  }))
+  .pipe(JSONStream.stringify("[", ",", "]"))
+  .pipe(process.stdout)
+  .on("end", function () {
+    process.stdout.write("}");
+  });

@@ -1,0 +1,55 @@
+#!/bin/bash
+
+mkdir -p build us ca
+
+# https://nationalmap.gov/small_scale/atlasftp.html
+curl -z build/countyp010g.tar.gz -o build/countyp010g.tar.gz 'https://prd-tnm.s3.amazonaws.com/StagedProducts/Small-scale/data/Boundaries/countyp010g.shp_nt00934.tar.gz'
+curl -z build/statesp010g.tar.gz -o build/statesp010g.tar.gz 'https://prd-tnm.s3.amazonaws.com/StagedProducts/Small-scale/data/Boundaries/statesp010g.shp_nt00938.tar.gz'
+
+# https://www.census.gov/cgi-bin/geo/shapefiles/index.php
+curl -z build/tl_2016_06_tract.zip -o build/tl_2016_06_tract.zip 'https://www2.census.gov/geo/tiger/TIGER2016/TRACT/tl_2016_06_tract.zip'
+
+tar -vxzm -C build -f build/countyp010g.tar.gz
+tar -vxzm -C build -f build/statesp010g.tar.gz
+unzip -od build tl_2016_06_tract.zip
+chmod a-x build/*
+
+geo2topo -q 1e5 -n counties=<( \
+    shp2json -n build/countyp010g.shp \
+      | ndjson-filter '!/000$/.test(d.properties.ADMIN_FIPS)' \
+      | ndjson-map '(d.id = d.properties.ADMIN_FIPS, delete d.properties, d)' \
+      | geostitch -n \
+      | geoproject -n 'd3.geoAlbersUsa().scale(1280).translate([480, 300])') \
+  | toposimplify -f -p 0.3 \
+  | topomerge states=counties -k 'd.id.slice(0, 2)' \
+  | topomerge nation=states \
+  > us/counties-10m.json
+
+shp2json -n build/countyp010g.shp \
+  | ndjson-map 'd.properties' \
+  | ndjson-filter '!/000$/.test(d.ADMIN_FIPS)' \
+  | ndjson-sort 'a.ADMIN_FIPS.localeCompare(b.ADMIN_FIPS)' \
+  | json2tsv -n \
+  > us/counties.tsv
+
+shp2json -n build/statesp010g.shp \
+  | ndjson-map 'd.properties' \
+  | ndjson-sort 'a.STATE_FIPS.localeCompare(b.STATE_FIPS)' \
+  | json2tsv -n \
+  > us/states.tsv
+
+geo2topo -q 1e5 tracts=<( \
+    shp2json -n build/tl_2016_06_tract.shp \
+      | ndjson-filter '!/000$/.test(d.properties.ADMIN_FIPS)' \
+      | ndjson-map '(d.id = d.properties.GEOID, delete d.properties, d)' \
+      | geostitch -n \
+      | ndjson-reduce 'p.features.push(d), p' '({type:"FeatureCollection",features:[]})' \
+      | geoproject 'd3.geoAlbers().parallels([34, 40.5]).rotate([120, 0]).fitExtent([[10, 10], [950, 1090]], d)') \
+  | toposimplify -f -p 0.3 \
+  > ca/tracts-500k.json
+
+shp2json -n build/tl_2016_06_tract.shp \
+  | ndjson-map 'd.properties' \
+  | ndjson-sort 'a.GEOID.localeCompare(b.GEOID)' \
+  | json2tsv -n \
+  > ca/tracts.tsv

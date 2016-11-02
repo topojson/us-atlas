@@ -2,6 +2,7 @@
   "name": "us-atlas",
   "version": "0.0.4",
   "description": "Roll your own TopoJSON from the National Atlas one million-scale dataset.",
+  "license": "BSD-3-Clause",
   "keywords": [
     "topojson",
     "geojson",
@@ -9,18 +10,22 @@
   ],
   "author": {
     "name": "Mike Bostock",
-    "url": "http://bost.ocks.org/mike"
+    "url": "https://bost.ocks.org/mike"
   },
   "repository": {
     "type": "git",
-    "url": "http://github.com/mbostock/us-atlas.git"
+    "url": "https://github.com/topojson/us-atlas.git"
   },
-  "devDependencies": {
-    "shapefile": "0.1",
-    "topojson": ">=1.6.2 <2"
+  "scripts": {
+    "prepublish": "bash prepublish"
   },
-  "optionalDependencies": {
-    "canvas": "1",
-    "d3": "3"
+  "dependencies": {
+    "d3-dsv": "1",
+    "d3-geo-projection": "^1.1.0",
+    "ndjson-cli": "0.0",
+    "shapefile": "0.5",
+    "topojson": "2",
+    "topojson-client": "2",
+    "topojson-simplify": "2"
   }
 }

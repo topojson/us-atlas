@@ -1,75 +1,78 @@
 # U.S. Atlas TopoJSON
 
-This repository provides a convenient mechanism for generating TopoJSON files from the [National Atlas](http://nationalatlas.gov/) one million-scale dataset and [U.S. Census Bureau](http://www.census.gov/geo/maps-data/data/tiger-line.html) shapefiles.
+This repository provides a convenient mechanism for generating TopoJSON files from the [National Map](http://nationalmap.gov/) one million-scale dataset and [U.S. Census Bureau](http://www.census.gov/geo/maps-data/data/tiger-line.html) shapefiles.
 
-## Visual Index
+## File Reference
 
-<table>
-<tr height="162">
-<td>airports<br><a href="https://f.cloud.github.com/assets/230541/522339/2f82b0b6-c024-11e2-81fb-509cbfff1bd8.png"><img src="https://f.cloud.github.com/assets/230541/522353/3e214fc4-c024-11e2-8dbd-0bd0e7169666.png"></a></td>
-<td>amtrak<br><a href="https://f.cloud.github.com/assets/230541/522340/2f966d72-c024-11e2-8fbf-7f20cb6ff983.png"><img src="https://f.cloud.github.com/assets/230541/522354/3e1fcc4e-c024-11e2-81b3-0d7aaae7660b.png"></a></td>
-<td>cbsa<br><a href="https://f.cloud.github.com/assets/230541/958762/8ded1b0e-046d-11e3-8efa-9a06a9634981.png"><img src="https://f.cloud.github.com/assets/230541/958763/91afec44-046d-11e3-9723-df164204244d.png"></a></td>
-<td>coast<br><a href="https://f.cloud.github.com/assets/230541/522341/2faab084-c024-11e2-9ee3-8e9449e8ffda.png"><img src="https://f.cloud.github.com/assets/230541/522352/3e1f4224-c024-11e2-8a39-94a103196358.png"></a></td>
-</tr>
-<tr height="162">
-<td>congress<br><a href="https://f.cloud.github.com/assets/230541/522393/db95f2d2-c029-11e2-88e8-713345e1693d.png"><img src="https://f.cloud.github.com/assets/230541/522392/db84d61e-c029-11e2-9aa3-451ec17f5e92.png"></a></td>
-<td>counties<br><a href="https://f.cloud.github.com/assets/230541/522342/2fac7d10-c024-11e2-9971-131003e483a5.png"><img src="https://f.cloud.github.com/assets/230541/522357/3e22601c-c024-11e2-9348-c786552f8f6e.png"></a></td>
-<td>ferries<br><a href="https://f.cloud.github.com/assets/230541/522343/2fabb434-c024-11e2-93bd-57d9676abaa4.png"><img src="https://f.cloud.github.com/assets/230541/522355/3e21b496-c024-11e2-97fc-4a7431d7223d.png"></a></td>
-<td>nation<br><a href="https://f.cloud.github.com/assets/230541/522344/2fab4e9a-c024-11e2-912c-4c092876f150.png"><img src="https://f.cloud.github.com/assets/230541/522356/3e203de6-c024-11e2-83cd-355e3924d4bf.png"></a></td>
-</tr>
-<tr height="162">
-<td>ports<br><a href="https://f.cloud.github.com/assets/230541/522345/2fac0de4-c024-11e2-81da-8cc438ca13c2.png"><img src="https://f.cloud.github.com/assets/230541/522359/3e32a97c-c024-11e2-8589-1c2b7a0ae02b.png"></a></td>
-<td>railroads<br><a href="https://f.cloud.github.com/assets/230541/522346/2faeab80-c024-11e2-9b3f-47abb264646b.png"><img src="https://f.cloud.github.com/assets/230541/522360/3e357832-c024-11e2-974e-a2a58108eee0.png"></a></td>
-<td>roads<br><a href="https://f.cloud.github.com/assets/230541/522347/2fbe814a-c024-11e2-9d3f-be2d2419cb98.png"><img src="https://f.cloud.github.com/assets/230541/522362/3e349520-c024-11e2-906a-e36d5d5aced1.png"></a></td>
-<td>states<br><a href="https://f.cloud.github.com/assets/230541/522348/2fbf8b80-c024-11e2-853a-d01f0705b2dd.png"><img src="https://f.cloud.github.com/assets/230541/522358/3e33b86c-c024-11e2-99fd-fac212d3f701.png"></a></td>
-</tr>
-<tr height="162">
-<td>streams<br><a href="https://f.cloud.github.com/assets/230541/522349/2fbe8eb0-c024-11e2-896a-2421f130a161.png"><img src="https://f.cloud.github.com/assets/230541/522363/3e3476ee-c024-11e2-85b9-326f8c590839.png"></a></td>
-<td>waterbodies<br><a href="https://f.cloud.github.com/assets/230541/522350/2fbf9bac-c024-11e2-9976-cebc748ce4dc.png"><img src="https://f.cloud.github.com/assets/230541/522361/3e360018-c024-11e2-9ffa-669673f84139.png"></a></td>
-<td>zipcodes<br><a href="https://f.cloud.github.com/assets/230541/522351/2fc1e966-c024-11e2-873d-872814ed0cad.png"><img src="https://f.cloud.github.com/assets/230541/522364/3e4658e6-c024-11e2-82a6-708af316bf84.png"></a></td>
-</tr>
-</table>
+us/counties-10m.json
 
-## Installing via Homebrew
+us/counties.tsv
 
-Before you can make any TopoJSON files, you’ll need to install Node.js and GDAL. Here’s how to do that using [Homebrew](http://mxcl.github.com/homebrew/) on Mac OS X:
+us/states.tsv
 
-```bash
-brew install node gdal
-```
+ca/tracts-500k.json
 
-Then, clone this repository and install its dependencies:
+ca/tracts.tsv
 
-```bash
-git clone https://github.com/mbostock/us-atlas.git
-cd us-atlas
-npm install
-```
+## FIPS Code Reference
 
-If the installation of [node-canvas](https://github.com/learnboost/node-canvas) fails for you, try
-
-```bash
-PKG_CONFIG_PATH=/opt/X11/lib/pkgconfig npm install canvas
-```
-
-Or, add this to your ~/.bash_profile:
-
-```bash
-export PKG_CONFIG_PATH="/opt/X11/lib/pkgconfig"
-```
-
-If you want to install this software using an alternate method see the website for [TopoJSON](https://github.com/mbostock/topojson). I also recommend reading my tutorial, [Let’s Make a Map](http://bost.ocks.org/mike/map/).
-
-## Make Targets
-
-Once you have everything installed, you can make various targets defined in the Makefile.
-
-<b>topo/us-10m.json</b>
-
-The U.S. county, state and nation boundaries simplified at 1:10,000,000 scale.
-
-<b>topo/us-congress-10m.json</b>
-
-The districts of the 113th U.S. Congress simplified at 1:10,000,000 scale.
-
-There are partial targets defined for a large number of other boundary areas and geographic features. However, you’ll have to figure these out on your own for now. Sorry!
+| al | 01 |
+| ak | 02 |
+| az | 04 |
+| ar | 05 |
+| ca | 06 |
+| co | 08 |
+| ct | 09 |
+| de | 10 |
+| dc | 11 |
+| fl | 12 |
+| ga | 13 |
+| hi | 15 |
+| id | 16 |
+| il | 17 |
+| in | 18 |
+| ia | 19 |
+| ks | 20 |
+| ky | 21 |
+| la | 22 |
+| me | 23 |
+| md | 24 |
+| ma | 25 |
+| mi | 26 |
+| mn | 27 |
+| ms | 28 |
+| mo | 29 |
+| mt | 30 |
+| ne | 31 |
+| nv | 32 |
+| nh | 33 |
+| nj | 34 |
+| nm | 35 |
+| ny | 36 |
+| nc | 37 |
+| nd | 38 |
+| oh | 39 |
+| ok | 40 |
+| or | 41 |
+| pa | 42 |
+| ri | 44 |
+| sc | 45 |
+| sd | 46 |
+| tn | 47 |
+| tx | 48 |
+| ut | 49 |
+| vt | 50 |
+| va | 51 |
+| wa | 53 |
+| wv | 54 |
+| wi | 55 |
+| wy | 56 |
+| as | 60 |
+| fm | 64 |
+| gu | 66 |
+| mh | 68 |
+| mp | 69 |
+| pw | 70 |
+| pr | 72 |
+| um | 74 |
+| vi | 78 |

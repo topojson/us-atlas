@@ -16,6 +16,8 @@ ca/tracts.tsv
 
 ## FIPS Code Reference
 
+| Abbreviation | Code |
+|----|----|
 | al | 01 |
 | ak | 02 |
 | az | 04 |

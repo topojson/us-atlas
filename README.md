@@ -30,7 +30,8 @@ d3.json("https://d3js.org/us-10m.v1.json", function(error, us) {
 In Node (using [d3-geo](https://github.com/d3/d3-geo) and [node-canvas](https://github.com/Automattic/node-canvas)), [bl.ocks.org/885fffe88d72b2a25c090e0bbbef382f](https://bl.ocks.org/mbostock/885fffe88d72b2a25c090e0bbbef382f):
 
 ```js
-var d3 = require("d3-geo"),
+var fs = require("fs"),
+    d3 = require("d3-geo"),
     topojson = require("topojson-client"),
     Canvas = require("canvas"),
     us = require("./node_modules/us-atlas/us/10m.json");
@@ -43,7 +44,7 @@ context.beginPath();
 path(topojson.mesh(us));
 context.stroke();
 
-canvas.toBuffer();
+canvas.pngStream().pipe(fs.createWriteStream("preview.png"));
 ```
 
 ## File Reference
@@ -54,12 +55,12 @@ A [TopoJSON *topology*](https://github.com/topojson/topojson-specification/blob/
 
 <a href="#us/10m.json_counties" name="us/10m.json_counties">#</a> *us*.objects.<b>counties</b>
 
-<img src="https://raw.githubusercontent.com/topojson/us-atlas/master/img/us-counties.png" width="480" height="300">
+<img src="https://raw.githubusercontent.com/topojson/us-atlas/master/img/us-10m-counties.png" width="480" height="300">
 
 <a href="#us/10m.json_states" name="us/10m.json_states">#</a> *us*.objects.<b>states</b>
 
-<img src="https://raw.githubusercontent.com/topojson/us-atlas/master/img/us-states.png" width="480" height="300">
+<img src="https://raw.githubusercontent.com/topojson/us-atlas/master/img/us-10m-states.png" width="480" height="300">
 
 <a href="#us/10m.json_nation" name="us/10m.json_nation">#</a> *us*.objects.<b>nation</b>
 
-<img src="https://raw.githubusercontent.com/topojson/us-atlas/master/img/us-nation.png" width="480" height="300">
+<img src="https://raw.githubusercontent.com/topojson/us-atlas/master/img/us-10m-nation.png" width="480" height="300">

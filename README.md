@@ -1,26 +1,10 @@
 # U.S. Atlas TopoJSON
 
-This repository provides a convenient mechanism for generating TopoJSON files from the [National Map](http://nationalmap.gov/) one million-scale dataset and [U.S. Census Bureau](http://www.census.gov/geo/maps-data/data/tiger-line.html) shapefiles.
+This repository provides a convenient mechanism for generating TopoJSON files from the [National Map](http://nationalmap.gov/) [one million-scale dataset](https://nationalmap.gov/small_scale/atlasftp.html) and [U.S. Census Bureau](http://www.census.gov/geo/maps-data/data/tiger-line.html) [shapefiles](https://www.census.gov/cgi-bin/geo/shapefiles/index.php).
 
 ## File Reference
 
-<a href="#us/counties-10m.json" name="us/counties-10m.json">#</a> <b>us/counties-10m.json</b> [<>](https://unpkg.com/us-atlas/us/counties-10m.json "Source")
-
-…
-
-<a href="#us/counties.tsv" name="us/counties.tsv">#</a> <b>us/counties.tsv</b> [<>](https://unpkg.com/us-atlas/us/counties.tsv "Source")
-
-…
-
-<a href="#us/states.tsv" name="us/states.tsv">#</a> <b>us/states.tsv</b> [<>](https://unpkg.com/us-atlas/us/states.tsv "Source")
-
-…
-
-<a href="#ca/tracts-500k.json" name="ca/tracts-500k.json">#</a> <b>ca/tracts-500k.json</b> [<>](https://unpkg.com/us-atlas/ca/tracts-500k.json "Source")
-
-…
-
-<a href="#ca/tracts.tsv" name="ca/tracts.tsv">#</a> <b>ca/tracts.tsv</b> [<>](https://unpkg.com/us-atlas/ca/tracts.tsv "Source")
+<a href="#us/10m.json" name="us/10m.json">#</a> <b>us/10m.json</b> [<>](https://unpkg.com/us-atlas/us/10m.json "Source")
 
 …
 

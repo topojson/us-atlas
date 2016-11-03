@@ -17,7 +17,8 @@
     "url": "https://github.com/topojson/us-atlas.git"
   },
   "scripts": {
-    "prepublish": "bash prepublish"
+    "prepublish": "bash prepublish",
+    "postpublish": "git push && git push --tags"
   },
   "devDependencies": {
     "d3-dsv": "1",

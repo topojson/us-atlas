@@ -2,11 +2,65 @@
 
 This repository provides a convenient mechanism for generating TopoJSON files from the [National Map](http://nationalmap.gov/) [one million-scale dataset](https://nationalmap.gov/small_scale/atlasftp.html) and [U.S. Census Bureau](http://www.census.gov/geo/maps-data/data/tiger-line.html) [shapefiles](https://www.census.gov/cgi-bin/geo/shapefiles/index.php).
 
+### Usage
+
+In a browser (using [d3-geo](https://github.com/d3/d3-geo) and Canvas):
+
+```html
+<!DOCTYPE html>
+<canvas width="960" height="600"></canvas>
+<script src="https://d3js.org/d3.v4.min.js"></script>
+<script src="https://d3js.org/topojson.v2.min.js"></script>
+<script>
+
+var context = d3.select("canvas").node().getContext("2d"),
+    path = d3.geoPath().context(context);
+
+d3.json("https://unpkg.com/us-atlas/us/10m.json", function(error, us) {
+  if (error) throw error;
+
+  context.beginPath();
+  path(topojson.mesh(us));
+  context.stroke();
+});
+
+</script>
+```
+http://bl.ocks.org/mbostock/3783604/95bfee4b7bfe13b068bfbb9b939c9162ed11cc3a
+
+In Node ([RunKit](https://runkit.com/home), using [node-canvas](https://github.com/Automattic/node-canvas)):
+
+```js
+var d3 = require("d3-geo"),
+    topojson = require("topojson-client"),
+    Canvas = require("canvas"),
+    us = require("us-atlas/us/10m.json");
+
+var canvas = new Canvas(960, 600),
+    context = canvas.getContext("2d"),
+    path = d3.geoPath().context(context);
+
+context.beginPath();
+path(topojson.mesh(us));
+context.stroke();
+
+canvas.toBuffer();
+```
+https://runkit.com/mbostock/rasterizing-us-atlas
+
 ## File Reference
 
 <a href="#us/10m.json" name="us/10m.json">#</a> <b>us/10m.json</b> [<>](https://unpkg.com/us-atlas/us/10m.json "Source")
 
-Derived from the Census Bureau’s [cartographic county boundaries](http://www.census.gov/geo/maps-data/data/cbf/cbf_counties.html), 2015 edition.
+A [TopoJSON *topology*](https://github.com/topojson/topojson-specification/blob/master/README.md) containing three geometry collections: <i>counties</i>, <i>states</i>, and <i>nation</i>.
+
+<img src="https://raw.githubusercontent.com/topojson/us-atlas/master/img/us-counties.png" width="480" height="300">
+
+<img src="https://raw.githubusercontent.com/topojson/us-atlas/master/img/us-states.png" width="480" height="300">
+
+<img src="https://raw.githubusercontent.com/topojson/us-atlas/master/img/us-nation.png" width="480" height="300">
+
+This topology is derived from the Census Bureau’s [cartographic county boundaries](http://www.census.gov/geo/maps-data/data/cbf/cbf_counties.html), 2015 edition, and projected using [d3.geoAlbersUsa](https://github.com/d3/d3-geo/blob/master/README.md#geoAlbersUsa) to fit a 960×600 viewport.
 
 ## FIPS Code Reference
 

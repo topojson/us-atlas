@@ -26,7 +26,7 @@ d3.json("https://unpkg.com/us-atlas/us/10m.json", function(error, us) {
 
 </script>
 ```
-http://bl.ocks.org/mbostock/3783604/95bfee4b7bfe13b068bfbb9b939c9162ed11cc3a
+http://bl.ocks.org/mbostock/3783604
 
 In Node ([RunKit](https://runkit.com/home), using [node-canvas](https://github.com/Automattic/node-canvas)):
 

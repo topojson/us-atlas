@@ -50,7 +50,7 @@ canvas.toBuffer();
 
 <a href="#us/10m.json" name="us/10m.json">#</a> <b>us/10m.json</b> [<>](https://d3js.org/us-10m.v0.json "Source")
 
-A [TopoJSON *topology*](https://github.com/topojson/topojson-specification/blob/master/README.md) containing three geometry collections: <i>counties</i>, <i>states</i>, and <i>nation</i>. The geometry is projected using [d3.geoAlbersUsa](https://github.com/d3/d3-geo/blob/master/README.md#geoAlbersUsa) to fit a 960×600 viewport. This topology is derived from the Census Bureau’s [cartographic county boundaries](http://www.census.gov/geo/maps-data/data/cbf/cbf_counties.html), 2015 edition; the state boundaries are computed by [merging](https://github.com/topojson/topojson-client/blob/master/README.md#merge) counties, and the nation boundary is computed by merging states, ensuring a consistent topology.
+A [TopoJSON *topology*](https://github.com/topojson/topojson-specification/blob/master/README.md#21-topology-objects) containing three geometry collections: <i>counties</i>, <i>states</i>, and <i>nation</i>. The geometry is quantized, projected using [d3.geoAlbersUsa](https://github.com/d3/d3-geo/blob/master/README.md#geoAlbersUsa) to fit a 960×600 viewport, and simplified. This topology is derived from the Census Bureau’s [cartographic county boundaries](http://www.census.gov/geo/maps-data/data/cbf/cbf_counties.html), 2015 edition. The state boundaries are computed by [merging](https://github.com/topojson/topojson-client/blob/master/README.md#merge) counties, and the nation boundary is computed by merging states, ensuring a consistent topology.
 
 <a href="#us/10m.json_counties" name="us/10m.json_counties">#</a> *us*.objects.<b>counties</b>
 

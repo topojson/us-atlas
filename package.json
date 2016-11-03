@@ -18,7 +18,7 @@
   },
   "scripts": {
     "prepublish": "bash prepublish",
-    "postpublish": "git push && git push --tags"
+    "postpublish": "VERSION=`node -e 'console.log(require(\"./package.json\").version)'`; git push && git push --tags && cd ../d3.github.com && git pull && cp ../us-atlas/us/10m.json us-10m.v0.json && git add us-10m.v0.json && git commit -m \"us-atlas ${VERSION}\" && git push && cd -"
   },
   "devDependencies": {
     "d3-dsv": "1",

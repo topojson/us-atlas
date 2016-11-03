@@ -26,22 +26,22 @@ us_10m() {
 
 ca_tracts_shp() {
   mkdir -p build
-  curl -z build/tl_2016_06_tract.zip -o build/tl_2016_06_tract.zip 'https://www2.census.gov/geo/tiger/TIGER2016/TRACT/tl_2016_06_tract.zip'
-  unzip -od build tl_2016_06_tract.zip
-  chmod a-x build/tl_2016_06_tract.*
+  curl -z build/cb_2015_06_tract_500k.zip -o build/cb_2015_06_tract_500k.zip 'http://www2.census.gov/geo/tiger/GENZ2015/shp/cb_2015_06_tract_500k.zip'
+  unzip -od build build/cb_2015_06_tract_500k.zip
+  chmod a-x build/cb_2015_06_tract_500k.*
 }
 
 ca_tracts_500k() {
   ca_tracts_shp
   mkdir -p ca
   geo2topo -q 1e5 tracts=<( \
-      shp2json -n build/tl_2016_06_tract.shp \
+      shp2json -n build/cb_2015_06_tract_500k.shp \
         | ndjson-filter '!/000$/.test(d.properties.ADMIN_FIPS)' \
         | ndjson-map '(d.id = d.properties.GEOID, delete d.properties, d)' \
         | geostitch -n \
         | ndjson-reduce 'p.features.push(d), p' '({type:"FeatureCollection",features:[]})' \
         | geoproject 'd3.geoAlbers().parallels([34, 40.5]).rotate([120, 0]).fitExtent([[10, 10], [950, 1090]], d)') \
-    | toposimplify -f -p 0.3 \
+    | toposimplify -f -p 0.5 \
     > ca/tracts-500k.json
 }
 

@@ -1,6 +1,6 @@
 # U.S. Atlas TopoJSON
 
-This repository provides a convenient mechanism for generating TopoJSON files from the [National Map](http://nationalmap.gov/) [one million-scale dataset](https://nationalmap.gov/small_scale/atlasftp.html) and [U.S. Census Bureau](http://www.census.gov/geo/maps-data/data/tiger-line.html) [shapefiles](https://www.census.gov/cgi-bin/geo/shapefiles/index.php).
+This repository provides a convenient mechanism for generating TopoJSON files from the [Census Bureau’s](http://www.census.gov/) [cartographic boundary shapefiles](https://www.census.gov/geo/maps-data/data/tiger-cart-boundary.html).
 
 ### Usage
 

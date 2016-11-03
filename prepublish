@@ -16,7 +16,6 @@ us_10m() {
       shp2json -n build/cb_2015_us_county_5m.shp \
         | ndjson-filter '!/000$/.test(d.properties.GEOID)' \
         | ndjson-map '(d.id = d.properties.GEOID, delete d.properties, d)' \
-        | geostitch -n \
         | geoproject -n 'd3.geoAlbersUsa().scale(1280).translate([480, 300])') \
     | toposimplify -f -p 0.5 \
     | topomerge states=counties -k 'd.id.slice(0, 2)' \
@@ -38,7 +37,6 @@ ca_tracts_500k() {
       shp2json -n build/cb_2015_06_tract_500k.shp \
         | ndjson-filter '!/000$/.test(d.properties.ADMIN_FIPS)' \
         | ndjson-map '(d.id = d.properties.GEOID, delete d.properties, d)' \
-        | geostitch -n \
         | ndjson-reduce 'p.features.push(d), p' '({type:"FeatureCollection",features:[]})' \
         | geoproject 'd3.geoAlbers().parallels([34, 40.5]).rotate([120, 0]).fitExtent([[10, 10], [950, 1090]], d)') \
     | toposimplify -f -p 0.5 \

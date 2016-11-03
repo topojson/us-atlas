@@ -4,7 +4,7 @@ This repository provides a convenient mechanism for generating TopoJSON files fr
 
 ### Usage
 
-In a browser (using [d3-geo](https://github.com/d3/d3-geo) and Canvas):
+In a browser (using [d3-geo](https://github.com/d3/d3-geo) and Canvas), [bl.ocks.org/3783604](https://bl.ocks.org/mbostock/3783604):
 
 ```html
 <!DOCTYPE html>
@@ -26,15 +26,14 @@ d3.json("https://unpkg.com/us-atlas/us/10m.json", function(error, us) {
 
 </script>
 ```
-http://bl.ocks.org/mbostock/3783604
 
-In Node ([RunKit](https://runkit.com/home), using [node-canvas](https://github.com/Automattic/node-canvas)):
+In Node (using [d3-geo](https://github.com/d3/d3-geo) and [node-canvas](https://github.com/Automattic/node-canvas)), [bl.ocks.org/885fffe88d72b2a25c090e0bbbef382f](https://bl.ocks.org/mbostock/885fffe88d72b2a25c090e0bbbef382f):
 
 ```js
 var d3 = require("d3-geo"),
     topojson = require("topojson-client"),
     Canvas = require("canvas"),
-    us = require("us-atlas/us/10m.json");
+    us = require("./node_modules/us-atlas/us/10m.json");
 
 var canvas = new Canvas(960, 600),
     context = canvas.getContext("2d"),
@@ -46,7 +45,6 @@ context.stroke();
 
 canvas.toBuffer();
 ```
-https://runkit.com/mbostock/rasterizing-us-atlas
 
 ## File Reference
 

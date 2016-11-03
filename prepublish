@@ -4,21 +4,21 @@ rm -rvf us al ak az ar ca co ct de dc fl ga hi id il in ia ks ky la me md ma mi 
 
 us_counties_shp() {
   mkdir -p build
-  curl -z build/countyp010g.tar.gz -o build/countyp010g.tar.gz 'https://prd-tnm.s3.amazonaws.com/StagedProducts/Small-scale/data/Boundaries/countyp010g.shp_nt00934.tar.gz'
-  tar -vxzm -C build -f build/countyp010g.tar.gz
-  chmod a-x build/countyp010g.*
+  curl -z build/cb_2015_us_county_5m.zip -o build/cb_2015_us_county_5m.zip 'http://www2.census.gov/geo/tiger/GENZ2015/shp/cb_2015_us_county_5m.zip'
+  unzip -od build build/cb_2015_us_county_5m.zip
+  chmod a-x build/cb_2015_us_county_5m.*
 }
 
 us_10m() {
   us_counties_shp
   mkdir -p us
   geo2topo -q 1e5 -n counties=<( \
-      shp2json -n build/countyp010g.shp \
-        | ndjson-filter '!/000$/.test(d.properties.ADMIN_FIPS)' \
-        | ndjson-map '(d.id = d.properties.ADMIN_FIPS, delete d.properties, d)' \
+      shp2json -n build/cb_2015_us_county_5m.shp \
+        | ndjson-filter '!/000$/.test(d.properties.GEOID)' \
+        | ndjson-map '(d.id = d.properties.GEOID, delete d.properties, d)' \
         | geostitch -n \
         | geoproject -n 'd3.geoAlbersUsa().scale(1280).translate([480, 300])') \
-    | toposimplify -f -p 0.3 \
+    | toposimplify -f -p 0.5 \
     | topomerge states=counties -k 'd.id.slice(0, 2)' \
     | topomerge nation=states \
     > us/10m.json

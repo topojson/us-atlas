@@ -6,7 +6,7 @@ This repository provides a convenient mechanism for generating TopoJSON files fr
 
 <a href="#us/10m.json" name="us/10m.json">#</a> <b>us/10m.json</b> [<>](https://unpkg.com/us-atlas/us/10m.json "Source")
 
-…
+Derived from the Census Bureau’s [cartographic county boundaries](http://www.census.gov/geo/maps-data/data/cbf/cbf_counties.html), 2015 edition.
 
 ## FIPS Code Reference
 

@@ -19,13 +19,13 @@
   "scripts": {
     "prepublish": "bash prepublish"
   },
-  "dependencies": {
+  "devDependencies": {
     "d3-dsv": "1",
     "d3-geo-projection": "^1.1.0",
-    "ndjson-cli": "0.0",
+    "ndjson-cli": "^0.0.5",
     "shapefile": "0.5",
-    "topojson": "2",
+    "topojson": "next",
     "topojson-client": "2",
-    "topojson-simplify": "2"
+    "topojson-simplify": "0.1"
   }
 }

@@ -1,6 +1,6 @@
 #!/bin/bash
 
-rm -rvf us/*
+rm -rvf us
 mkdir -p build us
 
 if [ ! -f build/cb_2015_us_county_5m.shp ]; then

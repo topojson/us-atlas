@@ -4,6 +4,38 @@ This repository provides a convenient mechanism for generating TopoJSON files fr
 
 ### Usage
 
+In a browser (using [d3-geo](https://github.com/d3/d3-geo) and SVG), [bl.ocks.org/4108203](https://bl.ocks.org/mbostock/4108203):
+
+```html
+<!DOCTYPE html>
+<svg width="960" height="600" fill="none" stroke="#000" stroke-linejoin="round" stroke-linecap="round"></svg>
+<script src="https://d3js.org/d3.v4.min.js"></script>
+<script src="https://d3js.org/topojson.v2.min.js"></script>
+<script>
+
+var svg = d3.select("svg");
+
+var path = d3.geoPath();
+
+d3.json("https://d3js.org/us-10m.v1.json", function(error, us) {
+  if (error) throw error;
+
+  svg.append("path")
+      .attr("stroke", "#aaa")
+      .attr("stroke-width", 0.5)
+      .attr("d", path(topojson.mesh(us, us.objects.counties, function(a, b) { return a !== b && (a.id / 1000 | 0) === (b.id / 1000 | 0); })));
+
+  svg.append("path")
+      .attr("stroke-width", 0.5)
+      .attr("d", path(topojson.mesh(us, us.objects.states, function(a, b) { return a !== b; })));
+
+  svg.append("path")
+      .attr("d", path(topojson.feature(us, us.objects.nation)));
+});
+
+</script>
+```
+
 In a browser (using [d3-geo](https://github.com/d3/d3-geo) and Canvas), [bl.ocks.org/3783604](https://bl.ocks.org/mbostock/3783604):
 
 ```html

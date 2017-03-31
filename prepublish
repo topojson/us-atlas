@@ -14,7 +14,7 @@ geo2topo -q 1e5 -n counties=<( \
       | ndjson-filter '!/000$/.test(d.properties.GEOID)' \
       | ndjson-map '(d.id = d.properties.GEOID, delete d.properties, d)' \
       | geoproject -n 'd3.geoAlbersUsa().scale(1280).translate([480, 300])') \
-  | toposimplify -f -p 0.5 \
+  | toposimplify -f -p 0.25 \
   | topomerge states=counties -k 'd.id.slice(0, 2)' \
   | topomerge nation=states \
   > us/10m.json

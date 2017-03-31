@@ -10,14 +10,14 @@ In a browser (using [d3-geo](https://github.com/d3/d3-geo) and SVG), [bl.ocks.or
 <!DOCTYPE html>
 <svg width="960" height="600" fill="none" stroke="#000" stroke-linejoin="round" stroke-linecap="round"></svg>
 <script src="https://d3js.org/d3.v4.min.js"></script>
-<script src="https://d3js.org/topojson.v2.min.js"></script>
+<script src="https://unpkg.com/topojson-client@3"></script>
 <script>
 
 var svg = d3.select("svg");
 
 var path = d3.geoPath();
 
-d3.json("https://d3js.org/us-10m.v1.json", function(error, us) {
+d3.json("https://unpkg.com/us-atlas@1/us/10m.json", function(error, us) {
   if (error) throw error;
 
   svg.append("path")
@@ -42,13 +42,13 @@ In a browser (using [d3-geo](https://github.com/d3/d3-geo) and Canvas), [bl.ocks
 <!DOCTYPE html>
 <canvas width="960" height="600"></canvas>
 <script src="https://d3js.org/d3.v4.min.js"></script>
-<script src="https://d3js.org/topojson.v2.min.js"></script>
+<script src="https://unpkg.com/topojson-client@3"></script>
 <script>
 
 var context = d3.select("canvas").node().getContext("2d"),
     path = d3.geoPath().context(context);
 
-d3.json("https://d3js.org/us-10m.v1.json", function(error, us) {
+d3.json("https://unpkg.com/us-atlas@1/us/10m.json", function(error, us) {
   if (error) throw error;
 
   context.beginPath();
@@ -81,7 +81,7 @@ canvas.pngStream().pipe(fs.createWriteStream("preview.png"));
 
 ## File Reference
 
-<a href="#us/10m.json" name="us/10m.json">#</a> <b>us/10m.json</b> [<>](https://d3js.org/us-10m.v1.json "Source")
+<a href="#us/10m.json" name="us/10m.json">#</a> <b>us/10m.json</b> [<>](https://unpkg.com/us-atlas@1/us/10m.json "Source")
 
 A [TopoJSON *topology*](https://github.com/topojson/topojson-specification/blob/master/README.md#21-topology-objects) containing three geometry collections: <i>counties</i>, <i>states</i>, and <i>nation</i>. The geometry is quantized, projected using [d3.geoAlbersUsa](https://github.com/d3/d3-geo/blob/master/README.md#geoAlbersUsa) to fit a 960×600 viewport, and simplified. This topology is derived from the Census Bureau’s [cartographic county boundaries](http://www.census.gov/geo/maps-data/data/cbf/cbf_counties.html), 2015 edition. The state boundaries are computed by [merging](https://github.com/topojson/topojson-client/blob/master/README.md#merge) counties, and the nation boundary is computed by merging states, ensuring a consistent topology.
 

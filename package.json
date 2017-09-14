@@ -17,7 +17,7 @@
     "url": "https://github.com/topojson/us-atlas.git"
   },
   "scripts": {
-    "prepublish": "bash prepublish",
+    "prepare": "bash prepublish",
     "postpublish": "git push && git push --tags && cd ../d3.github.com && git pull && cp ../us-atlas/us/10m.json us-10m.v1.json && git add us-10m.v1.json && git commit -m \"us-atlas ${npm_package_version}\" && git push && cd -"
   },
   "devDependencies": {

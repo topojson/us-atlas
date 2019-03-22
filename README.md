@@ -4,11 +4,14 @@ This repository provides a convenient mechanism for generating TopoJSON files fr
 
 ### Usage
 
-In a browser, using [d3-geo](https://github.com/d3/d3-geo) and SVG: https://observablehq.com/@d3/u-s-map
+In a browser, using [d3-geo](https://github.com/d3/d3-geo) and SVG:
+https://observablehq.com/@d3/u-s-map
 
-In a browser, using [d3-geo](https://github.com/d3/d3-geo) and Canvas: https://observablehq.com/@d3/u-s-map-canvas
+In a browser, using [d3-geo](https://github.com/d3/d3-geo) and Canvas:
+https://observablehq.com/@d3/u-s-map-canvas
 
-In Node, using [d3-geo](https://github.com/d3/d3-geo) and [node-canvas](https://github.com/Automattic/node-canvas): https://bl.ocks.org/mbostock/885fffe88d72b2a25c090e0bbbef382f
+In Node, using [d3-geo](https://github.com/d3/d3-geo) and [node-canvas](https://github.com/Automattic/node-canvas):
+https://bl.ocks.org/mbostock/885fffe88d72b2a25c090e0bbbef382f
 
 ## File Reference
 

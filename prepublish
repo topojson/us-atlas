@@ -25,3 +25,12 @@ geo2topo -q 1e5 -n counties=<( \
   | topomerge nation=states \
   | node ./properties.js \
   > us/10m.json
+
+geo2topo -q 1e5 -n states=<( \
+    shp2json -n build/cb_2017_us_state_5m.shp \
+      | ndjson-filter '!/000$/.test(d.properties.GEOID)' \
+      | ndjson-map '(d.id = d.properties.GEOID, d.properties = {name: d.properties.NAME}, d)' \
+      | geoproject -n 'd3.geoAlbersUsa().scale(1280).translate([480, 300])') \
+  | toposimplify -f -p 0.25 \
+  | topomerge nation=states \
+  > us/states-10m.json

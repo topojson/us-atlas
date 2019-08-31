@@ -2,7 +2,7 @@
   "name": "us-atlas",
   "version": "3.0.0",
   "description": "Pre-built TopoJSON from the U.S. Census Bureau.",
-  "license": "BSD-3-Clause",
+  "license": "ISC",
   "keywords": [
     "topojson",
     "geojson",

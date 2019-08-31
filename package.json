@@ -16,17 +16,20 @@
     "type": "git",
     "url": "https://github.com/topojson/us-atlas.git"
   },
+  "files": [
+    "*-10m.json"
+  ],
   "scripts": {
-    "prepare": "bash prepublish",
-    "postpublish": "git push && git push --tags && cd ../../d3/d3.github.com && git pull && cp ../../topojson/us-atlas/us/10m.json us-10m.v${npm_package_version%%.*}.json && git add us-10m.v${npm_package_version%%.*}.json && git commit -m \"us-atlas ${npm_package_version}\" && git push && cd -"
+    "prepublishOnly": "bash prepublish",
+    "postpublish": "git push && git push --tags"
   },
   "devDependencies": {
     "d3-dsv": "^1.0.3",
     "d3-geo-projection": "^2.0.0",
     "ndjson-cli": "^0.3.0",
     "shapefile": "^0.6.1",
-    "topojson-server": "^3.0.0",
     "topojson-client": "^3.0.0",
+    "topojson-server": "^3.0.0",
     "topojson-simplify": "^3.0.0"
   }
 }

@@ -49,10 +49,10 @@ A [TopoJSON file](https://github.com/topojson/topojson-specification/blob/master
 
 <img src="https://raw.githubusercontent.com/topojson/us-atlas/master/img/counties.png" width="480" height="300">
 
-Each county has two properties:
+Each county has two fields:
 
-* *id* - the five-digit [FIPS county code](https://en.wikipedia.org/wiki/FIPS_county_code), such as `"06069"`
-* *name* - the county name, such as `"San Benito"`
+* *county*.id - the five-digit [FIPS county code](https://en.wikipedia.org/wiki/FIPS_county_code), such as `"06069"`
+* *county*.properties.name - the county name, such as `"San Benito"`
 
 The first two digits of the county FIPS code is the state FIPS code.
 
@@ -60,16 +60,16 @@ The first two digits of the county FIPS code is the state FIPS code.
 
 <img src="https://raw.githubusercontent.com/topojson/us-atlas/master/img/states.png" width="480" height="300">
 
-Each state has two properties:
+Each state has two fields:
 
-* *id* - the two-digit [FIPS state code](https://en.wikipedia.org/wiki/Federal_Information_Processing_Standard_state_code), such as `"06"`
-* *name* - the state name, such as `"California"`
+* *state*.id - the two-digit [FIPS state code](https://en.wikipedia.org/wiki/Federal_Information_Processing_Standard_state_code), such as `"06"`
+* *state*.properties.name - the state name, such as `"California"`
 
 <a href="#nation" name="nation">#</a> *us*.objects.<b>nation</b>
 
 <img src="https://raw.githubusercontent.com/topojson/us-atlas/master/img/nation.png" width="480" height="300">
 
-The nation has two properties:
+The nation has two fields:
 
-* *id* - the string `"US"`
-* *name* - the string `"United States"`
+* *nation*.id - the string `"US"`
+* *nation*.properties.name - the string `"United States"`

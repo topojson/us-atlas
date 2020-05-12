@@ -48,6 +48,13 @@ d3-geo@^1.10.0:
   dependencies:
     d3-array "1"
 
+d3-geo@^1.12.0:
+  version "1.12.0"
+  resolved "https://registry.yarnpkg.com/d3-geo/-/d3-geo-1.12.0.tgz#58ddbdf4d9db5f199db69d1b7c93dca6454a6f24"
+  integrity sha512-NalZVW+6/SpbKcnl+BCO67m8gX+nGeJdo6oGL9H6BRUGUL1e+AtPcP4vE4TwCQ/gl8y5KE7QvBzrLn+HsKIl+w==
+  dependencies:
+    d3-array "1"
+
 file-source@0.6:
   version "0.6.1"
   resolved "https://registry.yarnpkg.com/file-source/-/file-source-0.6.1.tgz#ae189d4993766b865a77f83adcf9b9a504cd37dc"

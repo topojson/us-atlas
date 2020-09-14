@@ -1,6 +1,6 @@
 # U.S. Atlas TopoJSON
 
-This repository provides a convenient redistribution of the [Census Bureau’s](http://www.census.gov/) [cartographic boundary shapefiles](https://www.census.gov/geo/maps-data/data/tiger-cart-boundary.html), 2017 edition as TopoJSON. For earlier editions, see [past releases](https://github.com/topojson/us-atlas/releases). Both projected and unprojected geometries are included. The projection used by these files is:
+This repository provides a convenient redistribution of the [Census Bureau’s](http://www.census.gov/) [cartographic boundary shapefiles](https://www.census.gov/geographies/mapping-files/time-series/geo/carto-boundary-file.html), 2017 edition as TopoJSON. For earlier editions, see [past releases](https://github.com/topojson/us-atlas/releases). Both projected and unprojected geometries are included. The projection used by these files is:
 
 ```js
 d3.geoAlbersUsa().scale(1300).translate([487.5, 305])

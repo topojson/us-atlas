@@ -22,7 +22,7 @@ if [ ! -f build/cb_2017_us_nation_5m.shp ]; then
 fi
 
 geo2topo -q 1e5 -n counties=<( \
-    shp2json -n build/cb_2017_us_county_5m.shp \
+    shp2json --encoding utf-8 -n build/cb_2017_us_county_5m.shp \
       | ndjson-filter '!/000$/.test(d.properties.GEOID)' \
       | ndjson-map '(d.id = d.properties.GEOID, delete d.properties, d)') \
   | toposimplify -f -s 1e-7 \
@@ -32,7 +32,7 @@ geo2topo -q 1e5 -n counties=<( \
   > counties-10m.json
 
 geo2topo -q 1e5 -n counties=<( \
-    shp2json -n build/cb_2017_us_county_5m.shp \
+    shp2json --encoding utf-8 -n build/cb_2017_us_county_5m.shp \
       | ndjson-filter '!/000$/.test(d.properties.GEOID)' \
       | ndjson-map '(d.id = d.properties.GEOID, delete d.properties, d)' \
       | geoproject -n 'd3.geoAlbersUsa().scale(1300).translate([487.5, 305])') \
@@ -43,7 +43,7 @@ geo2topo -q 1e5 -n counties=<( \
   > counties-albers-10m.json
 
 geo2topo -q 1e5 -n states=<( \
-    shp2json -n build/cb_2017_us_state_5m.shp \
+    shp2json --encoding utf-8 -n build/cb_2017_us_state_5m.shp \
       | ndjson-filter '!/000$/.test(d.properties.GEOID)' \
       | ndjson-map '(d.id = d.properties.GEOID, d.properties = {name: d.properties.NAME}, d)') \
   | toposimplify -f -s 1e-7 \
@@ -51,7 +51,7 @@ geo2topo -q 1e5 -n states=<( \
   > states-10m.json
 
 geo2topo -q 1e5 -n states=<( \
-    shp2json -n build/cb_2017_us_state_5m.shp \
+    shp2json --encoding utf-8 -n build/cb_2017_us_state_5m.shp \
       | ndjson-filter '!/000$/.test(d.properties.GEOID)' \
       | ndjson-map '(d.id = d.properties.GEOID, d.properties = {name: d.properties.NAME}, d)' \
       | geoproject -n 'd3.geoAlbersUsa().scale(1300).translate([487.5, 305])') \
@@ -60,14 +60,14 @@ geo2topo -q 1e5 -n states=<( \
   > states-albers-10m.json
 
 geo2topo -q 1e5 -n nation=<( \
-    shp2json -n build/cb_2017_us_nation_5m.shp \
+    shp2json --encoding utf-8 -n build/cb_2017_us_nation_5m.shp \
       | ndjson-filter '!/000$/.test(d.properties.GEOID)' \
       | ndjson-map '(d.id = d.properties.GEOID, d.properties = {name: d.properties.NAME}, d)') \
   | toposimplify -f -s 1e-7 \
   > nation-10m.json
 
 geo2topo -q 1e5 -n nation=<( \
-    shp2json -n build/cb_2017_us_nation_5m.shp \
+    shp2json --encoding utf-8 -n build/cb_2017_us_nation_5m.shp \
       | ndjson-filter '!/000$/.test(d.properties.GEOID)' \
       | ndjson-map '(d.id = d.properties.GEOID, d.properties = {name: d.properties.NAME}, d)' \
       | geoproject -n 'd3.geoAlbersUsa().scale(1300).translate([487.5, 305])') \

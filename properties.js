@@ -2,8 +2,8 @@ const shapefile = require("shapefile");
 
 Promise.all([
   parseInput(),
-  shapefile.read("build/cb_2017_us_county_5m.shp"),
-  shapefile.read("build/cb_2017_us_state_5m.shp")
+  shapefile.read("build/cb_2017_us_county_5m.shp", undefined, {encoding: "utf-8"}),
+  shapefile.read("build/cb_2017_us_state_5m.shp", undefined, {encoding: "utf-8"})
 ]).then(output);
 
 function parseInput() {

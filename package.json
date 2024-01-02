@@ -30,6 +30,7 @@
     "shapefile": "^0.6.1",
     "topojson-client": "^3.0.0",
     "topojson-server": "^3.0.0",
-    "topojson-simplify": "^3.0.0"
+    "topojson-simplify": "^3.0.0",
+    "dotenv": "^16.3.1"
   }
 }

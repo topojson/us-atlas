@@ -1,10 +1,13 @@
 const shapefile = require("shapefile");
+require("dotenv").config();
+
+const year = process.env.YEAR;
 
 Promise.all([
   parseInput(),
-  shapefile.read("build/cb_2017_us_county_5m.shp", undefined, {encoding: "utf-8"}),
-  shapefile.read("build/cb_2017_us_state_5m.shp", undefined, {encoding: "utf-8"})
-]).then(output);
+  shapefile.read(`${__dirname}/build/cb_${year}_us_county_5m.shp`, undefined, {encoding: "utf-8"}),
+  shapefile.read(`${__dirname}/build/cb_${year}_us_state_5m.shp`, undefined, {encoding: "utf-8"})
+]).then(output).catch(console.error);
 
 function parseInput() {
   return new Promise((resolve, reject) => {

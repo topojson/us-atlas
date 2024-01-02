@@ -8,7 +8,7 @@ d3.geoAlbersUsa().scale(1300).translate([487.5, 305])
 
 This is a conic equal-area Albers projection suitable for choropleth maps and designed to fit a 975×610 viewport.
 
-### Usage
+## Usage
 
 In a browser, using [d3-geo](https://github.com/d3/d3-geo) and SVG:<br>
 https://observablehq.com/@d3/u-s-map
